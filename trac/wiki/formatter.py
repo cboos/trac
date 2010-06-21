@@ -1043,12 +1043,7 @@ class Formatter(object):
     # Code blocks
 
     def parse_processor_args(self, line):
-        args = WikiParser._processor_param_re.split(line)
-        del args[::3]
-        keys = [str(k) for k in args[::2]] # used as keyword parameters
-        values = [(v and v[0] in '"\'' and [v[1:-1]] or [v])[0]
-                  for v in args[1::2]]
-        return dict(zip(keys, values))
+        return WikiParser(self.env)._parse_processor_args(line)
 
     def handle_code_block(self, line, startmatch=None):
         if startmatch:
@@ -1152,7 +1147,7 @@ class Formatter(object):
         if replacement:
             return _markup_to_unicode(replacement)
 
-    _normalize_re = re.compile(r'[\v\f]', re.UNICODE)
+    _normalize_re = WikiParser._normalize_re
 
     def reset(self, source, out=None):
         if isinstance(source, basestring):
@@ -1304,32 +1299,56 @@ class OneLinerFormatter(Formatter):
             args = fullmatch.group('macroargs')
             return '[[%s%s]]' % (name,  args and '(...)' or '')
 
-    def format(self, text, out, shorten=False):
-        if not text:
+    def format(self, wikidoc, out, shorten=False):
+        if not wikidoc:
             return
-        text = self.reset(text, out)
+        if isinstance(wikidoc, basestring):
+            lines = wikidoc
+            wikidoc = None
+        else:
+            lines = wikidoc.lines
+        text = self.reset(lines, out)
 
         # Simplify code blocks
         in_code_block = 0
         processor = None
         buf = StringIO()
-        for line in text.strip().splitlines():
-            if WikiParser.ENDBLOCK not in line and \
-                   WikiParser._startblock_re.match(line):
-                in_code_block += 1
-            elif line.strip() == WikiParser.ENDBLOCK:
-                if in_code_block:
-                    in_code_block -= 1
-                    if in_code_block == 0:
-                        if processor != 'comment':
-                            buf.write(' [...]' + os.linesep)
-                        processor = None
-            elif in_code_block:
-                if not processor:
-                    if line.startswith('#!'):
-                        processor = line[2:].strip()
-            else:
-                buf.write(line + os.linesep)
+        lastblock = 0
+        if wikidoc: # ** wikiparser **
+            # -- FIXME: compatibility with 0.12 tests
+            if wikidoc.lines:
+                wikidoc.lines[0] = wikidoc.lines[0].lstrip()
+                wikidoc.lines[-1] = wikidoc.lines[-1].rstrip()
+                if not wikidoc.lines[0]:
+                    lastblock = 1
+            # --
+            for block in wikidoc.blocks:
+                if block.i > lastblock:
+                    for i in xrange(lastblock, block.i):
+                        buf.write(wikidoc.lines[i] + os.linesep)
+                if block.name != 'comment':
+                    buf.write(' [...]' + os.linesep)
+                lastblock = block.end + 1
+            for i in xrange(lastblock, len(wikidoc.lines)):
+                buf.write(wikidoc.lines[i] + os.linesep)
+        else: # 0.12 compatibility
+            for line in text.strip().splitlines():
+                if WikiParser.ENDBLOCK not in line and \
+                       WikiParser._startblock_re.match(line):
+                    in_code_block += 1
+                elif line.strip() == WikiParser.ENDBLOCK:
+                    if in_code_block:
+                        in_code_block -= 1
+                        if in_code_block == 0:
+                            if processor != 'comment':
+                                buf.write(' [...]' + os.linesep)
+                            processor = None
+                elif in_code_block:
+                    if not processor:
+                        if line.startswith('#!'):
+                            processor = line[2:].strip()
+                else:
+                    buf.write(line + os.linesep)
         result = buf.getvalue()[:-len(os.linesep)]
 
         if shorten:
@@ -1448,7 +1467,7 @@ class HtmlFormatter(object):
         """
         # FIXME: compatibility code only for now
         out = StringIO()
-        Formatter(self.env, self.context).format(self.wikidom, out,
+        Formatter(self.env, self.context).format(self.wikidom.lines, out,
                                                  escape_newlines)
         return Markup(out.getvalue())
 

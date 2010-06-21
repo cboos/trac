@@ -198,7 +198,7 @@ class WikiTestCase(unittest.TestCase):
 
 class OneLinerTestCase(WikiTestCase):
     def formatter(self):
-        return InlineHtmlFormatter(self.env, self.context, self.input)
+        return InlineHtmlFormatter(self.env, self.context, self.input.strip())
 
 class EscapeNewLinesTestCase(WikiTestCase):
     generate_opts = {'escape_newlines': True}
