@@ -23,9 +23,42 @@ import re
 from trac.core import *
 from trac.notification import EMAIL_LOOKALIKE_PATTERN
 
+class WikiNode(object):
+    key = 'W'
+    def __init__(self, *args):
+        self.i, self.j = args
+        
+    def __repr__(self):
+        return '%s%d' % (self.key, self.j)
+
+class WikiBlock(WikiNode):
+    key = 'B'
+    def __init__(self, i, j, name=None, args=None):
+        WikiNode.__init__(self, i, j)
+        self.end = i
+        self.name = name
+        self.args = args
+        self.blocks = []
+
+    def __repr__(self):
+        return '%s%d<%d-%d>%s' % (self.key, self.j, self.i, self.end,
+                                  self.name or '')
+
+class WikiDocument(object):
+    def __init__(self, text):
+        self.lines = re.sub(WikiParser._normalize_re, ' ', text).splitlines()
+        self.verbatim = []
+        self.blocks = []
+        self.root = WikiNode(-1, -1)
+
+    
 class WikiParser(Component):
     """Wiki text parser."""
 
+    # Pre-processing
+    
+    _normalize_re = re.compile(r'[\v\f]', re.UNICODE) # Python 2.7 compat
+    
     # Some constants used for clarifying the Wiki regexps:
 
     BOLDITALIC_TOKEN = "'''''"
@@ -69,7 +102,7 @@ class WikiParser(Component):
 
     # Sequence of regexps used by the engine
 
-    _pre_rules = [
+    _markup_patterns = [
         # Font styles
         r"(?P<bolditalic>!?%s)" % BOLDITALIC_TOKEN,
         r"(?P<bold>!?%s)" % BOLD_TOKEN,
@@ -80,15 +113,20 @@ class WikiParser(Component):
         r"(?P<strike>!?%s)" % STRIKE_TOKEN,
         r"(?P<subscript>!?%s)" % SUBSCRIPT_TOKEN,
         r"(?P<superscript>!?%s)" % SUPERSCRIPT_TOKEN,
+        ]
+    
+    _verbatim_patterns = [
         r"(?P<inlinecode>!?%s(?P<inline>.*?)%s)" \
         % (STARTBLOCK_TOKEN, ENDBLOCK_TOKEN),
         r"(?P<inlinecode2>!?%s(?P<inline2>.*?)%s)" \
         % (INLINE_TOKEN, INLINE_TOKEN),
         ]
 
+    _pre_rules = _markup_patterns + _verbatim_patterns
+
     # Rules provided by IWikiSyntaxProviders will be inserted here
 
-    _post_rules = [
+    _inline_patterns = [
         # WikiCreole line breaks
         r"(?P<linebreak_wc>!?\\\\)",
         # e-mails
@@ -113,6 +151,9 @@ class WikiParser(Component):
         r"(?P<anchor>!?\[%s\])" % _set_anchor(XML_NAME, r'\s+'),
         # [[macro]] call or [[WikiCreole link]]
         (r"(?P<macrolink>!?\[\[(?:[^]]|][^]])+\]\])"),
+        ]
+
+    _structural_patterns = [
         # == heading == #hanchor
         r"(?P<heading>^\s*(?P<hdepth>={1,6})\s(?P<htext>.*?)"
         r"(?P<hanchor>#%s)?\s*$)" % XML_NAME,
@@ -135,6 +176,8 @@ class WikiParser(Component):
         r"(?P<table_cell>!?(?P<table_cell_sep>=?(?:\|\|)+=?)"
         r"(?P<table_cell_last>\s*\\?$)?)",
         ]
+
+    _post_rules = _inline_patterns + _structural_patterns
 
     _processor_re = re.compile(PROCESSOR)
     _startblock_re = re.compile(r"\s*%s(?:%s|\s*$)" %
@@ -166,10 +209,13 @@ class WikiParser(Component):
     _set_anchor_wc_re = re.compile(_set_anchor(XML_NAME, r'\|\s*') + r'$')
 
     def __init__(self):
+        # 0.12 compatibility
         self._compiled_rules = None
         self._link_resolvers = None
         self._helper_patterns = None
         self._external_handlers = None
+
+    # 0.12 compatibility
 
     @property
     def rules(self):
@@ -218,10 +264,55 @@ class WikiParser(Component):
             self._link_resolvers = resolvers
         return self._link_resolvers
 
+    # ** wikiparser **
+
     def parse(self, wikitext):
         """Parse `wikitext` and produce a WikiDOM tree."""
-        # obviously still some work to do here ;)
-        return wikitext
+        wikidoc = WikiDocument(wikitext)
+        self._vertical_parsing(wikidoc)
+        return wikidoc
+
+    def _vertical_parsing(self, wikidoc):
+        self._detect_nested_blocks(wikidoc)
+
+    def _detect_nested_blocks(self, wikidoc):
+        """Each line can eventually start or end a block"""
+        ancestors = [wikidoc]
+        n = len(wikidoc.lines)
+        for i in xrange(0, n):
+            line = wikidoc.lines[i]
+            if self.ENDBLOCK in line:
+                if line.strip() == self.ENDBLOCK:
+                    if len(ancestors) == 1: # stray }}}, edit mistake?
+                        continue
+                    block = ancestors.pop()
+                    block.end = i
+                    if not block.name and block.end - block.i > 1:
+                        #   .i    {{{
+                        # .i + 1  #!name
+                        #         [...]
+                        #  .end   }}}
+                        line = wikidoc.lines[block.i + 1]
+                        match = self._processor_re.match(line)
+                        if match:
+                            block.name = match.group(2)
+                            block.args = parse_processor_args(
+                                line[match.end():])
+            else:
+                match = self._startblock_re.match(line)
+                if match:
+                    name = args = match.group(2)
+                    if name:
+                        # {{{#!name [arg1=val1 arg2="second value" ...]
+                        args = parse_processor_args(line)
+                    j = line.find(WikiParser.STARTBLOCK)
+                    block = WikiBlock(i, j, name, args)
+                    ancestors[-1].blocks.append(block)
+                    ancestors.append(block)
+        # close unfinished blocks
+        while len(ancestors) > 1:
+            block = ancestors.pop()
+            block.end = n
 
 
 def parse_processor_args(processor_args):
