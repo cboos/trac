@@ -46,10 +46,11 @@ class WikiBlock(WikiNode):
 
 class WikiDocument(object):
     def __init__(self, text):
-        self.lines = re.sub(WikiParser._normalize_re, ' ', text).splitlines()
+        text = re.sub(WikiParser._normalize_re, ' ', text or '')
+        self.lines = text.splitlines()
         self.verbatim = []
         self.blocks = []
-        self.root = WikiNode(-1, -1)
+        self.root = WikiNode(0, 0)
 
     
 class WikiParser(Component):
