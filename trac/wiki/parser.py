@@ -52,6 +52,8 @@ class WikiDocument(object):
         self.blocks = []
         self.root = WikiNode(0, 0)
 
+    def __repr__(self):
+        return 'WikiDocument (%d lines)' % len(self.lines)
     
 class WikiParser(Component):
     """Wiki text parser."""
