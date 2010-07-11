@@ -32,20 +32,20 @@ class WikiNode(object):
     doesn't store text by itself, but rather refers to the text stored in
     the document.
     All nodes have a starting point in the document, line `i` and column `j`.
-    
+
     A node may have children `nodes`.
     """
     nodes = None # no subnodes
     end = None   # not multiline
     k = -1       # eol
-    
+
     def __init__(self, *args):
         self.i, self.j = args
-        
+
 class WikiBlock(WikiNode):
     """A block correspond to a multiline section delimited by a pair of
     matching triple curly braces (`{{{` ... `}}}`).
-    
+
     The content of a block starts at line `start` and ends before line `end`:
 
            .j          B3<1-5>
@@ -60,7 +60,7 @@ class WikiBlock(WikiNode):
         ................................
 
     or                 B3<1+-5>diff
-    
+
         ................................
         ...{{{.......................... .i
         ...#!diff.......................
@@ -70,13 +70,13 @@ class WikiBlock(WikiNode):
         ................................
 
     If a block processor is specified (e.g. `#!diff`), `name` contains its
-    name (here 'diff') and `args` is a dict with the given keyword arguments.
+    name (here 'diff') and `params` is a dict with the processor's parameters.
     """
-    def __init__(self, i, j, name=None, args=None):
+    def __init__(self, i, j, name=None, params=None):
         WikiNode.__init__(self, i, j)
         self.start = self.end = i + 1
         self.name = name
-        self.args = args
+        self.params = params
         self.nodes = []
 
     def __repr__(self):
@@ -105,9 +105,9 @@ class WikiParser(Component):
     """Wiki text parser."""
 
     # Pre-processing
-    
+
     _normalize_re = re.compile(r'[\v\f]', re.UNICODE) # Python 2.7 compat
-    
+
     # Some constants used for clarifying the Wiki regexps:
 
     BOLDITALIC_TOKEN = "'''''"
@@ -169,7 +169,7 @@ class WikiParser(Component):
         r"(?P<subscript>!?%s)" % SUBSCRIPT_TOKEN,
         r"(?P<superscript>!?%s)" % SUPERSCRIPT_TOKEN,
         ]
-    
+
     _verbatim_patterns = [
         r"(?P<inlinecode>!?%s(?P<inline>.*?)%s)" \
         % (STARTBLOCK_TOKEN, ENDBLOCK_TOKEN),
@@ -233,7 +233,7 @@ class WikiParser(Component):
         r"(?P<table_cell>!?(?P<table_cell_sep>=?(?:\|\|)+=?)"
         r"(?P<table_cell_last>\s*\\?$)?)",
         ]
-        
+
     _post_rules = _inline_patterns + _structural_patterns
 
     _anchor_re = re.compile(r'[^\w:.-]+', re.UNICODE)
@@ -330,7 +330,7 @@ class WikiParser(Component):
         self._detect_nested_blocks(wikidoc, block)
 
     # -- WikiBlocks
-    
+
     _processor_re = re.compile(PROCESSOR)
 
     _startblock_re = re.compile(r'\s*%(startblock)s(?:%(processor)s|\s*$)' % {
@@ -354,7 +354,7 @@ class WikiParser(Component):
              ..................................... scope.end
              .....................................
            n                                       wikidoc.end
-       
+
         """
         ancestors = [scope]
         for i in xrange(scope.start, scope.end):
@@ -379,17 +379,17 @@ class WikiParser(Component):
                         if match:
                             block.start += 1
                             block.name = match.group(2)
-                            block.args = parse_processor_args(
+                            block.params = parse_processor_params(
                                 startline[match.end():])
             else:
                 match = self._startblock_re.match(line)
                 if match:
-                    name = args = match.group(2)
+                    name = params = match.group(2)
                     if name:
                         # {{{#!name [arg1=val1 arg2="second value" ...]
-                        args = parse_processor_args(line[match.end():])
+                        params = parse_processor_params(line[match.end():])
                     j = line.find(WikiParser.STARTBLOCK) + scope.j
-                    block = WikiBlock(i, j, name, args)
+                    block = WikiBlock(i, j, name, params)
                     ancestors[-1].nodes.append(block)
                     ancestors.append(block)
         # close unfinished blocks
@@ -401,20 +401,20 @@ class WikiParser(Component):
     # Note: not using re.UNICODE here as pnames are used as keyword arguments
 
 
-def parse_processor_args(processor_args):
-    """Parse a string containing parameter assignments,
+def parse_processor_params(processor_params):
+    """Parse a string containing parameter assignements,
     and return the corresponding dictionary.
 
     Isolated keywords are interpreted as `bool` flags, `False` if the keyword
     is prefixed with "-", `True` otherwise.
 
-    >>> parse_processor_args('ab="c de -f gh=ij" -')
+    >>> parse_processor_params('ab="c de -f gh=ij" -')
     {'ab': 'c de -f gh=ij'}
 
-    >>> sorted(parse_processor_args('ab=c de -f gh="ij klmn"').items())
+    >>> sorted(parse_processor_params('ab=c de -f gh="ij klmn"').items())
     [('ab', 'c'), ('de', True), ('f', False), ('gh', 'ij klmn')]
     """
-    args = WikiParser._processor_param_re.split(processor_args)
+    args = WikiParser._processor_param_re.split(processor_params)
     keys = [str(k) for k in args[1::3]] # used as keyword parameters
     values = [v[1:-1] if v[:1] + v[-1:] in ('""', "''") else v
               for v in args[2::3]]
@@ -429,3 +429,5 @@ def parse_processor_args(processor_args):
                     keys.append(str(flag))
                     values.append(True)
     return dict(zip(keys, values))
+
+parse_processor_args = parse_processor_params # 1.0 compat

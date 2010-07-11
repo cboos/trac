@@ -371,6 +371,28 @@ class WikiDocumentBlocks(unittest.TestCase):
         w2 = self.detect_nested_blocks(scopedblock, scope)
         self.assertEquals(repr(w2.nodes), '[B2<2-7>div]')
         self.assertEquals(self.blocktree(w2), 'B1<1-7> {B2<2-7>div}')
+
+    def test_wikiprocessor_name_and_params(self):
+        w = self.detect_nested_blocks(multilevelblock)
+        table = w.nodes[0].nodes[0]
+        self.assertEquals(table.name, 'table')
+        self.assertEquals(table.params, {'style': 'border-width: 0'})
+        th = table.nodes[0]
+        self.assertEquals(th.name, 'th')
+        self.assertEquals(len(th.params), 2)
+        self.assertEquals(th.params['rowspan'], '2')
+        self.assertEquals(th.params['style'], 'border-width: 2px')
+        td = table.nodes[2]
+        self.assertEquals(td.name, 'td')
+        div1 = td.nodes[0]
+        self.assertEquals(div1.name, 'div')
+        self.assertEquals(div1.params, {
+            'style': 'white-space:pre; font-family: monospace'})
+        div2 = td.nodes[1]
+        self.assertEquals(div2.name, 'div')
+        self.assertEquals(len(div2.params), 2)
+        self.assertEquals(div2.params['class'], 'important')
+        self.assertEquals(div2.params['style'], 'border: 4px outset red')
         
 
 
