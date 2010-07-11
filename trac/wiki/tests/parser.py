@@ -173,6 +173,17 @@ More toplevel content
  - a toplevel list (2)
 """
 
+scopedblock = """\
+At global level, there's no block.
+> But starting from here, we'll see one:
+> {{{#!div
+> Nested:
+> > {{{
+> > ...
+> > }}}
+> }}}
+"""
+
 class WikiDocumentInvariants(unittest.TestCase):
     def test_empty(self):
         w = WikiDocument(empty)
@@ -207,12 +218,12 @@ class WikiDocumentBlocks(unittest.TestCase):
     def setUp(self):
         self.env = EnvironmentStub()
 
-    def detect_nested_blocks(self, source, block=None):
+    def detect_nested_blocks(self, source, scope=None):
         wikidoc = WikiDocument(source)
-        if not block:
-            block = wikidoc
-        WikiParser(self.env)._detect_nested_blocks(wikidoc, block)
-        return block
+        if not scope:
+            scope = wikidoc
+        WikiParser(self.env)._detect_nested_blocks(wikidoc, scope)
+        return scope
 
     def blocktree(self, wb):
         if wb.nodes:
@@ -339,9 +350,9 @@ class WikiDocumentBlocks(unittest.TestCase):
                           )
 
     def test_multilevelblock_subblock(self):
-        subblock = WikiBlock(44, 4)
-        subblock.end = 44 + 16
-        w = self.detect_nested_blocks(multilevelblock, subblock)
+        scope = WikiBlock(44, 4)
+        scope.end = 44 + 16
+        w = self.detect_nested_blocks(multilevelblock, scope)
         self.assertEquals(repr(w.nodes),
                           '[B5<46-48>, B7<50-52>, B4<56-58>]')
         self.assertEquals(self.blocktree(w),
@@ -351,6 +362,16 @@ class WikiDocumentBlocks(unittest.TestCase):
                           + 'B4<56-58>'
                           '}'
                           )
+
+    def test_scopedblock(self):
+        w = self.detect_nested_blocks(scopedblock)
+        self.assertEquals(repr(w.nodes), '[]')
+        scope = WikiBlock(1, 1)
+        scope.end = 7
+        w2 = self.detect_nested_blocks(scopedblock, scope)
+        self.assertEquals(repr(w2.nodes), '[B2<2-7>div]')
+        self.assertEquals(self.blocktree(w2), 'B1<1-7> {B2<2-7>div}')
+        
 
 
 def suite():
