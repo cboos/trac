@@ -1374,7 +1374,7 @@ class OneLinerFormatter(Formatter):
                 if not wikidoc.lines[0]:
                     lastblock = 1
             # --
-            for block in wikidoc.blocks:
+            for block in wikidoc.nodes:
                 if block.i > lastblock:
                     for i in xrange(lastblock, block.i):
                         buf.write(wikidoc.lines[i] + os.linesep)

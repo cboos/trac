@@ -176,40 +176,30 @@ More toplevel content
 class WikiDocumentInvariants(unittest.TestCase):
     def test_empty(self):
         w = WikiDocument(empty)
-        self.assertEquals(w.root.key, 'W')
-        self.assertEquals(repr(w.root), 'W0')
         self.assertEquals(w.lines, [])
-        self.assertEquals(w.blocks, [])
+        self.assertEquals(w.nodes, [])
 
     def test_None(self):
         w = WikiDocument(None)
-        self.assertEquals(w.root.key, 'W')
-        self.assertEquals(repr(w.root), 'W0')
         self.assertEquals(w.lines, [])
-        self.assertEquals(w.blocks, [])
+        self.assertEquals(w.nodes, [])
 
     def test_singleline(self):
         w = WikiDocument(singleline)
-        self.assertEquals(w.root.key, 'W')
-        self.assertEquals(repr(w.root), 'W0')
         self.assertEquals(len(w.lines), 1)
-        self.assertEquals(w.blocks, [])
+        self.assertEquals(w.nodes, [])
 
     def test_multiline(self):
         w = WikiDocument(multiline)
-        self.assertEquals(w.root.key, 'W')
-        self.assertEquals(repr(w.root), 'W0')
         self.assertEquals(len(w.lines), 4)
-        self.assertEquals(w.blocks, [])
+        self.assertEquals(w.nodes, [])
 
     # ...
     
     def test_multilevelblock(self):
         w = WikiDocument(multilevelblock)
-        self.assertEquals(w.root.key, 'W')
-        self.assertEquals(repr(w.root), 'W0')
         self.assertEquals(len(w.lines), 74)
-        self.assertEquals(w.blocks, [])
+        self.assertEquals(w.nodes, [])
 
 
 
@@ -217,53 +207,55 @@ class WikiDocumentBlocks(unittest.TestCase):
     def setUp(self):
         self.env = EnvironmentStub()
 
-    def detect_nested_blocks(self, source):
+    def detect_nested_blocks(self, source, block=None):
         wikidoc = WikiDocument(source)
-        WikiParser(self.env)._detect_nested_blocks(wikidoc)
-        return wikidoc
+        if not block:
+            block = wikidoc
+        WikiParser(self.env)._detect_nested_blocks(wikidoc, block)
+        return block
 
     def blocktree(self, wb):
-        if wb.blocks:
+        if wb.nodes:
             return '%s {%s}' % \
-                   (repr(wb), ', '.join(self.blocktree(b) for b in wb.blocks))
+                   (repr(wb), ', '.join(self.blocktree(b) for b in wb.nodes))
         else:
             return repr(wb)
 
     def test_empty(self):
         w = self.detect_nested_blocks(empty)
-        self.assertEquals(w.blocks, [])
+        self.assertEquals(w.nodes, [])
         self.assertEquals(self.blocktree(w), 'WikiDocument (0 lines)')
 
     def test_None(self):
         w = self.detect_nested_blocks(None)
-        self.assertEquals(w.blocks, [])
+        self.assertEquals(w.nodes, [])
         self.assertEquals(self.blocktree(w), 'WikiDocument (0 lines)')
 
     def test_singleline(self):
         w = self.detect_nested_blocks(singleline)
-        self.assertEquals(w.blocks, [])
+        self.assertEquals(w.nodes, [])
         self.assertEquals(self.blocktree(w), 'WikiDocument (1 lines)')
 
     def test_multiline(self):
         w = self.detect_nested_blocks(multiline)
-        self.assertEquals(w.blocks, [])
+        self.assertEquals(w.nodes, [])
         self.assertEquals(self.blocktree(w), 'WikiDocument (4 lines)')
 
     def test_singleblock(self):
         w = self.detect_nested_blocks(singleblock)
-        self.assertEquals(repr(w.blocks), '[B0<1-3>]')
+        self.assertEquals(repr(w.nodes), '[B0<1-3>]')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (5 lines) {B0<1-3>}')
     
     def test_stillsingleblock(self):
         w = self.detect_nested_blocks(stillsingleblock)
-        self.assertEquals(repr(w.blocks), '[B0<0-4>]')
+        self.assertEquals(repr(w.nodes), '[B0<0-4>]')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (5 lines) {B0<0-4>}')
     
     def test_nestedemptyblock(self):
         w = self.detect_nested_blocks(nestedemptyblock)
-        self.assertEquals(repr(w.blocks), '[B0<0-4>]')
+        self.assertEquals(repr(w.nodes), '[B0<0-4>]')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (5 lines) {'
                           + 'B0<0-4> {'
@@ -273,7 +265,7 @@ class WikiDocumentBlocks(unittest.TestCase):
 
     def test_nestedblock(self):
         w = self.detect_nested_blocks(nestedblock)
-        self.assertEquals(repr(w.blocks), '[B0<0-5>embeds]')
+        self.assertEquals(repr(w.nodes), '[B0<0-5>embeds]')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (6 lines) {'
                           + 'B0<0-5>embeds {'
@@ -283,25 +275,25 @@ class WikiDocumentBlocks(unittest.TestCase):
 
     def test_startblock(self):
         w = self.detect_nested_blocks(startblock)
-        self.assertEquals(repr(w.blocks), '[B0<0-2>]')
+        self.assertEquals(repr(w.nodes), '[B0<0-2>]')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (4 lines) {B0<0-2>}')
 
     def test_endblock(self):
         w = self.detect_nested_blocks(endblock)
-        self.assertEquals(repr(w.blocks), '[B0<1-3>]')
+        self.assertEquals(repr(w.nodes), '[B0<1-3>]')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (4 lines) {B0<1-3>}')
 
     def test_unfinishedblock(self):
         w = self.detect_nested_blocks(unfinishedblock)
-        self.assertEquals(repr(w.blocks), '[B0<1-3>]')
+        self.assertEquals(repr(w.nodes), '[B0<1-3>]')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (3 lines) {B0<1-3>}')
 
     def test_multiblock(self):
         w = self.detect_nested_blocks(multiblock)
-        self.assertEquals(repr(w.blocks),
+        self.assertEquals(repr(w.nodes),
                           '[B0<0-2>first, B2<3-5>second, B0<7-9>third]')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (10 lines) {'
@@ -312,7 +304,7 @@ class WikiDocumentBlocks(unittest.TestCase):
 
     def test_multilevelblock(self):
         w = self.detect_nested_blocks(multilevelblock)
-        self.assertEquals(repr(w.blocks), '['
+        self.assertEquals(repr(w.nodes), '['
                           'B0<1-60>div, B0<63-65>comment, B3<67-69>, B2<70-72>'
                           ']')
         self.assertEquals(self.blocktree(w),
@@ -343,6 +335,20 @@ class WikiDocumentBlocks(unittest.TestCase):
                           + 'B0<63-65>comment, '
                           + 'B3<67-69>, '
                           + 'B2<70-72>'
+                          '}'
+                          )
+
+    def test_multilevelblock_subblock(self):
+        subblock = WikiBlock(44, 4)
+        subblock.end = 44 + 16
+        w = self.detect_nested_blocks(multilevelblock, subblock)
+        self.assertEquals(repr(w.nodes),
+                          '[B5<46-48>, B7<50-52>, B4<56-58>]')
+        self.assertEquals(self.blocktree(w),
+                          'B4<44-60> {'
+                          + 'B5<46-48>, '
+                          + 'B7<50-52>, '
+                          + 'B4<56-58>'
                           '}'
                           )
 
