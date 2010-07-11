@@ -23,38 +23,84 @@ import re
 from trac.core import *
 from trac.notification import EMAIL_LOOKALIKE_PATTERN
 
+# -- Wiki DOM
+
 class WikiNode(object):
-    key = 'W'
+    """A node represents a syntax unit within the Wiki DOM.
+
+    A node can be seen as a "pointer" into a `WikiDocument`, as it usually
+    doesn't store text by itself, but rather refers to the text stored in
+    the document.
+    All nodes have a starting point in the document, line `i` and column `j`.
+    
+    A node may have children `nodes`.
+    """
+    nodes = None # no subnodes
+    end = None   # not multiline
+    k = -1       # eol
+    
     def __init__(self, *args):
         self.i, self.j = args
         
-    def __repr__(self):
-        return '%s%d' % (self.key, self.j)
-
 class WikiBlock(WikiNode):
-    key = 'B'
+    """A block correspond to a multiline section delimited by a pair of
+    matching triple curly braces (`{{{` ... `}}}`).
+    
+    The content of a block starts at line `start` and ends before line `end`:
+
+           .j          B3<1-5>
+           |
+           V
+        ................................
+        ...{{{.......................... .i
+        ...Content starts here.......... .start
+        ................................
+        ...Content ends here............
+        ...}}}.......................... .end
+        ................................
+
+    or                 B3<1+-5>diff
+    
+        ................................
+        ...{{{.......................... .i
+        ...#!diff.......................
+        ...Content starts here.......... .start
+        ...Content ends here............
+        ...}}}.......................... .end
+        ................................
+
+    If a block processor is specified (e.g. `#!diff`), `name` contains its
+    name (here 'diff') and `args` is a dict with the given keyword arguments.
+    """
     def __init__(self, i, j, name=None, args=None):
         WikiNode.__init__(self, i, j)
-        self.end = i
+        self.start = self.end = i + 1
         self.name = name
         self.args = args
-        self.blocks = []
+        self.nodes = []
 
     def __repr__(self):
-        return '%s%d<%d-%d>%s' % (self.key, self.j, self.i, self.end,
-                                  self.name or '')
+        return 'B%d<%d%s-%d>%s' % (self.j, self.i,
+                                   '+' * (self.start - self.i - 1),
+                                   self.end, self.name or '')
 
-class WikiDocument(object):
+class WikiDocument(WikiBlock):
+    """A document corresponds to a wiki text in one unit of storage.
+
+    At the same time, it behaves as a root `WikiBlock` spanning
+    the whole content (`start == 0`, `end == len(lines)`).
+    """
     def __init__(self, text):
+        WikiBlock.__init__(self, 0, 0)
         text = re.sub(WikiParser._normalize_re, ' ', text or '')
         self.lines = text.splitlines()
-        self.verbatim = []
-        self.blocks = []
-        self.root = WikiNode(0, 0)
+        self.start = 0
+        self.end = len(self.lines)
 
     def __repr__(self):
         return 'WikiDocument (%d lines)' % len(self.lines)
-    
+
+
 class WikiParser(Component):
     """Wiki text parser."""
 
@@ -75,9 +121,7 @@ class WikiParser(Component):
     SUPERSCRIPT_TOKEN = r"\^"
     INLINE_TOKEN = "`" # must be a single char (see P<definition> below)
     STARTBLOCK_TOKEN = r"\{\{\{"
-    STARTBLOCK = "{{{"
     ENDBLOCK_TOKEN = r"\}\}\}"
-    ENDBLOCK = "}}}"
     
     LINK_SCHEME = r"[a-zA-Z][a-zA-Z0-9+-.]*" # as per RFC 2396
     INTERTRAC_SCHEME = r"[a-zA-Z.+-]*?" # no digits (for shorthand links)
@@ -88,15 +132,22 @@ class WikiParser(Component):
     SHREF_TARGET_MIDDLE = r"(?:\|(?=[^|\s])|[^|<>\s])"
     SHREF_TARGET_LAST = r"[\w/=](?<!_)" # we don't want "_"
 
+    # -- WikiBlocks
+
+    STARTBLOCK = "{{{"
+    ENDBLOCK = "}}}"
+
+    PROCESSOR = r"(\s*)#\!([\w+-][\w+-/]*)"
+
+    PROCESSOR_PARAM = r'''(?P<proc_pname>\w+)=(?P<proc_pval>".*?"|'.*?'|\w+)'''
+
+
     def _lhref_relative_target(sep):
         return r"[/\?#][^%s\]]*|\.\.?(?:[/\?#][^%s\]]*)?" % (sep, sep)
 
     LHREF_RELATIVE_TARGET = _lhref_relative_target(r'\s')
     
     XML_NAME = r"[\w:](?<!\d)[\w:.-]*?" # See http://www.w3.org/TR/REC-xml/#id 
-
-    PROCESSOR = r"(\s*)#\!([\w+-][\w+-/]*)"
-    PROCESSOR_PARAM = r'''(?P<proc_pname>\w+)=(?P<proc_pval>".*?"|'.*?'|\w+)'''
 
     def _set_anchor(name, sep):
         return r'=#(?P<anchorname>%s)(?:%s(?P<anchorlabel>[^\]]*))?' % \
@@ -154,6 +205,8 @@ class WikiParser(Component):
         (r"(?P<macrolink>!?\[\[(?:[^]]|][^]])*\]\])"),
         ]
 
+    # 0.12 compatibility
+
     _structural_patterns = [
         # == heading == #hanchor
         r"(?P<heading>^\s*(?P<hdepth>={1,6})\s(?P<htext>.*?)"
@@ -176,13 +229,9 @@ class WikiParser(Component):
         r"(?P<table_cell>!?(?P<table_cell_sep>=?(?:\|\|)+=?)"
         r"(?P<table_cell_last>\s*\\?$)?)",
         ]
-
+        
     _post_rules = _inline_patterns + _structural_patterns
 
-    _processor_re = re.compile(PROCESSOR)
-    _startblock_re = re.compile(r"\s*%s(?:%s|\s*$)" %
-                                (STARTBLOCK, PROCESSOR))
-    _processor_param_re = re.compile(PROCESSOR_PARAM)
     _anchor_re = re.compile(r'[^\w:.-]+', re.UNICODE)
 
     _macro_re = re.compile(r'''
@@ -267,54 +316,85 @@ class WikiParser(Component):
     # ** wikiparser **
 
     def parse(self, wikitext):
-        """Parse `wikitext` and produce a WikiDOM tree."""
+        """Parse `wikitext` and produce a `WikiDocument`"""
         wikidoc = WikiDocument(wikitext)
-        self._vertical_parsing(wikidoc)
+        self.vertical_parsing(wikidoc, wikidoc)
         return wikidoc
 
-    def _vertical_parsing(self, wikidoc):
-        self._detect_nested_blocks(wikidoc)
+    def vertical_parsing(self, wikidoc, block):
+        """Parses the structural markup in the `block` from `wikidoc`."""
+        self._detect_nested_blocks(wikidoc, block)
 
-    def _detect_nested_blocks(self, wikidoc):
-        """Each line can eventually start or end a block"""
-        ancestors = [wikidoc]
-        n = len(wikidoc.lines)
-        for i in xrange(0, n):
+    # -- WikiBlocks
+    
+    _processor_re = re.compile(PROCESSOR)
+
+    _startblock_re = re.compile(r'\s*%(startblock)s(?:%(processor)s|\s*$)' % {
+        'startblock': STARTBLOCK, 'processor': PROCESSOR})
+
+    def _detect_nested_blocks(self, wikidoc, scope):
+        """Each line between `scope.start` included and `scope.end` excluded
+        can start or end a block, beginning at column `scope.j`.
+
+                 scope.j
+                    |
+                    V
+           0 ..................................... wikidoc.start
+             .....................................
+             .......xxxxx xx x.xxxxxxxxx ......... scope.start
+             .......{{{xxxxx......................
+             .......xxxxx.........................
+             ..........{{{.xxxxxx.................
+             ..........}}}.xxxxxxxx...............
+             .......}}}.xxxxxxxxxxxxxxxx..........
+             ..................................... scope.end
+             .....................................
+           n                                       wikidoc.end
+       
+        """
+        ancestors = [scope]
+        for i in xrange(scope.start, scope.end):
             line = wikidoc.lines[i]
+            if scope.j:
+                line = line[scope.j:]
             if self.ENDBLOCK in line:
                 if line.strip() == self.ENDBLOCK:
                     if len(ancestors) == 1: # stray }}}, edit mistake?
                         continue
                     block = ancestors.pop()
                     block.end = i
-                    if not block.name and block.end - block.i > 1:
-                        #   .i    {{{
-                        # .i + 1  #!name
-                        #         [...]
-                        #  .end   }}}
-                        line = wikidoc.lines[block.i + 1]
-                        match = self._processor_re.match(line)
+                    if not block.name and block.end - block.start > 0:
+                        #  {{{       .i
+                        #  #!name    .start
+                        #  [...]
+                        #  }}}       .end
+                        startline = wikidoc.lines[block.start]
+                        if scope.j:
+                            startline = startline[j:]
+                        match = self._processor_re.match(startline)
                         if match:
                             block.name = match.group(2)
                             block.args = self._parse_processor_args(
-                                line[match.end():])
+                                startline[match.end():])
             else:
                 match = self._startblock_re.match(line)
                 if match:
                     name = args = match.group(2)
                     if name:
                         # {{{#!name [arg1=val1 arg2="second value" ...]
-                        args = self._parse_processor_args(line)
-                    j = line.find(WikiParser.STARTBLOCK)
+                        args = self._parse_processor_args(line[match.end():])
+                    j = line.find(WikiParser.STARTBLOCK) + scope.j
                     block = WikiBlock(i, j, name, args)
-                    ancestors[-1].blocks.append(block)
+                    ancestors[-1].nodes.append(block)
                     ancestors.append(block)
         # close unfinished blocks
         while len(ancestors) > 1:
             block = ancestors.pop()
-            block.end = n
-                
-                
+            block.end = scope.end
+
+    _processor_param_re = re.compile(PROCESSOR_PARAM)
+    # Note: not using re.UNICODE here as pnames are used as keyword arguments
+
     def _parse_processor_args(self, line):
         args = self._processor_param_re.split(line)
         del args[::3]
