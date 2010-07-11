@@ -70,13 +70,13 @@ class WikiBlock(WikiNode):
         ................................
 
     If a block processor is specified (e.g. `#!diff`), `name` contains its
-    name (here 'diff') and `args` is a dict with the given keyword arguments.
+    name (here 'diff') and `params` is a dict with the processor's parameters.
     """
-    def __init__(self, i, j, name=None, args=None):
+    def __init__(self, i, j, name=None, params=None):
         WikiNode.__init__(self, i, j)
         self.start = self.end = i + 1
         self.name = name
-        self.args = args
+        self.params = params
         self.nodes = []
 
     def __repr__(self):
@@ -375,17 +375,18 @@ class WikiParser(Component):
                         if match:
                             block.start += 1
                             block.name = match.group(2)
-                            block.args = self._parse_processor_args(
+                            block.params = self._parse_processor_params(
                                 startline[match.end():])
             else:
                 match = self._startblock_re.match(line)
                 if match:
-                    name = args = match.group(2)
+                    name = params = match.group(2)
                     if name:
                         # {{{#!name [arg1=val1 arg2="second value" ...]
-                        args = self._parse_processor_args(line[match.end():])
+                        params = self._parse_processor_params(
+                            line[match.end():])
                     j = line.find(WikiParser.STARTBLOCK) + scope.j
-                    block = WikiBlock(i, j, name, args)
+                    block = WikiBlock(i, j, name, params)
                     ancestors[-1].nodes.append(block)
                     ancestors.append(block)
         # close unfinished blocks
@@ -396,10 +397,12 @@ class WikiParser(Component):
     _processor_param_re = re.compile(PROCESSOR_PARAM)
     # Note: not using re.UNICODE here as pnames are used as keyword arguments
 
-    def _parse_processor_args(self, line):
-        args = self._processor_param_re.split(line)
-        del args[::3]
-        keys = [str(k) for k in args[::2]] # used as keyword parameters
+    def _parse_processor_params(self, line):
+        params = self._processor_param_re.split(line)
+        del params[::3]
+        keys = [str(k) for k in params[::2]] # used as keyword parameters
         values = [(v and v[0] in '"\'' and [v[1:-1]] or [v])[0]
-                  for v in args[1::2]]
+                  for v in params[1::2]]
         return dict(zip(keys, values))
+
+    _parse_processor_args = _parse_processor_params # 0.12 compat
