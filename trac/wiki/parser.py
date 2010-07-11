@@ -373,6 +373,7 @@ class WikiParser(Component):
                             startline = startline[j:]
                         match = self._processor_re.match(startline)
                         if match:
+                            block.start += 1
                             block.name = match.group(2)
                             block.args = self._parse_processor_args(
                                 startline[match.end():])
