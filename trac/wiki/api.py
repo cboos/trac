@@ -202,6 +202,21 @@ class IWikiSyntaxProvider(Interface):
         """
 
 
+class IWikiFormatterProvider(Interface):
+
+    def get_wiki_formatters():
+        """Return an iterable over `(format, name, formatter)` tuples.
+
+        A `formatter` is of the form `fmt(context, wikidoc, node)` where
+        `context` is a `mimeview.Context` specifying the rendering context
+        and `wikidoc` a `WikiDocument`. The `node` is the `WikiNode` that
+        should be formatter (it usually corresponds to the whole document).
+
+        The generated output is returned as an unicode string.
+        """
+
+        
+
 def parse_args(args, strict=True):
     """Utility for parsing macro "content" and splitting them into arguments.
 
@@ -259,6 +274,7 @@ class WikiSystem(Component):
     change_listeners = ExtensionPoint(IWikiChangeListener)
     macro_providers = ExtensionPoint(IWikiMacroProvider)
     syntax_providers = ExtensionPoint(IWikiSyntaxProvider)
+    formatter_providers = ExtensionPoint(IWikiFormatterProvider)
 
     ignore_missing_pages = BoolOption('wiki', 'ignore_missing_pages', 'false',
         """Enable/disable highlighting CamelCase links to missing pages
@@ -283,6 +299,8 @@ class WikiSystem(Component):
         external links even if `[wiki] render_unsafe_content` is `false`.
         (''since 0.11.8'')""")
 
+    _formatters = None
+
     @cached
     def pages(self):
         """Return the names of all existing wiki pages."""
@@ -304,6 +322,15 @@ class WikiSystem(Component):
     def has_page(self, pagename):
         """Whether a page with the specified name exists."""
         return pagename.rstrip('/') in self.pages
+
+
+    def get_wiki_formatter(self, format):
+        if self._formatters is None:
+            self._formatters = {}
+            for provider in self.formatter_providers:
+                for fmt, name, handler in provider.get_wiki_formatters() or []:
+                    self._formatters[fmt] = handler
+        return self._formatters.get(format)
 
     # IWikiSyntaxProvider methods
 
