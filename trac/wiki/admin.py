@@ -41,6 +41,13 @@ class WikiAdmin(Component):
         yield ('wiki list', '',
                'List wiki pages',
                None, self._do_list)
+        yield ('wiki format', '<file> [format] [base_url] [user]',
+               """Parse wiki source in <file> and generate output format
+               (defaults to 'html') to the standard output.
+               Extra base_url and user parameters can be specified in
+               order to fine-tune the generated output.
+              """,
+               self._complete_format, self._do_format)
         yield ('wiki rename', '<page> <new_name>',
                'Rename wiki page',
                self._complete_page, self._do_rename)
@@ -187,6 +194,13 @@ class WikiAdmin(Component):
         if len(args) >= 1:
             return get_dir_list(args[-1])
 
+    def _complete_format(self, args):
+        if len(args) == 1:
+            return get_dir_list(args[-1])
+        elif len(args) == 2:
+            return [fmt[0] for fmt in provider.get_wiki_formatters() or []
+                    for provider in WikiSystem(self.env).formatter_providers]
+
     def _do_list(self):
         print_table(
             [(title, int(edits), format_datetime(from_utimestamp(modified),
@@ -195,6 +209,24 @@ class WikiAdmin(Component):
                     SELECT name, max(version), max(time)
                     FROM wiki GROUP BY name ORDER BY name""")
              ], [_("Title"), _("Edits"), _("Modified")])
+
+    def _do_format(self, filename, format=None, base_url=None, user=None):
+        if not os.path.isfile(filename):
+            raise AdminCommandError(_("'%(name)s' is not a file",
+                                      name=filename))
+        data = to_unicode(read_file(filename), 'utf-8')
+
+        from trac.mimeview.api import Context
+        from trac.perm import PermissionCache
+        from trac.resource import Resource
+        from trac.web.href import Href
+        from trac.wiki.formatter import format_to
+        resource = Resource('wiki', os.path.basename(filename))
+        href = Href(base_url or '/')
+        perm = PermissionCache(self.env, user, resource)
+        context = Context(resource, href, perm) # extra arguments for 'hints'
+        context.req = None # 0.10 compat
+        printout(format_to(self.env, format, context, data))
 
     def _do_rename(self, name, new_name):
         if new_name == name:
