@@ -75,8 +75,8 @@ class WikiBlock(WikiNode):
     def __init__(self, i, j, name=None, params=None):
         WikiNode.__init__(self, i, j)
         self.start = self.end = i + 1
-        self.name = name
-        self.params = params
+        self.name = name or ''
+        self.params = params or {}
         self.nodes = []
 
     def __repr__(self):

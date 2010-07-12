@@ -31,8 +31,8 @@ from genshi.util import plaintext
 from trac.core import *
 from trac.mimeview import *
 from trac.resource import get_relative_resource, get_resource_url
-from trac.wiki.api import WikiSystem, parse_args
-from trac.wiki.parser import WikiParser
+from trac.wiki.api import IWikiFormatterProvider, WikiSystem, parse_args
+from trac.wiki.parser import *
 from trac.util import arity
 from trac.util.compat import all
 from trac.util.text import exception_to_unicode, shorten_line, to_unicode, \
@@ -1499,33 +1499,84 @@ class InlineHtmlFormatter(object):
                                                          shorten)
         return Markup(out.getvalue())
 
+# -- 0.13 formatters
 
-def format_to(env, flavor, context, wikidom, **options):
+class DebugFormatter(Component):
+
+    implements(IWikiFormatterProvider)
+
+    # IWikiFormatterProvider methods
+
+    def get_wiki_formatters(self):
+        yield ('noop', "No-op (time parsing)", lambda *args: '{}')
+        
+        def format_block(context, wikidoc, node):
+            def format_rec(node):
+                subdivs = []
+                start = node.start
+                def nonblock(end):
+                    subdivs.append(tag.pre('\n'.join(
+                        '%04d\t%s' % (i, wikidoc.lines[i])
+                        for i in xrange(start, end))))
+                for n in node.nodes:
+                    if isinstance(n, WikiBlock):
+                        if n.i > start:
+                            nonblock(n.i)
+                        subdivs.append(format_rec(n))
+                        start = n.end + 1
+                if start < node.end:
+                    nonblock(node.end)
+                return tag.div(tag.span(node.name, class_='name'),
+                               tag.dl((tag.dt(k), tag.dd(v))
+                                      for k, v in node.params.iteritems()),
+                               subdivs,
+                               class_='debugblock')
+            return format_rec(node)
+        yield ('debugblock', "Debug Block structure", format_block)
+        
+
+# -- Public API
+
+def format_to(env, flavor, context, wikidoc, node=None, **options):
     if flavor is None:
         flavor = context.get_hint('wiki_flavor', 'html')
     if flavor == 'oneliner':
-        return format_to_oneliner(env, context, wikidom, **options)
+        return format_to_oneliner(env, context, wikidoc, **options)
     else:
-        return format_to_html(env, context, wikidom, **options)
+        formatter = WikiSystem(env).get_wiki_formatter(flavor)
+        if not formatter:
+            env.log.warn("No Wiki formatter found for format '%s'", format)
+            #formatter = self._formatters.get('html')
+        if formatter:
+            if isinstance(wikidoc, basestring):
+                if flavor == 'noop':
+                    import time
+                    start = time.time()
+                wikidoc = WikiParser(env).parse(wikidoc)
+                if flavor == 'noop':
+                    return "Parsed in %f seconds" % (time.time() - start)
+            return formatter(context, wikidoc, node or wikidoc)
+        # 0.12 compat
+        return format_to_html(env, context, wikidoc, **options)
 
-def format_to_html(env, context, wikidom, escape_newlines=None):
-    if not wikidom:
+def format_to_html(env, context, wikidoc, escape_newlines=None):
+    if not wikidoc:
         return Markup()
     if escape_newlines is None:
         escape_newlines = context.get_hint('preserve_newlines', False)
-    return HtmlFormatter(env, context, wikidom).generate(escape_newlines)
+    return HtmlFormatter(env, context, wikidoc).generate(escape_newlines)
 
-def format_to_oneliner(env, context, wikidom, shorten=None):
-    if not wikidom:
+def format_to_oneliner(env, context, wikidoc, shorten=None):
+    if not wikidoc:
         return Markup()
     if shorten is None:
         shorten = context.get_hint('shorten_lines', False)
-    return InlineHtmlFormatter(env, context, wikidom).generate(shorten)
+    return InlineHtmlFormatter(env, context, wikidoc).generate(shorten)
 
-def extract_link(env, context, wikidom):
-    if not wikidom:
+def extract_link(env, context, wikidoc):
+    if not wikidoc:
         return Markup()
-    return LinkFormatter(env, context).match(wikidom)
+    return LinkFormatter(env, context).match(wikidoc)
 
 
 # pre-0.11 wiki text to Markup compatibility methods
