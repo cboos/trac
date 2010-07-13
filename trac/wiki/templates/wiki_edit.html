@@ -72,7 +72,7 @@
         /*]]>*/</py:if>
         <py:if test="sidebyside and not diff">
           $("#text").autoPreview("${href.wiki_render()}", {
-              realm: "${page.resource.realm}", id: "${page.resource.id}"
+              realm: "${page.resource.realm}", id: "${page.resource.id}", flavor: "${format or ''}"
             }, function(textarea, text, rendered) {
               var window_scroll_top = $(window).scrollTop();
               var editor_scroll_top = $("#text").scrollTop();
@@ -83,6 +83,9 @@
           });
         </py:if>
         $(".foldable").enableFolding(true, true);
+        <py:if test="len(formats) > 1">
+          $("#wikiformat").change(preview);
+        </py:if>
       });
     </script>
   </head>
@@ -158,7 +161,7 @@
                 <xi:include href="diff_div.html" py:with="no_id=True" />
               </div>
               <div py:otherwise="" class="wikipage" xml:space="preserve">
-                ${wiki_to_html(context.child(page.resource), page.text)}
+                ${wiki_to(format, context.child(page.resource), page.text)}
               </div>
             </div>
             <div py:if="not sidebyside and page.text" class="trac-nav">

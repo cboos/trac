@@ -25,6 +25,10 @@
           Edit side-by-side
         </label>
         <input type="checkbox" name="sidebyside" id="sidebyside" checked="$sidebyside" />
+        <select py:if="len(formats) > 1" name="format" id="wikiformat">
+          <option value="html" selected="${fmt in (format, '') or None}">HTML</option>
+          <option py:for="fmt, name in formats" value="$fmt" selected="${fmt == format or None}">$name</option>
+        </select>
       </div>
       <p><textarea id="text" class="wikitext${' trac-resizable' if not sidebyside else None}"
                    name="text" cols="80" rows="$edit_rows">

@@ -1,3 +1,4 @@
+/* -*- coding: utf-8 -*- */
 @import url(code.css);
 
 #info { margin: 0 0 1em 0 }
@@ -131,4 +132,49 @@ div.tracini td.nodefault {
  font-size: 85%;
  font-style: italic;
  white-space: nowrap;
+}
+
+/* Debugging */
+div.debugblock div.debugblock div.debugblock div.debugblock div.debugblock div.debugblock div.debugblock div.debugblock { background: #b9b9b9; }
+div.debugblock div.debugblock div.debugblock div.debugblock div.debugblock div.debugblock div.debugblock { background: #c0c0c0; }
+div.debugblock div.debugblock div.debugblock div.debugblock div.debugblock div.debugblock { background: #c9c9c9; }
+div.debugblock div.debugblock div.debugblock div.debugblock div.debugblock { background: #d0d0d0; }
+div.debugblock div.debugblock div.debugblock div.debugblock { background: #d9d9d9; }
+div.debugblock div.debugblock div.debugblock { background: #e0e0e0; }
+div.debugblock div.debugblock { background: #e9e9e9; }
+div.debugblock {
+ background: #f0f0f0;
+ border: 1px solid gray;
+ border-radius: .5em;
+ -moz-border-radius: .5em;
+ box-shadow: -.2em -.2em .2em gray;
+ -moz-box-shadow: -.2em -.2em .2em gray;
+ -webkit-box-shadow: -.2em -.2em .2em gray;
+ box-shadow: rgba(0,0,0,0.4) .1em .1em;
+ padding: .5em;
+ margin: .5em .1em .1em .1em;
+}
+
+div.debugblock > div.name:before {
+ content: "#!"
+}
+div.debugblock > div.name { 
+ background: #eef;
+ padding: .2em;
+ font-weight: bold;
+}
+div.debugblock > dl {
+ margin: 0px;
+ background: #eeeeff;
+ font-style: italic;
+}
+div.debugblock > dl > dd:before {
+ content: "«";
+}
+div.debugblock > dl > dd:after {
+ content: "» ";
+}
+div.debugblock > dl > dt {
+ float: left;
+ margin: 0px .5em;
 }

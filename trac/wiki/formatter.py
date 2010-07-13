@@ -1564,7 +1564,7 @@ class DebugFormatter(Component):
     # IWikiFormatterProvider methods
 
     def get_wiki_formatters(self):
-        yield ('noop', "No-op (time parsing)", lambda *args: '{}')
+        yield ('debugparsetime', "No-op (time parsing)", lambda *args: '{}')
 
         def format_block(context, wikidoc, node):
             def format_rec(node):
@@ -1582,9 +1582,11 @@ class DebugFormatter(Component):
                         start = n.end + 1
                 if start < node.end:
                     nonblock(node.end)
-                return tag.div(tag.span(node.name, class_='name'),
+                return tag.div(tag.div(node.name, class_='name')
+                               if node.name else None,
                                tag.dl((tag.dt(k), tag.dd(v))
-                                      for k, v in node.params.iteritems()),
+                                      for k, v in node.params.iteritems())
+                               if node.params else None,
                                subdivs,
                                class_='debugblock')
             return format_rec(node)
@@ -1605,11 +1607,11 @@ def format_to(env, flavor, context, wikidoc, node=None, **options):
             #formatter = self._formatters.get('html')
         if formatter:
             if isinstance(wikidoc, basestring):
-                if flavor == 'noop':
+                if flavor == 'debugparsetime':
                     import time
                     start = time.time()
                 wikidoc = WikiParser(env).parse(wikidoc)
-                if flavor == 'noop':
+                if flavor == 'debugparsetime':
                     return "Parsed in %f seconds" % (time.time() - start)
             return formatter(context, wikidoc, node or wikidoc)
         # 0.12 compat
