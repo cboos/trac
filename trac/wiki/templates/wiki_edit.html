@@ -36,6 +36,10 @@
         $("#editrows").change(function() {
           resizeTextArea("text", this.options[this.selectedIndex].value);
         });
+        function preview() {
+          $("#edit input[type=submit][name=preview]").click();
+        }
+        $("#sidebyside").change(preview);
         <py:if test="not sidebyside and (action == 'preview' or diff)">
           $("#info").scrollToTop();
         </py:if>
@@ -50,11 +54,14 @@
         </py:if>
         <py:if test="sidebyside and not diff">
           $("#text").autoPreview("${href.wiki_render()}", {
-              realm: "${page.resource.realm}", id: "${page.resource.id}"
+              realm: "${page.resource.realm}", id: "${page.resource.id}", flavor: "${format or ''}"
             }, function(textarea, text, rendered) {
               $("#preview div.wikipage").html(rendered);
               autoResizeText();
           });
+        </py:if>
+        <py:if test="len(formats) > 1">
+          $("#wikiformat").change(preview);
         </py:if>
       });
     </script>
@@ -133,7 +140,7 @@
                 <xi:include href="diff_div.html" py:with="no_id=True" />
               </div>
               <div py:otherwise="" class="wikipage" xml:space="preserve">
-                ${wiki_to_html(context(page.resource), page.text)}
+                ${wiki_to(format, context(page.resource), page.text)}
               </div>
             </div>
             <div py:if="not sidebyside and page.text" class="trac-nav">

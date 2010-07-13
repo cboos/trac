@@ -211,6 +211,14 @@ class WikiModule(Component):
             title += ' (%s)' % action
         return {'page': page, 'action': action, 'title': title}
 
+    def _get_wiki_formats(self, req):
+        formats = []
+        for provider in WikiSystem(self.env).formatter_providers:
+            for fmt, name, handler in provider.get_wiki_formatters() or []:
+                if not fmt.startswith('debug') or 'TRAC_ADMIN' in req.perm:
+                    formats.append((fmt, name))
+        return formats
+
     def _prepare_diff(self, req, page, old_text, new_text,
                       old_version, new_version):
         diff_style, diff_options, diff_data = get_diff_options(req)
@@ -477,6 +485,7 @@ class WikiModule(Component):
 
         author = get_reporter_id(req, 'author')
         comment = req.args.get('comment', '')
+        format = req.args.get('format', '')
 
         defaults = {'editrows': 20}
         prefs = dict((key, req.session.get('wiki_%s' % key, defaults.get(key)))
@@ -510,6 +519,7 @@ class WikiModule(Component):
             'edit_rows': editrows, 'sidebyside': sidebyside,
             'scroll_bar_pos': req.args.get('scroll_bar_pos', ''),
             'diff': None,
+            'formats': self._get_wiki_formats(req), 'format': format,
         })
         if action in ('diff', 'merge'):
             old_text = original_text and original_text.splitlines() or []

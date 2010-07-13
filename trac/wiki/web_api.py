@@ -54,4 +54,4 @@ class WikiRenderer(Component):
         resource = Resource(realm, id=id, version=version)
         context = Context.from_request(req, resource)
         rendered = format_to(self.env, flavor, context, text, **options)
-        req.send(rendered.encode('utf-8'))
+        req.send(unicode(rendered).encode('utf-8'))
