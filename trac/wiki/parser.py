@@ -28,12 +28,12 @@ from trac.notification import EMAIL_LOOKALIKE_PATTERN
 class WikiNode(object):
     """A node represents a syntax unit within the Wiki DOM.
 
-    A node can be seen as a "pointer" into a `WikiDocument`, as it usually
-    doesn't store text by itself, but rather refers to the text stored in
-    the document.
-    All nodes have a starting point in the document, line `i` and column `j`.
+    A node can also be seen as a "pointer" into a `WikiDocument`, as
+    it usually doesn't store text by itself, but rather refers to the
+    text stored in the document.  All nodes have a starting point in
+    the document, line ``i`` and column ``j``.
 
-    A node may have children `nodes`.
+    A node may have children ``nodes``.
     """
     nodes = None # no subnodes
     end = None   # not multiline
@@ -44,9 +44,10 @@ class WikiNode(object):
 
 class WikiBlock(WikiNode):
     """A block correspond to a multiline section delimited by a pair of
-    matching triple curly braces (`{{{` ... `}}}`).
+    matching triple curly braces (``{{{`` ... ``}}}``).
 
-    The content of a block starts at line `start` and ends before line `end`:
+    The content of a block starts at line ``start`` and ends before
+    line ``end``:
 
            .j          B3<1-5>
            |
@@ -69,8 +70,9 @@ class WikiBlock(WikiNode):
         ...}}}.......................... .end
         ................................
 
-    If a block processor is specified (e.g. `#!diff`), `name` contains its
-    name (here 'diff') and `params` is a dict with the processor's parameters.
+    If a block processor is specified (e.g. ``#!diff``), ``name``
+    contains its name (here 'diff') and ``params`` is a dict with the
+    processor's parameters.
     """
     def __init__(self, i, j, name=None, params=None):
         WikiNode.__init__(self, i, j)
@@ -87,8 +89,8 @@ class WikiBlock(WikiNode):
 class WikiDocument(WikiBlock):
     """A document corresponds to a wiki text in one unit of storage.
 
-    At the same time, it behaves as a root `WikiBlock` spanning
-    the whole content (`start == 0`, `end == len(lines)`).
+    At the same time, it behaves as a root `WikiBlock` spanning the
+    whole content (``start == 0``, ``end == len(lines)``).
     """
     def __init__(self, text):
         WikiBlock.__init__(self, 0, 0)
@@ -150,7 +152,6 @@ class WikiParser(Component):
     LHREF_RELATIVE_TARGET = _lhref_relative_target(r'\s')
 
     XML_NAME = r"[\w:](?<!\d)[\w:.-]*?" # See http://www.w3.org/TR/REC-xml/#id
-
     def _set_anchor(name, sep):
         return r'=#(?P<anchorname>%s)(?:%s(?P<anchorlabel>[^\]]*))?' % \
                (name, sep)
@@ -337,8 +338,9 @@ class WikiParser(Component):
         'startblock': STARTBLOCK, 'processor': PROCESSOR})
 
     def _detect_nested_blocks(self, wikidoc, scope):
-        """Each line between `scope.start` included and `scope.end` excluded
-        can start or end a block, beginning at column `scope.j`.
+        """Each line between ``scope.start`` included and
+        ``scope.end`` excluded can start or end a block, beginning at
+        column ``scope.j``.
 
                  scope.j
                     |
@@ -402,11 +404,11 @@ class WikiParser(Component):
 
 
 def parse_processor_params(processor_params):
-    """Parse a string containing parameter assignements,
-    and return the corresponding dictionary.
+    """Parse a string containing parameter assignements, and return
+    the corresponding dictionary.
 
-    Isolated keywords are interpreted as `bool` flags, `False` if the keyword
-    is prefixed with "-", `True` otherwise.
+    Isolated keywords are interpreted as `bool` flags, `False` if the
+    keyword is prefixed with "-", `True` otherwise.
 
     >>> parse_processor_params('ab="c de -f gh=ij" -')
     {'ab': 'c de -f gh=ij'}

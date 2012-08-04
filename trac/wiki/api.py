@@ -205,12 +205,13 @@ class IWikiSyntaxProvider(Interface):
 class IWikiFormatterProvider(Interface):
 
     def get_wiki_formatters():
-        """Return an iterable over `(format, name, formatter)` tuples.
+        """Return an iterable over ``(format, name, formatter)`` tuples.
 
-        A `formatter` is of the form `fmt(context, wikidoc, node)` where
-        `context` is a `mimeview.Context` specifying the rendering context
-        and `wikidoc` a `WikiDocument`. The `node` is the `WikiNode` that
-        should be formatter (it usually corresponds to the whole document).
+        A ``formatter`` is of the form ``fmt(context, wikidoc, node)``
+        where `context` is a `mimeview.RenderingContext` specifying
+        the rendering context and `wikidoc` a `WikiDocument`. The
+        `node` is the `WikiNode` that should be formatted (it usually
+        corresponds to the whole document).
 
         The generated output is returned as an unicode string.
         """
