@@ -146,11 +146,7 @@ div.debugblock {
  background: #f0f0f0;
  border: 1px solid gray;
  border-radius: .5em;
- -moz-border-radius: .5em;
- box-shadow: -.2em -.2em .2em gray;
- -moz-box-shadow: -.2em -.2em .2em gray;
- -webkit-box-shadow: -.2em -.2em .2em gray;
- box-shadow: rgba(0,0,0,0.4) .1em .1em;
+ box-shadow: .1em .1em .2em #777;
  padding: .5em;
  margin: .5em .1em .1em .1em;
 }
@@ -177,4 +173,7 @@ div.debugblock > dl > dd:after {
 div.debugblock > dl > dt {
  float: left;
  margin: 0px .5em;
+}
+div.debugblock pre {
+ white-space: pre-wrap;
 }

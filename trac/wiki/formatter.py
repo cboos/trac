@@ -39,7 +39,7 @@ from trac.util.translation import _
 from trac.wiki.api import (
     IWikiFormatterProvider, WikiSystem, parse_args
 )
-from trac.wiki.parser import WikiParser, parse_processor_args
+from trac.wiki.parser import WikiBlock, WikiParser, parse_processor_args
 
 __all__ = ['wiki_to_html', 'wiki_to_oneliner', 'wiki_to_outline',
            'Formatter', 'format_to', 'format_to_html', 'format_to_oneliner',
