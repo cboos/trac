@@ -1567,18 +1567,19 @@ class DebugFormatter(Component):
         yield ('debugparsetime', "No-op (time parsing)", lambda *args: '{}')
 
         def format_block(context, wikidoc, node):
-            def format_rec(node):
+            def format_rec(node, depth):
                 subdivs = []
                 start = node.start
                 def nonblock(end):
-                    subdivs.append(tag.pre('\n'.join(
-                        '%04d\t%s' % (i, wikidoc.lines[i])
+                    subdivs.append(tag.pre('\n'.join('%04d\t%s' % (
+                        i, re.sub(r'^ +', lambda m: u'\u02fd' * len(m.group(0)),
+                                  wikidoc.lines[i]))
                         for i in xrange(start, end))))
                 for n in node.nodes:
                     if isinstance(n, WikiBlock):
                         if n.i > start:
                             nonblock(n.i)
-                        subdivs.append(format_rec(n))
+                        subdivs.append(format_rec(n, depth + 1))
                         start = n.end + 1
                 if start < node.end:
                     nonblock(node.end)
@@ -1588,8 +1589,8 @@ class DebugFormatter(Component):
                                       for k, v in node.params.iteritems())
                                if node.params else None,
                                subdivs,
-                               class_='debugblock')
-            return format_rec(node)
+                               class_='debugblock depth%d' % depth)
+            return format_rec(node, 1)
         yield ('debugblock', "Debug Block structure", format_block)
 
 
