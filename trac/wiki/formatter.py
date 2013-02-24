@@ -1599,17 +1599,19 @@ class DebugFormatter(Component):
 def format_to(env, flavor, context, wikidoc, node=None, **options):
     """Format a WikiDocument.
 
-    :param env: the `~trac.env.Environment`
+    :param env:
+    :type env: `~trac.env.Environment`
     :param flavor: one of the standard `'html'`, `'oneliner'` flavors,
                    or one provided by an implementation of the
                    `~trac.wiki.api.IWikiFormatterProvider`
                    interface. If undefined, the flavor is obtained
                    from the `'wiki_flavor'` hint of the *context*
-    :param context: the `~trac.mimeview.api.RenderingContext`
-    :param wikidoc: the `~trac.wiki.parser.WikiDocument` containing
-                    the parsed wiki source.  As a shortcut, this can
+    :param context:
+    :type context: `~trac.mimeview.api.RenderingContext`
+    :param wikidoc: the parsed wiki source.  As a shortcut, this can
                     also be a wiki source string, in which case it
                     will be parsed on the fly.
+    :type wikidoc: `~trac.wiki.parser.WikiDocument` or `basestring`
     :param node: a sub-node within the *wikidoc*. If not specified or
                  if *wikidoc* was a string, format the whole document,
     :param options: (obsolete) formatting options specific to the *flavor*
