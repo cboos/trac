@@ -673,7 +673,7 @@ class Formatter(object):
             name = intertrac.get(ns + '.title', 'Trac project %s' % ns)
             compat = intertrac.getbool(ns + '.compat', 'false')
             # set `compat` default to False now that 0.10 is widely used
-            # TODO: remove compatibility code completely for 1.0 release
+            # TODO: remove compatibility code completely for 1.X release
             if compat:
                 sep = target.find(':')
                 if sep != -1:
@@ -1597,6 +1597,23 @@ class DebugFormatter(Component):
 # -- Public API
 
 def format_to(env, flavor, context, wikidoc, node=None, **options):
+    """Format a WikiDocument.
+
+    :param env: the `~trac.env.Environment`
+    :param flavor: one of the standard `'html'`, `'oneliner'` flavors,
+                   or one provided by an implementation of the
+                   `~trac.wiki.api.IWikiFormatterProvider`
+                   interface. If undefined, the flavor is obtained
+                   from the `'wiki_flavor'` hint of the *context*
+    :param context: the `~trac.mimeview.api.RenderingContext`
+    :param wikidoc: the `~trac.wiki.parser.WikiDocument` containing
+                    the parsed wiki source.  As a shortcut, this can
+                    also be a wiki source string, in which case it
+                    will be parsed on the fly.
+    :param node: a sub-node within the *wikidoc*. If not specified or
+                 if *wikidoc* was a string, format the whole document,
+    :param options: (obsolete) formatting options specific to the *flavor*
+    """
     if flavor is None:
         flavor = context.get_hint('wiki_flavor', 'html')
     if flavor == 'oneliner':
@@ -1611,7 +1628,7 @@ def format_to(env, flavor, context, wikidoc, node=None, **options):
                 if flavor == 'debugparsetime':
                     import time
                     start = time.time()
-                wikidoc = WikiParser(env).parse(wikidoc)
+                node = wikidoc = WikiParser(env).parse(wikidoc)
                 if flavor == 'debugparsetime':
                     return "Parsed in %f seconds" % (time.time() - start)
             return formatter(context, wikidoc, node or wikidoc)
@@ -1619,6 +1636,10 @@ def format_to(env, flavor, context, wikidoc, node=None, **options):
         return format_to_html(env, context, wikidoc, **options)
 
 def format_to_html(env, context, wikidoc, escape_newlines=None):
+    """Shortcut to ``format_to(env, 'html', ...)``.
+
+    .. todo:: for now, it's still the good old HtmlFormatter...
+    """
     if not wikidoc:
         return Markup()
     if escape_newlines is None:
@@ -1626,6 +1647,10 @@ def format_to_html(env, context, wikidoc, escape_newlines=None):
     return HtmlFormatter(env, context, wikidoc).generate(escape_newlines)
 
 def format_to_oneliner(env, context, wikidoc, shorten=None):
+    """Shortcut to ``format_to(env, 'oneliner', ...)``.
+
+    .. todo:: for now, it's still the good old InlineHtmlFormatter...
+    """
     if not wikidoc:
         return Markup()
     if shorten is None:
@@ -1633,6 +1658,14 @@ def format_to_oneliner(env, context, wikidoc, shorten=None):
     return InlineHtmlFormatter(env, context, wikidoc).generate(shorten)
 
 def extract_link(env, context, wikidoc):
+    """Extract the first TracLinks found in wikidoc.
+
+    :return: the Genshi ``Element`` or ``Fragment`` from which the
+             link information can be extracted
+             (e.g. ``find_element(elt, 'href')``)
+
+    .. todo:: this will return a `~trac.wiki.parser.WikiLink` node
+    """
     if not wikidoc:
         return Markup()
     return LinkFormatter(env, context).match(wikidoc)
@@ -1642,7 +1675,7 @@ def extract_link(env, context, wikidoc):
 
 def wiki_to_html(wikitext, env, req, db=None,
                  absurls=False, escape_newlines=False):
-    """deprecated in favor of format_to_html (will be removed in 1.0)"""
+    """:deprecated: in favor of format_to_html (will be removed in 1.X)"""
     if not wikitext:
         return Markup()
     abs_ref, href = (req or env).abs_href, (req or env).href
@@ -1654,7 +1687,7 @@ def wiki_to_html(wikitext, env, req, db=None,
 
 def wiki_to_oneliner(wikitext, env, db=None, shorten=False, absurls=False,
                      req=None):
-    """:deprecated: in favor of format_to_oneliner (will be removed in 1.0)"""
+    """:deprecated: in favor of format_to_oneliner (will be removed in 1.X)"""
     if not wikitext:
         return Markup()
     abs_ref, href = (req or env).abs_href, (req or env).href
@@ -1666,7 +1699,7 @@ def wiki_to_oneliner(wikitext, env, db=None, shorten=False, absurls=False,
 
 def wiki_to_outline(wikitext, env, db=None,
                     absurls=False, max_depth=None, min_depth=None, req=None):
-    """:deprecated: will be removed in 1.0 and replaced by something else"""
+    """:deprecated: will be removed in 1.X and replaced by something else"""
     if not wikitext:
         return Markup()
     abs_ref, href = (req or env).abs_href, (req or env).href
