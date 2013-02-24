@@ -1572,7 +1572,7 @@ class DebugFormatter(Component):
                 start = node.start
                 def nonblock(end):
                     subdivs.append(tag.pre('\n'.join('%04d\t%s' % (
-                        i, re.sub(r'^ +', lambda m: u'\u02fd' * len(m.group(0)),
+                        i, re.sub(r'^ +', lambda m: u'\u2420' * len(m.group(0)),
                                   wikidoc.lines[i]))
                         for i in xrange(start, end))))
                 for n in node.nodes:
