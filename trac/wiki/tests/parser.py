@@ -106,7 +106,7 @@ A block:
     Different things to support:
      - arbitrary nesting
      - parameterized blocks
-    }}} th
+
     {{{#!td
     Well, for the arbirary nesting, I think it's OK...
     {{{
@@ -159,7 +159,7 @@ More block content
     }}} a41
    }}} starts at col 3!
   }}} table
-}}} toplevel div
+}}} topleveldiv
 More toplevel content
 {{{#!comment
     ... nothing to see here ...
@@ -192,9 +192,8 @@ def simplified(s):
     """
     return re.sub(r'\s+', ' ', # multiple spaces into one
                   re.sub(r'\s*([]}])', r'\1', # eat spaces before ] and }
-                         re.sub(r'([[{])\s*', r'\1', s, # eat spaces after [ {
-                                re.MULTILINE))
-                  ).strip()
+                         re.sub(r'([[{])\s*', r'\1', # eat spaces after [ {
+                                s.replace('\n', '')))).strip()
 
 
 class WikiDocumentInvariants(unittest.TestCase):
@@ -329,34 +328,35 @@ class WikiDocumentBlocks(unittest.TestCase):
     def test_multilevelblock(self):
         w = self.detect_nested_blocks(multilevelblock)
         self.assertEquals(repr(w.nodes), simplified('''[
-                           B0<1-60>div table,
+                           B0<1-61>div topleveld,
                            B0<63-65>comment comment2,
                            B3<67-69> b1,
                            B2<70-72> b2
                            ]'''))
         self.assertEquals(self.blocktree(w), simplified('''
                            WikiDocument (74 lines) {
-                             B0<1-60>div table {
-                             B2<3-43>table th {
-                              B4<4-8>th th,
-                              B4<9-28>td td1 {
-                               B4<11+-15>python py,
-                               B4<16-27>comment comment1 {
-                                B6<18-25> a1 {
-                                 B9<19-20> a11,
-                                 B9<22-24> a12
+                             B0<1-61>div topleveld {
+                             B2<3-60>table table {
+                              B4<4-43>th th {
+                               B4<9-28>td td1 {
+                                B4<11+-15>python py,
+                                B4<16-27>comment comment1 {
+                                 B6<18-25> a1 {
+                                  B9<19-20> a11,
+                                  B9<22-24> a12
+                                 }
                                 }
+                               },
+                               B4<30-42>td td2 {
+                                B8<32-36>div div+style,
+                                B8<38+-41>div div+class
                                }
                               },
-                              B4<30-42>td td2 {
-                               B8<32-36>div div+style,
-                               B8<38+-41>div div+class
+                              B5<46-48> a2,
+                              B7<50-52> a3,
+                              B3<54-59> starts at {
+                                B4<56-58> a41
                               }
-                             },
-                             B5<46-48> a2,
-                             B7<50-52> a3,
-                             B3<54-59> starts at {
-                               B4<56-58> a41
                              }
                             },
                             B0<63-65>comment comment2,
@@ -400,7 +400,7 @@ class WikiDocumentBlocks(unittest.TestCase):
         self.assertEquals(len(th.params), 2)
         self.assertEquals(th.params['rowspan'], '2')
         self.assertEquals(th.params['style'], 'border-width: 2px')
-        td = table.nodes[2]
+        td = th.nodes[1]
         self.assertEquals(td.name, 'td')
         div1 = td.nodes[0]
         self.assertEquals(div1.name, 'div')
