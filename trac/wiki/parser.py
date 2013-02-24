@@ -47,11 +47,10 @@ class WikiBlock(WikiNode):
     matching triple curly braces (``{{{`` ... ``}}}``).
 
     The content of a block starts at line ``start`` and ends before
-    line ``end``:
+    line ``end``::
 
            .j          B3<1-5>
            |
-           V
         ................................
         ...{{{.......................... .i
         ...Content starts here.......... .start
@@ -60,8 +59,10 @@ class WikiBlock(WikiNode):
         ...}}}.......................... .end
         ................................
 
-    or                 B3<1+-5>diff
+    or::
 
+           .j          B3<1+-5>diff
+           |
         ................................
         ...{{{.......................... .i
         ...#!diff.......................
