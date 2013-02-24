@@ -36,9 +36,10 @@
         $("#editrows").change(function() {
           resizeTextArea("text", this.options[this.selectedIndex].value);
         });
-        $("#sidebyside").change(function() {
+        function doPreview() {
           $("#edit input[type=submit][name=preview]").click();
-        });
+        }
+        $("#sidebyside").change(doPreview);
         <py:if test="not sidebyside and (action == 'preview' or diff)">
           $("#info").scrollToTop();
         </py:if>
@@ -84,7 +85,7 @@
         </py:if>
         $(".foldable").enableFolding(true, true);
         <py:if test="len(formats) > 1">
-          $("#wikiformat").change(preview);
+          $("#wikiformat").change(doPreview);
         </py:if>
       });
     </script>
