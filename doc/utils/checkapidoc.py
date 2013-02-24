@@ -83,8 +83,9 @@ def check_api_doc(basename, verbose, only_documented, has_submodules):
         else:
             value = getattr(module, symbol)
             cls = getattr(value, '__class__', None)
-            keyword = 'data'
-            if cls.__name__ in ('function', 'instancemethod'):
+            if cls is None:
+                keyword = 'data'
+            elif cls.__name__ in ('function', 'instancemethod'):
                 keyword = 'function'
             elif cls.__name__ == 'module':
                 keyword = 'module'
