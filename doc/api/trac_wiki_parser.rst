@@ -7,20 +7,23 @@
 The Wiki Document Object Model
 ------------------------------
 
-..      autoclass :: WikiDocument
-
-
 A WikiDOM tree is made of `WikiNode` and its subclasses.
 
 ..      autoclass :: WikiNode
+   :members:
 
 ..      autoclass :: WikiBlock
+   :members:
+
+..      autoclass :: WikiDocument
+   :members:
 
 
 The parser
 ----------
 
 ..      autoclass :: WikiParser
+   :members:
 
 ..   autofunction :: parse_processor_params
 
@@ -28,6 +31,6 @@ The parser
 For backward compatibility with Trac 1.0
 ----------------------------------------
 
-..   function :: parse_processor_args
+..    py:function :: parse_processor_args
   
   Alias for `parse_processor_params`.
