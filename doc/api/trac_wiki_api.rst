@@ -11,6 +11,9 @@ The wiki module presents several possibilities of extension, for
 interacting with the Wiki application and also for extending the Wiki
 syntax.
 
+Interacting with Wiki pages
+...........................
+
 First, components can be notified of the changes happening in the
 wiki.
 
@@ -26,6 +29,10 @@ they're made.
    :members:
 
    See also :extensionpoints:`trac.wiki.api.IWikiPageManipulator`.
+
+
+Augmenting the Wiki syntax
+..........................
 
 Then, the Wiki syntax itself can be extended. The first and less
 intrusive way is to provide new Wiki macros or Wiki processors. Those
@@ -49,6 +56,13 @@ The Wiki syntax can also be extended by introducing new markup.
 
    See also :teo:`wiki:TracDev/IWikiSyntaxProviderExample` and
    :extensionpoints:`trac.wiki.api.IWikiSyntaxProvider`.
+
+
+Adding rendering formats
+........................
+
+..      autoclass :: trac.wiki.api.IWikiFormatterProvider
+   :members:
 
 
 The Wiki System

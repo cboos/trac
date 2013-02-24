@@ -203,6 +203,7 @@ class IWikiSyntaxProvider(Interface):
 
 
 class IWikiFormatterProvider(Interface):
+    """Define formatters for the Wiki DOM."""
 
     def get_wiki_formatters():
         """Return an iterable over ``(format, name, formatter)`` tuples.
@@ -214,9 +215,11 @@ class IWikiFormatterProvider(Interface):
         corresponds to the whole document).
 
         The generated output is returned as an unicode string.
+
+        .. todo:: add content_type?
         """
 
-        
+
 
 def parse_args(args, strict=True):
     """Utility for parsing macro "content" and splitting them into arguments.
