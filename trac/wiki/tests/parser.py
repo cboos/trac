@@ -105,27 +105,27 @@ A block:
     Different things to support:
      - arbitrary nesting
      - parameterized blocks
-    }}}
+    }}} th
     {{{#!td
     Well, for the arbirary nesting, I think it's OK...
     {{{
     #!python
     def hello(self):
        return "world"
-    }}}
+    }}} py
     {{{#!comment
       We could always add more levels...
       {{{
          {{{
-         }}}
+         }}} a11
          ...
          {{{
              ...
-         }}}
-      }}}
+         }}} a12
+      }}} a1
       but it should already be good enough
-    }}}
-    }}}
+    }}} comment1
+    }}} td1
     |-------
     {{{#!td
     Arbitrary list of parameters can be given in blocks:
@@ -133,43 +133,43 @@ A block:
         this ... is ...
             some ... fixed ... space ... text
                ...
-        }}}
+        }}} div+style
         or even:
         {{{
         #!div class="important" style="border: 4px outset red"
         See?
-        }}}
-    }}}
-  }}}
+        }}} div+class
+    }}} td2
+  }}} th
     More content:
      - a first item in a list
      {{{
      a block in this first item
-     }}}
+     }}} a2
      - a second item
        {{{
     A second block, in this second item
-    }}}
+    }}} a3
  - back to a previous level (we were in a quote above)
    {{{
 More block content
     {{{
         ...
-    }}}
-   }}}
-  }}}
-}}}
+    }}} a41
+   }}} starts at col 3!
+  }}} table
+}}} toplevel div
 More toplevel content
 {{{#!comment
     ... nothing to see here ...
-}}}
+}}} comment2
  - a toplevel list
    {{{
    next to last block
-   }}}
+   }}} b1
   {{{
        last block
-  }}}
+  }}} b2
  - a toplevel list (2)
 """
 
@@ -206,7 +206,7 @@ class WikiDocumentInvariants(unittest.TestCase):
         self.assertEquals(w.nodes, [])
 
     # ...
-    
+
     def test_multilevelblock(self):
         w = WikiDocument(multilevelblock)
         self.assertEquals(len(w.lines), 74)
@@ -227,8 +227,8 @@ class WikiDocumentBlocks(unittest.TestCase):
 
     def blocktree(self, wb):
         if wb.nodes:
-            return '%s {%s}' % \
-                   (repr(wb), ', '.join(self.blocktree(b) for b in wb.nodes))
+            return '%s {%s}' % (
+                repr(wb), ', '.join(self.blocktree(b) for b in wb.nodes))
         else:
             return repr(wb)
 
@@ -257,13 +257,13 @@ class WikiDocumentBlocks(unittest.TestCase):
         self.assertEquals(repr(w.nodes), '[B0<1-3>]')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (5 lines) {B0<1-3>}')
-    
+
     def test_stillsingleblock(self):
         w = self.detect_nested_blocks(stillsingleblock)
         self.assertEquals(repr(w.nodes), '[B0<0-4>]')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (5 lines) {B0<0-4>}')
-    
+
     def test_nestedemptyblock(self):
         w = self.detect_nested_blocks(nestedemptyblock)
         self.assertEquals(repr(w.nodes), '[B0<0-4>]')
@@ -316,36 +316,39 @@ class WikiDocumentBlocks(unittest.TestCase):
     def test_multilevelblock(self):
         w = self.detect_nested_blocks(multilevelblock)
         self.assertEquals(repr(w.nodes), '['
-                          'B0<1-60>div, B0<63-65>comment, B3<67-69>, B2<70-72>'
+                          'B0<1-60>div table, ' # toplevel div
+                          'B0<63-65>comment comment2, '
+                          'B3<67-69> b1, '
+                          'B2<70-72> b2'
                           ']')
         self.assertEquals(self.blocktree(w),
                           'WikiDocument (74 lines) {'
-                          + 'B0<1-60>div {'
-                          +  'B2<3-43>table {'
-                          +   'B4<4-8>th, '
-                          +   'B4<9-28>td {'
-                          +    'B4<11+-15>python, '
-                          +    'B4<16-27>comment {'
-                          +     'B6<18-25> {'
-                          +      'B9<19-20>, '
-                          +      'B9<22-24>'
+                          + 'B0<1-60>div table {' # toplevel div
+                          +  'B2<3-43>table th {'
+                          +   'B4<4-8>th th, '
+                          +   'B4<9-28>td td1 {'
+                          +    'B4<11+-15>python py, '
+                          +    'B4<16-27>comment comment1 {'
+                          +     'B6<18-25> a1 {'
+                          +      'B9<19-20> a11, '
+                          +      'B9<22-24> a12'
                           +     '}'
                           +    '}'
                           +   '}, '
-                          +   'B4<30-42>td {'
-                          +    'B8<32-36>div, '
-                          +    'B8<38+-41>div'
+                          +   'B4<30-42>td td2 {'
+                          +    'B8<32-36>div div+style, '
+                          +    'B8<38+-41>div div+class'
                           +   '}'
                           +  '}, '
-                          +  'B5<46-48>, '
-                          +  'B7<50-52>, '
-                          +  'B3<54-59> {'
-                          +    'B4<56-58>'
-                          +  '}'  
+                          +  'B5<46-48> a2, '
+                          +  'B7<50-52> a3, '
+                          +  'B3<54-59> starts at {'
+                          +    'B4<56-58> a41'
+                          +  '}'
                           + '}, '
-                          + 'B0<63-65>comment, '
-                          + 'B3<67-69>, '
-                          + 'B2<70-72>'
+                          + 'B0<63-65>comment comment2, '
+                          + 'B3<67-69> b1, '
+                          + 'B2<70-72> b2'
                           '}'
                           )
 
@@ -353,13 +356,16 @@ class WikiDocumentBlocks(unittest.TestCase):
         scope = WikiBlock(44, 4)
         scope.end = 44 + 16
         w = self.detect_nested_blocks(multilevelblock, scope)
-        self.assertEquals(repr(w.nodes),
-                          '[B5<46-48>, B7<50-52>, B4<56-58>]')
+        self.assertEquals(repr(w.nodes), '['
+                          'B5<46-48> a2, '
+                          'B7<50-52> a3, '
+                          'B4<56-58> a41'
+                          ']')
         self.assertEquals(self.blocktree(w),
                           'B4<44-60> {'
-                          + 'B5<46-48>, '
-                          + 'B7<50-52>, '
-                          + 'B4<56-58>'
+                          + 'B5<46-48> a2, '
+                          + 'B7<50-52> a3, '
+                          + 'B4<56-58> a41'
                           '}'
                           )
 
@@ -393,7 +399,7 @@ class WikiDocumentBlocks(unittest.TestCase):
         self.assertEquals(len(div2.params), 2)
         self.assertEquals(div2.params['class'], 'important')
         self.assertEquals(div2.params['style'], 'border: 4px outset red')
-        
+
 
 
 def suite():
@@ -401,7 +407,6 @@ def suite():
     suite.addTest(unittest.makeSuite(WikiDocumentInvariants, 'test'))
     suite.addTest(unittest.makeSuite(WikiDocumentBlocks, 'test'))
     return suite
-    
+
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')
-

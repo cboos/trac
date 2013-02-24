@@ -42,12 +42,13 @@ class WikiNode(object):
     def __init__(self, *args):
         self.i, self.j = args
 
+
 class WikiBlock(WikiNode):
     """A block correspond to a multiline section delimited by a pair of
     matching triple curly braces (``{{{`` ... ``}}}``).
 
-    The content of a block starts at line ``start`` and ends before
-    line ``end``::
+    The content of a block starts at line ``start`` and ends at line
+    ``end - 1``::
 
            .j          B3<1-5>
            |
@@ -81,11 +82,13 @@ class WikiBlock(WikiNode):
         self.name = name or ''
         self.params = params or {}
         self.nodes = []
+        self.comment = ''
 
     def __repr__(self):
-        return 'B%d<%d%s-%d>%s' % (self.j, self.i,
-                                   '+' * (self.start - self.i - 1),
-                                   self.end, self.name or '')
+        return 'B%d<%d%s-%d>%s%s' % (
+            self.j, self.i, '+' * (self.start - self.i - 1), self.end,
+            self.name or '', self.comment[:10])
+
 
 class WikiDocument(WikiBlock):
     """A document corresponds to a wiki text in one unit of storage.
@@ -102,6 +105,7 @@ class WikiDocument(WikiBlock):
 
     def __repr__(self):
         return 'WikiDocument (%d lines)' % len(self.lines)
+
 
 
 class WikiParser(Component):
@@ -341,11 +345,10 @@ class WikiParser(Component):
     def _detect_nested_blocks(self, wikidoc, scope):
         """Each line between ``scope.start`` included and
         ``scope.end`` excluded can start or end a block, beginning at
-        column ``scope.j``.
+        column ``scope.j``::
 
-                 scope.j
+               scope.j
                     |
-                    V
            0 ..................................... wikidoc.start
              .....................................
              .......xxxxx xx x.xxxxxxxxx ......... scope.start
@@ -365,11 +368,14 @@ class WikiParser(Component):
             if scope.j:
                 line = line[scope.j:]
             if self.ENDBLOCK in line:
-                if line.strip() == self.ENDBLOCK:
+                line = line.strip()
+                if line.startswith(self.ENDBLOCK):
                     if len(ancestors) == 1: # stray }}}, edit mistake?
                         continue
                     block = ancestors.pop()
                     block.end = i
+                    if line != self.ENDBLOCK:
+                        block.comment = line[len(self.ENDBLOCK):]
                     if not block.name and block.end - block.start > 0:
                         #  {{{       .i
                         #  #!name    .start
