@@ -27,8 +27,6 @@ from trac.resource import IResourceManager
 from trac.util.text import unquote_label
 from trac.util.translation import _
 
-from .parser import WikiParser
-
 
 class IWikiChangeListener(Interface):
     """Components that want to get notified about the creation,
@@ -202,6 +200,79 @@ class IWikiSyntaxProvider(Interface):
         """
 
 
+# -- New 1.1.x Wiki Engine
+
+class IWikiBlockSyntaxProvider(Interface):
+    """Enrich the Wiki syntax with whole line patterns.
+
+    These patterns will be used for creating structural nodes
+    (i.e. corresponding to HTML block element).
+    """
+
+    def get_wiki_line_patterns():
+        """Extend the Wiki syntax with whole lines patterns
+        for building block Markup.
+
+        :return: an iterable over pairs of `(regexp, builder)`, the
+          `regexp` for the additional syntax and the callback
+          `builder` which will be called if there's a match.  That
+          function is of the form ``builder(wikidoc, wikinodes, i,
+          match)``, where:
+
+            - *wikidoc* is the `~trac.wiki.parser.WikiDocument` containing the
+              whole source
+
+            - *wikinodes* is the current stack of scopes, the last one
+              being the immediate parent scope of the
+              `~trac.wiki.parser.WikiNode` to be created
+
+            - *i*, the line where the match was performed; the column for
+              the created node should be set the same as the parent
+
+            - *match* the `re.MatchObject`
+
+          The ``builder()`` method must return a new
+          `~trac.wiki.parser.WikiNode` of the appropriate type.
+        """
+
+    def get_wiki_verbatim_sensitive_line_patterns():
+        """Extend the Wiki syntax with intra-lines patterns
+        for building block Markup.
+
+        These patterns will be applied on processed lines in which
+        the text within standard inline verbatim patterns have been
+        erased (verbatim markers included).
+
+        This is particularly handy if the pattern of interest is
+        located *somewhere in the middle* of the line. It would be all
+        to messy to have to worry in each such pattern about the risks
+        of false positive matches due to inline escaping.
+
+        The elements returned by this iterable have the same form as
+        the ones returned by the `get_wiki_line_patterns` method.
+        """
+
+
+class IWikiInlineSyntaxProvider(Interface):
+    """Enrich the Wiki syntax with inline patterns.
+
+    These patterns will be used for creating content nodes
+    (i.e. corresponding to HTML inline elements).
+    """
+
+    def get_wiki_inline_patterns():
+        """Extend the Wiki syntax with intra-lines patterns
+        for building inline Markup.
+
+        :return: an iterable consisting in pairs of ``(regexp,
+          builder)`` where the ``builder`` is a function of the form
+          ``builder(wikidoc, wikinodes, i, match)``, very much like
+          the ``builder`` from `IWikiBlockSyntaxProvider` methods. In
+          addition, the returned `~trac.wiki.parser.WikiNode` will is
+          usually be a subclass of `~trac.wiki.parser.InlineMarkup`.
+        """
+
+
 class IWikiFormatterProvider(Interface):
     """Define formatters for the Wiki DOM."""
 
@@ -371,6 +442,8 @@ class WikiSystem(Component):
         return self.format_page_name(label)
 
     def get_wiki_syntax(self):
+        from .parser import WikiParser
+
         wiki_page_name = (
             r"(?:[%(upper)s](?:[%(lower)s])+/?){2,}" # wiki words
             r"(?:@[0-9]+)?"                          # optional version

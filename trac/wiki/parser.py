@@ -22,6 +22,7 @@ import re
 
 from trac.core import *
 from trac.notification import EMAIL_LOOKALIKE_PATTERN
+from .api import IWikiBlockSyntaxProvider, IWikiInlineSyntaxProvider
 
 # -- Wiki DOM
 
@@ -107,9 +108,32 @@ class WikiDocument(WikiBlock):
         return 'WikiDocument (%d lines)' % len(self.lines)
 
 
+# -- Standard structural elements
+
+class WikiItem(WikiNode):
+    def __init__(self, i, j, kind):
+        WikiNode.__init__(self, i, j)
+        self.kind = kind
+
+class WikiEnumeratedItem(WikiItem):
+    def __init__(self, i, j, bullet):
+        WikiItem.__init__(self, i, j, bullet)
+
+class WikiDescriptionItem(WikiItem):
+    def __init__(self, i, j, kind='::'):
+        WikiItem.__init__(self, i, j, kind)
+
+class WikiRow(WikiItem):
+    def __init__(self, i, j, kind='||'):
+        WikiNode.__init__(self, i, j, kind)
+
+
 
 class WikiParser(Component):
     """Wiki text parser."""
+
+    wiki_block_syntax_providers = ExtensionPoint(IWikiBlockSyntaxProvider)
+    wiki_inline_syntax_providers = ExtensionPoint(IWikiInlineSyntaxProvider)
 
     # Pre-processing
 
@@ -267,6 +291,10 @@ class WikiParser(Component):
 
     _set_anchor_wc_re = re.compile(_set_anchor(XML_NAME, r'\|\s*') + r'$')
 
+    _block_raw_re = None
+    _block_sensitive_re = None
+    _inline_syntax_re = None
+
     def __init__(self):
         # 0.12 compatibility
         self._compiled_rules = None
@@ -295,15 +323,11 @@ class WikiParser(Component):
         from trac.wiki.api import WikiSystem
         if not self._compiled_rules:
             helpers = []
-            handlers = {}
-            syntax = self._pre_rules[:]
-            i = 0
-            for resolver in WikiSystem(self.env).syntax_providers:
-                for regexp, handler in resolver.get_wiki_syntax() or []:
-                    handlers['i' + str(i)] = handler
-                    syntax.append('(?P<i%d>%s)' % (i, regexp))
-                    i += 1
-            syntax += self._post_rules[:]
+            # checking _collect_partial_patterns by also using it for legacy
+            regexps, handlers = self._collect_partial_patterns(
+                WikiSystem(self.env).syntax_providers, 'get_wiki_syntax')
+            # note: the groups names have changed from i\d to _i\d
+            syntax = self._pre_rules + regexps + self._post_rules
             helper_re = re.compile(r'\?P<([a-z\d_]+)>')
             for rule in syntax:
                 helpers += helper_re.findall(rule)[1:]
@@ -322,6 +346,71 @@ class WikiParser(Component):
                     resolvers[namespace] = handler
             self._link_resolvers = resolvers
         return self._link_resolvers
+
+
+    # -- New 1.1.x Wiki Engine
+
+    _private_helper_re = re.compile(r'\(?P<_i\d+>')
+
+    def _collect_partial_patterns(self, providers, method):
+        regexps = []
+        handlers = {}
+        i = 0
+        for provider in providers:
+            provider_method = getattr(provider, method, None)
+            if provider_method:
+                method_repr = '%s.%s' % (provider.__class__.__name__, method)
+                for regexp, builder in provider_method() or []:
+                    # we reserve the (?<_i\d> ...) group names for us
+                    forbidden = self._private_helper_re.findall(regexp)
+                    if forbidden:
+                        self.log.warn(
+                            "Rejecting wiki syntax extension from %s '%r'"
+                            "as it contains reserved group identifiers: %r",
+                            method_repr, regexp, forbidden)
+                        continue
+                    # each partial regexp must be valid in its own right
+                    try:
+                        re.compile(regexp)
+                    except re.error, e:
+                        self.log.warn(
+                            "Rejecting wiki syntax extension from %s '%r' "
+                            "which is invalid (%s)",
+                            method_repr, regexp, e)
+                        continue
+                    key = '_i' + str(i)
+                    i += 1 # I hate Python
+                    regexps.append('(?P<%s>%s)' % (key, regexp))
+                    handlers[key] = builder
+        return regexps, handlers
+
+    @property
+    def block_raw_re(self):
+        if self._block_raw_re is None:
+            regexps, handlers = self._collect_partial_patterns(
+                self.wiki_block_syntax_providers, 'get_wiki_line_patterns')
+            self._block_raw_re = re.compile('(?:%s)' % '|'.join(regexps),
+                                            re.UNICODE)
+            self._block_raw_handlers = handlers
+        return self._block_raw_re
+
+    @property
+    def block_sensitive_re(self):
+        if self._block_sensitive_re is None:
+            regexps, handlers = self._collect_partial_patterns(
+                self.wiki_block_syntax_providers,
+                'get_wiki_verbatim_sensitive_line_patterns')
+            self._block_sensitive_re = re.compile('(?:%s)' % '|'.join(regexps),
+                                                  re.UNICODE)
+            self._block_sensitive_handlers = handlers
+        return self._block_sensitive_re
+
+    @property
+    def inline_regexps(self):
+        if self._inline_regexps is None:
+            regexps, handlers = self._collect_partial_patterns(
+                self.wiki_inline_syntax_providers, 'get_wiki_line_patterns')
+        return self._inline_regexps
 
     # ** wikiparser **
 

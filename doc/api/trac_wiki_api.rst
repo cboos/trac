@@ -57,6 +57,17 @@ The Wiki syntax can also be extended by introducing new markup.
    See also :teo:`wiki:TracDev/IWikiSyntaxProviderExample` and
    :extensionpoints:`trac.wiki.api.IWikiSyntaxProvider`.
 
+.. autoclass :: IWikiBlockSyntaxProvider
+   :members:
+
+   See also :extensionpoints:`trac.wiki.api.IWikiBlockSyntaxProvider`.
+
+.. autoclass :: IWikiInlineSyntaxProvider
+   :members:
+
+   See also :extensionpoints:`trac.wiki.api.IWikiInlineSyntaxProvider`.
+
+
 
 Adding rendering formats
 ........................
