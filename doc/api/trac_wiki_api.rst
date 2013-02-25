@@ -17,7 +17,7 @@ Interacting with Wiki pages
 First, components can be notified of the changes happening in the
 wiki.
 
-.. autoclass :: trac.wiki.api.IWikiChangeListener
+.. autoclass :: IWikiChangeListener
    :members:
 
    See also :extensionpoints:`trac.wiki.api.IWikiChangeListener`.
@@ -25,7 +25,7 @@ wiki.
 Components can also interfere with the changes, before or after
 they're made.
 
-.. autoclass :: trac.wiki.api.IWikiPageManipulator
+.. autoclass :: IWikiPageManipulator
    :members:
 
    See also :extensionpoints:`trac.wiki.api.IWikiPageManipulator`.
@@ -41,7 +41,7 @@ following interface. The difference comes from the invocation
 syntax used in the Wiki markup, which manifests itself in the `args`
 parameter of :meth:`IWikiMacroProvider.expand_macro`.
 
-.. autoclass :: trac.wiki.api.IWikiMacroProvider
+.. autoclass :: IWikiMacroProvider
    :members:
 
    See also `~trac.wiki.macros.WikiMacroBase` and
@@ -51,7 +51,7 @@ parameter of :meth:`IWikiMacroProvider.expand_macro`.
 
 The Wiki syntax can also be extended by introducing new markup.
 
-.. autoclass :: trac.wiki.api.IWikiSyntaxProvider
+.. autoclass :: IWikiSyntaxProvider
    :members:
 
    See also :teo:`wiki:TracDev/IWikiSyntaxProviderExample` and
@@ -61,7 +61,7 @@ The Wiki syntax can also be extended by introducing new markup.
 Adding rendering formats
 ........................
 
-..      autoclass :: trac.wiki.api.IWikiFormatterProvider
+..      autoclass :: IWikiFormatterProvider
    :members:
 
 
@@ -70,7 +70,7 @@ The Wiki System
 
 The wiki system provide an access to all the pages.
 
-.. autoclass :: trac.wiki.api.WikiSystem
+.. autoclass :: WikiSystem
    :members:
    :exclude-members: get_resource_description, resource_exists
 
@@ -79,6 +79,6 @@ The wiki system provide an access to all the pages.
 Other Functions
 ---------------
 
-.. autofunction :: trac.wiki.api.parse_args
-.. autofunction :: trac.wiki.api.validate_page_name
+.. autofunction :: parse_args
+.. autofunction :: validate_page_name
 
