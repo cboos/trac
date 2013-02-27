@@ -233,6 +233,11 @@ class IWikiBlockSyntaxProvider(Interface):
 
           The ``builder()`` method must return a new
           `~trac.wiki.parser.WikiNode` of the appropriate type.
+
+          Note that instead of a pair, it might be more convenient to
+          return simply the ``builder`` function with the regexp
+          associated to it as the ``.regexp`` attribute. The
+          `wiki_regexp` function decorator can be used to that end.
         """
 
     def get_wiki_verbatim_sensitive_line_patterns():
@@ -269,7 +274,7 @@ class IWikiInlineSyntaxProvider(Interface):
           ``builder(wikidoc, wikinodes, i, match)``, very much like
           the ``builder`` from `IWikiBlockSyntaxProvider` methods. In
           addition, the returned `~trac.wiki.parser.WikiNode` will is
-          usually be a subclass of `~trac.wiki.parser.InlineMarkup`.
+          usually be a subclass of `~trac.wiki.parser.WikiInline`.
         """
 
 
@@ -290,6 +295,17 @@ class IWikiFormatterProvider(Interface):
         .. todo:: add content_type?
         """
 
+
+def wiki_regexp(regexp):
+    """Decorator binding a regexp to a builder function.
+
+    For use by implementations of `IWikiBlockSyntaxProvider` and
+    `IWikiInlineSyntaxProvider`.
+    """
+    def bind_regexp(builder):
+        builder.regexp = regexp
+        return builder
+    return bind_regexp
 
 
 def parse_args(args, strict=True):

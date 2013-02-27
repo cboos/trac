@@ -9,6 +9,8 @@ The Wiki Document Object Model
 
 A WikiDOM tree is made of `WikiNode` and its subclasses.
 
+The following 3 classes build the skeleton of the parse tree.
+
 ..      autoclass :: WikiNode
    :members:
 
@@ -16,6 +18,22 @@ A WikiDOM tree is made of `WikiNode` and its subclasses.
    :members:
 
 ..      autoclass :: WikiDocument
+   :members:
+
+
+The following classes build the structure of the markup, corresponding
+to what is usually called block level markup, in HTML speak.
+
+..      autoclass :: WikiItem
+   :members:
+
+..      autoclass :: WikiEnumeratedItem
+   :members:
+
+..      autoclass :: WikiDescriptionItem
+   :members:
+
+..      autoclass :: WikiRow
    :members:
 
 

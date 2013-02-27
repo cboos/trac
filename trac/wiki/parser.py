@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 Edgewall Software
+# Copyright (C) 2005-2013 Edgewall Software
 # Copyright (C) 2003-2006 Jonas Borgström <jonas@edgewall.com>
 # Copyright (C) 2004-2006 Christopher Lenz <cmlenz@gmx.de>
 # Copyright (C) 2005-2007 Christian Boos <cboos@edgewall.org>
@@ -24,6 +24,7 @@ from trac.core import *
 from trac.notification import EMAIL_LOOKALIKE_PATTERN
 from .api import IWikiBlockSyntaxProvider, IWikiInlineSyntaxProvider
 
+
 # -- Wiki DOM
 
 class WikiNode(object):
@@ -36,17 +37,18 @@ class WikiNode(object):
 
     A node may have children ``nodes``.
     """
-    nodes = None # no subnodes
-    end = None   # not multiline
-    k = -1       # eol
+    nodes = None #: subnodes
+    end = None   #: multiline if not `None`
+    k = -1       #: eol for this node
 
-    def __init__(self, *args):
-        self.i, self.j = args
+    def __init__(self, i, j):
+        self.i = i #: line in corresponding `WikiDocument.lines`
+        self.j = j #: start of node within the line
 
 
 class WikiBlock(WikiNode):
-    """A block correspond to a multiline section delimited by a pair of
-    matching triple curly braces (``{{{`` ... ``}}}``).
+    """A block corresponds to a multiline section delimited by a pair
+    of matching triple curly braces (``{{{`` ... ``}}}``).
 
     The content of a block starts at line ``start`` and ends at line
     ``end - 1``::
@@ -79,16 +81,23 @@ class WikiBlock(WikiNode):
     """
     def __init__(self, i, j, name=None, params=None):
         WikiNode.__init__(self, i, j)
-        self.start = self.end = i + 1
-        self.name = name or ''
-        self.params = params or {}
+        self.start = i + 1 #: start of the actual content
+        self.end = self.start
+        self.name = name or '' #: name of the directive, empty if no directives
+        self.params = params or {} #: parameters of the directive or empty dict
         self.nodes = []
-        self.comment = ''
+        self.comment = '' #: trailing comment (used as editing help only)
 
     def __repr__(self):
         return 'B%d<%d%s-%d>%s%s' % (
             self.j, self.i, '+' * (self.start - self.i - 1), self.end,
             self.name or '', self.comment[:10])
+
+    def nodes_of_type(self, types):
+        """Iterate on the subset of `.nodes` which are of the given type(s)."""
+        for node in self.nodes:
+            if isinstance(node, types):
+                yield node
 
 
 class WikiDocument(WikiBlock):
@@ -100,32 +109,65 @@ class WikiDocument(WikiBlock):
     def __init__(self, text):
         WikiBlock.__init__(self, 0, 0)
         text = re.sub(WikiParser._normalize_re, ' ', text or '')
-        self.lines = text.splitlines()
+        self.lines = text.splitlines() #: original wiki source lines
         self.start = 0
         self.end = len(self.lines)
 
     def __repr__(self):
         return 'WikiDocument (%d lines)' % len(self.lines)
 
+    def eol(self, i):
+        return len(self.lines[i])
+
 
 # -- Standard structural elements
 
 class WikiItem(WikiNode):
-    def __init__(self, i, j, kind):
-        WikiNode.__init__(self, i, j)
-        self.kind = kind
+    """Generic block-level wiki syntax node.
+
+    Also used as items in plain unnumbered lists.
+    """
+    kind = '' #: detail on the nature of the item (e.g. bullet type)
+
+    def __repr__(self):
+        return '(%s)%d<%s%s>' % (
+            self.kind, self.j, self.i, '-%d' % self.end if self.end else '')
+
 
 class WikiEnumeratedItem(WikiItem):
-    def __init__(self, i, j, bullet):
-        WikiItem.__init__(self, i, j, bullet)
+    """Specialized item for numbered lists."""
+
 
 class WikiDescriptionItem(WikiItem):
-    def __init__(self, i, j, kind='::'):
-        WikiItem.__init__(self, i, j, kind)
+    """Specialized item for description lists."""
+    kind = '::' #: default kind for the WikiDescriptionItem
+
 
 class WikiRow(WikiItem):
-    def __init__(self, i, j, kind='||'):
-        WikiNode.__init__(self, i, j, kind)
+    """Specialized "item" corresponding to a row in a table."""
+    kind = '||' #: default kind for the WikiRow
+
+
+# -- Standard inline elements
+
+class WikiInline(WikiNode):
+    """Generic inline-level wiki syntax node.
+
+    Also used for plain text content.
+    """
+
+    def __repr__(self):
+        return 'T%d<%d>:%s' % (self.j, self.i, self.k if self.k > -1 else '')
+
+class WikiBlankLine(WikiInline):
+    """Special kind of inline-level wiki syntax (or non-syntax).
+
+    The blank line can have special meaning during block markup
+    consolidation.
+    """
+
+    def __repr__(self):
+        return '/'
 
 
 
@@ -360,7 +402,11 @@ class WikiParser(Component):
             provider_method = getattr(provider, method, None)
             if provider_method:
                 method_repr = '%s.%s' % (provider.__class__.__name__, method)
-                for regexp, builder in provider_method() or []:
+                for builder in provider_method() or []:
+                    if isinstance(builder, tuple):
+                        regexp, builder = builder
+                    else:
+                        regexp = builder.regexp
                     # we reserve the (?<_i\d> ...) group names for us
                     forbidden = self._private_helper_re.findall(regexp)
                     if forbidden:
@@ -421,12 +467,21 @@ class WikiParser(Component):
         return wikidoc
 
     def vertical_parsing(self, wikidoc, block):
-        """Parses the structural markup in the `block` from `wikidoc`."""
+        """Parses the structural markup in the `block` from `wikidoc`.
+
+        .. todo:: we would actually need to keep track of the stack of
+           blocks, i.e. the scopes (or if we decide we don't, remove it
+           from IWikiBlockSyntaxProvider).
+        """
         self._detect_nested_blocks(wikidoc, block)
+        self._parse_between_blocks(wikidoc, [block])
 
     # -- WikiBlocks
 
     _processor_re = re.compile(PROCESSOR)
+
+    _processor_param_re = re.compile(PROCESSOR_PARAM)
+    # Note: not using re.UNICODE here as pnames are used as keyword arguments
 
     _startblock_re = re.compile(r'\s*%(startblock)s(?:%(processor)s|\s*$)' % {
         'startblock': STARTBLOCK, 'processor': PROCESSOR})
@@ -450,6 +505,7 @@ class WikiParser(Component):
              .....................................
            n                                       wikidoc.end
 
+        The tree of nested blocks will be rooted in the given *scope*.
         """
         ancestors = [scope]
         for i in xrange(scope.start, scope.end):
@@ -495,8 +551,73 @@ class WikiParser(Component):
             block = ancestors.pop()
             block.end = scope.end
 
-    _processor_param_re = re.compile(PROCESSOR_PARAM)
-    # Note: not using re.UNICODE here as pnames are used as keyword arguments
+    # -- WikiItems
+
+    _indent_re = re.compile('\s*')
+
+    def _parse_between_blocks(self, wikidoc, scopes):
+        """Associate one WikiNode with lines outside of `WikiBlock` subnodes.
+
+        Each line outside of the children `WikiBlock` will be parsed
+        with regexps contributed by
+        `~trac.wiki.api.IWikiSyntaxProviders` and the corresponding
+        nodes will be built and merged with the `WikiBlock` nodes.
+        """
+        def build_node(handlers, i, fullmatch):
+            if fullmatch:
+                for name, match in fullmatch.groupdict().items():
+                    if match and name.startswith('_i'): # TODO check \d+
+                        builder = handlers.get(name)
+                        if builder:
+                            return builder(wikidoc, scopes, i, fullmatch)
+        scope = scopes[-1]
+        oldnodes = scope.nodes
+        n = 0
+        oldnode = oldnodes[n] if n < len(oldnodes) else None
+        newnodes = []
+        i = scope.start
+        while i < scope.end:
+            # integrate oldnode into the new nodes if we're hitting it
+            if oldnode and i == oldnode.i:
+                newnodes.append(oldnode)
+                n += 1
+                i = oldnode.end + 1
+                oldnode = oldnodes[n] if n < len(oldnodes) else None
+                continue
+            # we're in between blocks, parse for structural syntax
+            line = wikidoc.lines[i]
+            if line:
+                fullmatch = self.block_raw_re.match(line, scope.j)
+                newnode = build_node(self._block_raw_handlers, i,
+                                     fullmatch)
+                if newnode is None:
+                    safe_line = self.make_verbatime_safe(line)
+                    fullmatch = self.block_sensitive_re.match(safe_line,
+                                                              scope.j)
+                    newnode = build_node(self._block_sensitive_handlers, i,
+                                         fullmatch)
+                if newnode is None:
+                    fullmatch = self._indent_re.match(line, scope.j)
+                    j = fullmatch.end(0)
+                    newnode = (WikiInline if j < wikidoc.eol(i)
+                               else WikiBlankLine)(i, j)
+            else:
+                newnode = WikiBlankLine(i, scope.j)
+            newnodes.append(newnode)
+            i += 1
+        scope.nodes = newnodes
+
+    def make_verbatime_safe(self, line):
+        """This is a very crude verbatim escape.
+
+        I think it does what Trac 1.0 did, but we'll need to use
+        `IWikiInlineSyntaxProvider.get_wiki_verbatim_patterns` here.
+        """
+        def replace_verbatim(match):
+            s, e = match.span(0)
+            return 'x' * (e - s)
+        return re.sub(r'`[^`]+`|{{{(?:[^}]|}[^}]|}}[^}])+}}}',
+                      replace_verbatim, line)
 
 
 def parse_processor_params(processor_params):

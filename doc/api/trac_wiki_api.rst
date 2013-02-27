@@ -67,6 +67,8 @@ The Wiki syntax can also be extended by introducing new markup.
 
    See also :extensionpoints:`trac.wiki.api.IWikiInlineSyntaxProvider`.
 
+Note that the regular expressions provided by the above two will be
+used with `re.match`, so there's no need to prepend the ``^`` sign.
 
 
 Adding rendering formats
@@ -90,6 +92,7 @@ The wiki system provide an access to all the pages.
 Other Functions
 ---------------
 
+.. autofunction :: wiki_regexp
 .. autofunction :: parse_args
 .. autofunction :: validate_page_name
 

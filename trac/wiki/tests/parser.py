@@ -226,7 +226,8 @@ class WikiDocumentInvariants(unittest.TestCase):
 
 
 
-class WikiDocumentBlocks(unittest.TestCase):
+class WikiDocumentTest(unittest.TestCase):
+
     def setUp(self):
         self.env = EnvironmentStub()
 
@@ -243,6 +244,10 @@ class WikiDocumentBlocks(unittest.TestCase):
                 repr(wb), ', '.join(self.blocktree(b) for b in wb.nodes))
         else:
             return repr(wb)
+
+
+class WikiDocumentBlocks(WikiDocumentTest):
+    """Testing WikiBlock and `_detect_nested_blocks` phase."""
 
     def test_empty(self):
         w = self.detect_nested_blocks(empty)
@@ -362,8 +367,7 @@ class WikiDocumentBlocks(unittest.TestCase):
                             B0<63-65>comment comment2,
                             B3<67-69> b1,
                             B2<70-72> b2
-                           }''')
-                          )
+                           }'''))
 
     def test_multilevelblock_subblock(self):
         scope = WikiBlock(44, 4)
@@ -413,11 +417,88 @@ class WikiDocumentBlocks(unittest.TestCase):
         self.assertEquals(div2.params['style'], 'border: 4px outset red')
 
 
+class WikiDocumentItems(WikiDocumentTest):
+    """Testing WikiItem and `_parse_between_blocks` phase."""
+
+    def parse_between_blocks(self, source, scope=None):
+        wikidoc = self.detect_nested_blocks(source)
+        if not scope:
+            scope = wikidoc
+        WikiParser(self.env)._parse_between_blocks(wikidoc, [scope])
+        return scope
+
+    def test_multiline(self):
+        w = self.parse_between_blocks(multiline)
+        self.assertEquals(len(w.nodes), 4)
+        self.assertEquals(self.blocktree(w), simplified('''
+                          WikiDocument (4 lines) {
+                          T0<0>:,
+                          T0<1>:,
+                          /,
+                          T0<3>:
+                          }'''))
+
+    def test_singleblock(self):
+        w = self.parse_between_blocks(singleblock)
+        self.assertEquals(self.blocktree(w), simplified('''
+                          WikiDocument (5 lines) {
+                          T0<0>:,
+                          B0<1-3>,
+                          T0<4>:
+                          }'''))
+
+    def test_multilevelblock(self):
+        w = self.parse_between_blocks(multilevelblock)
+        self.assertEquals(repr(w.nodes), simplified('''[
+                           T0<0>:,
+                           B0<1-61>div topleveld,
+                           T0<62>:,
+                           B0<63-65>comment comment2,
+                            (-)1<66>,
+                              B3<67-69> b1,
+                             B2<70-72> b2,
+                            (-)1<73>
+                           ]'''))
+        self.assertEquals(self.blocktree(w), simplified('''
+                           WikiDocument (74 lines) {
+                           T0<0>:,
+                           B0<1-61>div topleveld {
+                             B2<3-60>table table {
+                               B4<4-43>th th {
+                               B4<9-28>td td1 {
+                               B4<11+-15>python py,
+                               B4<16-27>comment comment1 {
+                                 B6<18-25> a1 {
+                                    B9<19-20> a11,
+                                    B9<22-24> a12
+                                 }
+                               }
+                               },
+                               B4<30-42>td td2 {
+                                   B8<32-36>div div+style,
+                                   B8<38+-41>div div+class
+                               }
+                               },
+                                B5<46-48> a2,
+                                  B7<50-52> a3,
+                              B3<54-59> starts at {
+                               B4<56-58> a41
+                             }
+                            }
+                           },
+                           T0<62>:,
+                           B0<63-65>comment comment2,
+                            (-)1<66>,
+                              B3<67-69> b1,
+                             B2<70-72> b2,
+                            (-)1<73>
+                          }'''))
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(WikiDocumentInvariants, 'test'))
     suite.addTest(unittest.makeSuite(WikiDocumentBlocks, 'test'))
+    suite.addTest(unittest.makeSuite(WikiDocumentItems, 'test'))
     return suite
 
 if __name__ == '__main__':
