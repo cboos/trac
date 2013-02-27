@@ -151,15 +151,22 @@ div.debugblock {
  margin: .5em .1em .1em .1em;
 }
 
-div.debugblock > div.name:before {
+div.debugblock > span.name:before {
  content: "#!"
 }
-div.debugblock > div.name { 
- background: #eef;
- padding: .2em;
+div.debugblock pre:first-child {
+ display: inline;
+}
+div.debugblock span.name {
  font-weight: bold;
+ background: #ddf;
+ border: 1px solid #ccd;
+ border-radius: .5em;
+ padding: 0 .2em;
+ margin: 0 .5em;
 }
 div.debugblock > dl {
+ display: inline;
  margin: 0px;
  background: #eeeeff;
  font-style: italic;
@@ -170,10 +177,13 @@ div.debugblock > dl > dd:before {
 div.debugblock > dl > dd:after {
  content: "» ";
 }
-div.debugblock > dl > dt {
- float: left;
+div.debugblock > dl > dt, div.debugblock > dl > dd {
+ display: inline;
  margin: 0px .5em;
 }
 div.debugblock pre {
  white-space: pre-wrap;
+}
+div.debugblock > span.debugitem {
+ font-weight: normal;
 }
