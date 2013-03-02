@@ -37,7 +37,7 @@ from trac.util.text import exception_to_unicode, shorten_line, to_unicode, \
 from trac.util.html import TracHTMLSanitizer
 from trac.util.translation import _
 from trac.wiki.api import (
-    IWikiFormatterProvider, WikiSystem, parse_args
+    IWikiFormatterProvider, WikiFormatter, WikiSystem, parse_args
 )
 from trac.wiki.parser import (
     Sourcer, WikiBlock, WikiParser, parse_processor_args
@@ -1560,92 +1560,124 @@ class InlineHtmlFormatter(object):
 # -- 1.1.x formatters
 
 class DebugFormatter(Component):
+    """Debug formatters, not interesting for end-users."""
 
     implements(IWikiFormatterProvider)
 
     # IWikiFormatterProvider methods
 
     def get_wiki_formatters(self):
-        yield ('debugparsetime', "No-op (time parsing)", lambda *args: '{}')
+        class DebugParseTime(WikiFormatter):
+            """No-op (time parsing)"""
 
-        from .parser import WikiItem, WikiInline
+            debug = True
 
-        def format_block(context, wikidoc, node):
-            def spaces(n):
-                return u'\u2420' * n
-            def subst_spaces(text):
-                return re.sub(r'^ +', lambda m: spaces(len(m.group(0))), text)
-            def linenum(i):
-                return '%04d\t' % i
-            def format_rec(node, depth):
-                subdivs = []
-                start = node.start
-                def nonblock(end):
-                    subdivs.append(
-                        tag.pre('\n'.join(
-                                linenum(i) + subst_spaces(wikidoc.lines[i])
-                                for i in xrange(start, end))))
-                for n in node.nodes:
-                    if isinstance(n, WikiBlock):
-                        if n.i > start:
-                            nonblock(n.i)
-                        subdivs.append(format_rec(n, depth + 1))
-                        start = n.end + 1
-                    elif isinstance(n, (WikiItem, WikiInline)):
-                        name = n.__class__.__name__.replace('Wiki', '')
-                        line = wikidoc.lines[n.i]
-                        if isinstance(n, WikiItem):
-                            name += ' ' + n.kind
-                            part = line[n.j:n.k]
-                            extra = line[n.k:]
-                        else:
-                            part, extra = line[n.j:], ''
+            def format(self, *args):
+                return '{}'
+
+        yield DebugParseTime
+
+        class DebugBlockStructure(WikiFormatter):
+            """Debug Block structure"""
+
+            debug = True
+
+            def format(self, context, wikidoc, node):
+                from .parser import WikiItem, WikiInline
+                def spaces(n):
+                    return u'\u2420' * n
+                def subst_spaces(text):
+                    return re.sub(r'^ +', lambda m: spaces(len(m.group(0))),
+                                  text)
+                def linenum(i):
+                    return '%04d\t' % i
+
+                def format_rec(node, depth):
+                    subdivs = []
+                    start = node.start
+                    def nonblock(end):
                         subdivs.append(
-                            tag.pre(
-                                linenum(n.i), spaces(n.j),
-                                tag.span(name, class_='name debugitem'),
-                                tag.span(part, class_='underline'),
-                                extra))
-                        start = (n.end or n.i) + 1
-                if start < node.end:
-                    nonblock(node.end)
-                return tag.div(tag.pre(linenum(node.i), spaces(node.j)),
-                               tag.span(node.name, class_='name')
-                               if node.name else None,
-                               tag.dl((tag.dt(k), tag.dd(v))
-                                      for k, v in node.params.iteritems())
-                               if node.params else None,
-                               subdivs,
-                               class_='debugblock depth%d' % depth)
-            return format_rec(node, 1)
-        yield ('debugblock', "Debug Block structure", format_block)
+                            tag.pre('\n'.join(
+                                    linenum(i) + subst_spaces(wikidoc.lines[i])
+                                    for i in xrange(start, end))))
+                    for n in node.nodes:
+                        if isinstance(n, WikiBlock):
+                            if n.i > start:
+                                nonblock(n.i)
+                            subdivs.append(format_rec(n, depth + 1))
+                            start = n.end + 1
+                        elif isinstance(n, (WikiItem, WikiInline)):
+                            name = n.__class__.__name__.replace('Wiki', '')
+                            line = wikidoc.lines[n.i]
+                            if isinstance(n, WikiItem):
+                                name += ' ' + n.kind
+                                part = line[n.j:n.k]
+                                extra = line[n.k:]
+                            else:
+                                part, extra = line[n.j:], ''
+                            subdivs.append(
+                                tag.pre(
+                                    linenum(n.i), spaces(n.j),
+                                    tag.span(name, class_='name debugitem'),
+                                    tag.span(part, class_='underline'),
+                                    extra))
+                            start = (n.end or n.i) + 1
+                    if start < node.end:
+                        nonblock(node.end)
+                    return tag.div(tag.pre(linenum(node.i), spaces(node.j)),
+                                   tag.span(node.name, class_='name')
+                                   if node.name else None,
+                                   tag.dl((tag.dt(k), tag.dd(v))
+                                          for k, v in node.params.iteritems())
+                                   if node.params else None,
+                                   subdivs,
+                                   class_='debugblock depth%d' % depth)
+                return format_rec(node, 1)
+
+        yield DebugBlockStructure
 
 
 class WikiSourceFormatter(Component):
+    """Format a Wiki parse tree into a wiki source text.
+
+    This can be used for saving a modified WikiDOM into source form.
+    """
 
     implements(IWikiFormatterProvider)
 
     # IWikiFormatterProvider methods
 
     def get_wiki_formatters(self):
-        def format_to_source(context, wikidoc, node):
-            s = Sourcer(wikidoc)
-            node.to_source(s)
-            return s.out.getvalue()
-        yield ('source', "Re-create the wiki source", format_to_source)
 
-        def format_to_source(context, wikidoc, node):
-            s = Sourcer(wikidoc)
-            node.to_source(s)
-            return tag.table(
-                tag.thead(
-                    tag.tr(tag.th(_("Line"), class_='lineno'),
-                           tag.th(_("Source")))),
-                tag.tbody(
-                    tag.tr(tag.th(i, class_='lineno'), tag.td(line))
-                    for i, line in enumerate(s.out.getvalue().splitlines())),
-                class_='code')
-        yield ('debugsource', "Debug to_source", format_to_source)
+        class WikiSourceFormatter(WikiFormatter):
+            description = _("Re-create the wiki source")
+            mimetype = 'text/x-trac-wiki'
+
+            def format(self, context, wikidoc, node):
+                s = Sourcer(wikidoc)
+                node.to_source(s)
+                return s.out.getvalue()
+
+        yield WikiSourceFormatter
+
+        class DebugSource(WikiFormatter):
+            """Debug to_source"""
+            debug = True
+
+            def format(self, context, wikidoc, node):
+                s = Sourcer(wikidoc)
+                node.to_source(s)
+                lines = s.out.getvalue().splitlines()
+                return tag.table(
+                    tag.thead(
+                        tag.tr(tag.th(_("Line"), class_='lineno'),
+                               tag.th(_("Source")))),
+                    tag.tbody(
+                        tag.tr(tag.th(i, class_='lineno'), tag.td(line))
+                        for i, line in enumerate(lines)),
+                    class_='code')
+
+        yield DebugSource
 
 
 # -- Public API
@@ -1656,9 +1688,8 @@ def format_to(env, flavor, context, wikidoc, node=None, **options):
     :param env:
     :type env: `~trac.env.Environment`
     :param flavor: one of the standard `'html'`, `'oneliner'` flavors,
-                   or one provided by an implementation of the
-                   `~trac.wiki.api.IWikiFormatterProvider`
-                   interface. If undefined, the flavor is obtained
+                   or directly a `~trac.wiki.api.IWikiFormatter`
+                   object. If undefined, the flavor is obtained
                    from the `'wiki_flavor'` hint of the *context*
     :param context:
     :type context: `~trac.mimeview.api.RenderingContext`
@@ -1681,13 +1712,13 @@ def format_to(env, flavor, context, wikidoc, node=None, **options):
             #formatter = self._formatters.get('html')
         if formatter:
             if isinstance(wikidoc, basestring):
-                if flavor == 'debugparsetime':
+                if flavor == 'DebugParseTime':
                     import time
                     start = time.time()
                 node = wikidoc = WikiParser(env).parse(wikidoc)
-                if flavor == 'debugparsetime':
+                if flavor == 'DebugParseTime':
                     return "Parsed in %f seconds" % (time.time() - start)
-            return formatter(context, wikidoc, node or wikidoc)
+            return formatter.format(context, wikidoc, node or wikidoc)
         # 0.12 compat
         return format_to_html(env, context, wikidoc, **options)
 

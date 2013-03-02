@@ -219,9 +219,9 @@ class WikiModule(Component):
     def _get_wiki_formats(self, req):
         formats = []
         for provider in WikiSystem(self.env).formatter_providers:
-            for fmt, name, handler in provider.get_wiki_formatters() or []:
-                if not fmt.startswith('debug') or 'TRAC_ADMIN' in req.perm:
-                    formats.append((fmt, name))
+            for cls in provider.get_wiki_formatters() or []:
+                if not cls.debug or 'TRAC_ADMIN' in req.perm:
+                    formats.append((cls.get_flavor(), cls.get_description()))
         return formats
 
     def _prepare_diff(self, req, page, old_text, new_text,

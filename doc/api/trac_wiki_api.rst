@@ -77,6 +77,9 @@ Adding rendering formats
 ..      autoclass :: IWikiFormatterProvider
    :members:
 
+..      autoclass :: WikiFormatter
+   :members:
+
 
 The Wiki System
 ---------------

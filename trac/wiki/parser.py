@@ -143,7 +143,6 @@ class WikiBlock(WikiNode):
             i = self.i
             for node in self.nodes:
                 for ii in xrange(i, node.i): # raw text before node
-                    sourcer.out.write('[[%s %s]] ' %(self.i, ii))
                     sourcer.printnl(ii)
                 node.to_source(s)
                 i = node.lastline() + 1

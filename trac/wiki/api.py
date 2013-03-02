@@ -278,22 +278,54 @@ class IWikiInlineSyntaxProvider(Interface):
         """
 
 
+class WikiFormatter(object):
+    """Abstract Base class for concrete Wiki formatters."""
+
+    """Identifier for the formatter. If empty, the class name will be
+    used."""
+    flavor = ''
+
+    """Short description for the formatter. If empty, the class
+    documentation will be used."""
+    description = ''
+
+    """MIME type of the formatted output"""
+    mimetype = 'text/html'
+
+    """If `True`, the formatter is only of use while developing the Trac wiki
+    (or a Wiki syntax or formatter provider plugin)."""
+    debug = False
+
+    @classmethod
+    def get_description(cls):
+        """Return a short description for this formatter."""
+        return cls.description or cls.__doc__
+
+    @classmethod
+    def get_flavor(cls):
+        """Return the unique identifier for this formatter."""
+        return cls.flavor or cls.__name__
+
+    def format(self, context, wikidoc, node):
+        """Format a WikiDOM tree to some rendered output.
+
+        :param context: specify the rendering context
+        :type context: `~trac.mimeview.api.RenderingContext`
+        :param wikidoc: the Wiki parse tree
+        :type wikidoc: `~trac.wiki.parser.WikiDocument`
+        :param node: node that should be formatted. This will usually
+                     correspond to the whole document, i.e. *wikidoc*.
+        :type node: `~trac.wiki.parser.WikiNode`
+
+        The generated output is returned as an unicode string.
+        """
+
+
 class IWikiFormatterProvider(Interface):
     """Define formatters for the Wiki DOM."""
 
     def get_wiki_formatters():
-        """Return an iterable over ``(format, name, formatter)`` tuples.
-
-        A ``formatter`` is of the form ``fmt(context, wikidoc, node)``
-        where `context` is a `mimeview.RenderingContext` specifying
-        the rendering context and `wikidoc` a `WikiDocument`. The
-        `node` is the `WikiNode` that should be formatted (it usually
-        corresponds to the whole document).
-
-        The generated output is returned as an unicode string.
-
-        .. todo:: add content_type?
-        """
+        """Return an iterable over `WikiFormatter` subclasses."""
 
 
 def wiki_regexp(regexp):
@@ -415,13 +447,17 @@ class WikiSystem(Component):
         return pagename.rstrip('/') in self.pages
 
 
-    def get_wiki_formatter(self, format):
+    def get_wiki_formatter(self, flavor):
+        """Retrieve a formatter instance matching the given formatting flavor.
+        """
         if self._formatters is None:
             self._formatters = {}
             for provider in self.formatter_providers:
-                for fmt, name, handler in provider.get_wiki_formatters() or []:
-                    self._formatters[fmt] = handler
-        return self._formatters.get(format)
+                for cls in provider.get_wiki_formatters() or []:
+                    self._formatters[cls.get_flavor()] = cls
+        cls = self._formatters.get(flavor)
+        if cls:
+            return cls()
 
     # IWikiSyntaxProvider methods
 
