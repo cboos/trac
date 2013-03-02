@@ -19,6 +19,24 @@ Utilities
 ..   autofunction :: concat_path_query_fragment
 
 
+The implementation of standard formatters
+-----------------------------------------
+
+.. autoclass :: WikiHtmlFormatter
+   :members:
+
+The above component yields the following `~trac.wiki.api.WikiFormatter`:
+
+.. autoclass :: WikiPageFormatter
+   :members:
+
+.. autoclass :: WikiInlineFormatter
+   :members:
+
+.. autoclass :: WikiOutlineFormatter
+   :members:
+
+
 The legacy API
 --------------
 
