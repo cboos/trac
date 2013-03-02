@@ -31,7 +31,7 @@ from genshi.util import plaintext
 from trac.core import *
 from trac.mimeview import *
 from trac.resource import get_relative_resource, get_resource_url
-from trac.util import arity
+from trac.util import TypeDict, arity
 from trac.util.text import exception_to_unicode, shorten_line, to_unicode, \
                            unicode_quote, unicode_quote_plus, unquote_label
 from trac.util.html import TracHTMLSanitizer
@@ -40,7 +40,9 @@ from trac.wiki.api import (
     IWikiFormatterProvider, WikiFormatter, WikiSystem, parse_args
 )
 from trac.wiki.parser import (
-    Sourcer, WikiBlock, WikiParser, parse_processor_args
+    Sourcer,
+    WikiBlock, WikiEnumeratedItem, WikiInline, WikiItem, WikiNode,
+    WikiParser, parse_processor_args
 )
 
 __all__ = ['wiki_to_html', 'wiki_to_oneliner', 'wiki_to_outline',
@@ -1678,6 +1680,136 @@ class WikiSourceFormatter(Component):
                     class_='code')
 
         yield DebugSource
+
+
+class WikiHtmlFormatter(Component):
+    """Format a Wiki parse tree into HTML."""
+
+    implements(IWikiFormatterProvider)
+
+    # IWikiFormatterProvider methods
+
+    def get_wiki_formatters(self):
+        yield WikiPageFormatter
+        yield WikiInlineFormatter
+        yield WikiOutlineFormatter
+
+
+class WikiPageFormatter(WikiFormatter):
+    """HTML (WikiDOM)"""
+
+    def rawtext(self, fragments, i, j, k=None):
+        """Accumulate raw text from *wikidoc*'s line *i* between columns
+        *j* and *k* into current list of fragments.
+        """
+        if k is None:
+            fragment = self.wikidoc.lines[i][j:]
+        else:
+            fragment = self.wikidoc.lines[i][j:k]
+        if fragment:
+            fragments.append(fragment)
+
+    # -- WikiNode formatters
+
+    def format_Block(self, parent, n, block):
+        return (tag.pre('\n'.join(self.wikidoc.lines[block.start:block.end])),
+                n + 1)
+
+    def format_Item(self, parent, n, item):
+        items, n = self._group_items(self.format_Item, parent, n, item)
+        return (tag.ul(tag.li(self.format_nodes(item))
+                       for item in items), n)
+
+    def format_EnumeratedItem(self, parent, n, item):
+        items, n = self._group_items(format_EnumeratedItem, parent, n, item)
+        return (tag.ol((tag.li(self.format_nodes(item))
+                        for item in items)), n)
+
+    def _group_items(self, formatter, parent, n, item):
+        items = [item]
+        n += 1
+        while n < len(parent.nodes):
+            next_item = parent.nodes[n]
+            next_formatter = self.formatters.get(next_item)
+            if next_formatter is not formatter.im_func:
+                break
+            items.append(next_item)
+            n += 1
+        return items, n
+
+    def format_Inline(self, parent, n, inline):
+        fragments = []
+        i, j = inline.i, inline.j
+        if inline.nodes:
+            for node in inline.nodes:
+                if j < node.j: # raw text before node
+                    self.rawtext(fragments, i, j, node.j)
+                fragments.extend(self.format_node(node))
+                j = node.k
+        self.rawtext(fragments, i, j) # raw text after last node
+        fragments.append('\n')
+        return fragments, n + 1
+
+    # -- bind formatters to WikiNode subclasses
+
+    formatters = TypeDict(
+        (WikiNode, None),
+        (WikiBlock, format_Block),
+        (WikiItem, format_Item),
+        (WikiEnumeratedItem, format_EnumeratedItem),
+        (WikiInline, format_Inline),
+        )
+
+    def format_nodes(self, parent):
+        fragments = []
+        if parent.nodes:
+            n = 0
+            while n < len(parent.nodes):
+                node = parent.nodes[n]
+                formatter = self.formatters.get(node)
+                if formatter:
+                    content, n = formatter(self, parent, n, node)
+                    if content:
+                        fragments.append(content)
+                else:
+                    n += 1 # skip unformattable node
+        return tag(fragments)
+
+    def format(self, context, wikidoc, node):
+        self.context = context
+        self.wikidoc = wikidoc
+        return self.format_nodes(node)
+
+
+class WikiInlineFormatter(WikiPageFormatter):
+    """inline HTML (WikiDOM)"""
+
+    debug = True
+
+    def format_Block(self, parent, n, block):
+        return u"[\u2026]\n", n + 1 # [...]
+
+    def format_Item(self, parent, n, item):
+        return tag(item.kind, self.format_nodes(item)), n + 1
+
+    from .parser import WikiItem, WikiInline
+
+    formatters = TypeDict(
+        (WikiNode, None),
+        (WikiBlock, format_Block),
+        (WikiItem, format_Item),
+        (WikiInline, WikiPageFormatter.format_Inline),
+        )
+
+
+class WikiOutlineFormatter(WikiPageFormatter):
+    """outline HTML (WikiDOM)"""
+
+    debug = True
+
+    def format(self, context, wikidoc, node):
+        return tag.h1("Not implemented")
+
 
 
 # -- Public API
