@@ -278,7 +278,8 @@ class WikiRow(WikiItem):
 class WikiInline(WikiNode):
     """Generic inline-level wiki syntax node.
 
-    Also used for plain text content.
+    Also used for plain text content. A WikiInline instance never
+    spans more than one source line (subclasses can).
     """
 
     def __repr__(self):
@@ -288,11 +289,11 @@ class WikiInline(WikiNode):
         """Write inline element subnodes with interspersed raw text fragments
         """
         sourcer.indent(self)
-        j = self.j
+        i, j = self.i, self.j
         if self.nodes:
             for node in self.nodes:
                 if j < node.j: # raw text before node
-                    sourcer.raw(node.i, j, node.j)
+                    sourcer.raw(i, j, node.j)
                 node.to_source(sourcer)
                 j = node.k
         sourcer.raw(self.i, j) # raw text after last node
