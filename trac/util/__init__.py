@@ -982,6 +982,99 @@ def to_ranges(revs):
     return ','.join(ranges)
 
 
+class TypeDict(object):
+    """Dictionary in which the access is determined by the type.
+
+    :param pairs: initial content for the dictionary
+    :type pairs: `list` of 2-`tuple` consisting of a `type` key and an
+      arbitrary value.
+    """
+    def __init__(self, *pairs):
+        self._descendants = {} # record descendant types used as shortcuts
+        self._shortcuts = {} # directly map a type to (value, stored type)
+        if pairs:
+            for cls, val in pairs:
+                self.store(cls, val)
+
+    def __repr__(self):
+        return '<TypeDict descendants: %r shortcuts: %r>' % (
+            self._descendants, self._shortcuts)
+
+    def get(self, obj):
+        """Lookup by class of object.
+
+        :param obj: an object for which its `__class__` is used as a key.
+        :return: the value stored for the closest (MRO) class or `None`
+           if nothing was stored for an ancestor class.
+
+        >>> td = TypeDict((object, 'O'), (tuple, 'T'))
+        >>> td.get(())
+        'T'
+        >>> td.get([])
+        'O'
+        """
+        cls = obj.__class__
+        # fast path: direct shortcut
+        if cls in self._shortcuts:
+            return self._shortcuts[cls][0]
+        # slow path: no direct shortcut, visit all ancestors of cls
+        #            and install shortcuts for classes between cls and
+        #            the closest stored ancestor in the class hierarchy.
+        visited = [cls]
+        for cls in cls.__mro__[1:]:
+            match = self._shortcuts.get(cls, None)
+            if match:
+                # install shortcuts for ancestors (TODO: lock)
+                match_val, match_cls = match
+                descendants = self._descendants[match_cls]
+                for cls in visited:
+                    if issubclass(cls, match_cls):
+                        descendants.append(cls)
+                        self._shortcuts[cls] = match
+                return match_val
+            visited.append(cls)
+
+    def store(self, cls, val):
+        """Store a value.
+
+        :param cls: the class used as a key
+        :type cls: `type`
+
+        >>> td = TypeDict((object, 'O'))
+        >>> class pair(tuple): pass
+        >>> [td.get(obj) for obj in [pair(), tuple(), object()]]
+        ['O', 'O', 'O']
+
+        >>> td.store(tuple, 'T')
+        >>> [td.get(obj) for obj in [pair(), tuple(), object()]]
+        ['T', 'T', 'O']
+
+        >>> td.store(pair, 'P')
+        >>> [td.get(obj) for obj in [pair(), tuple(), object()]]
+        ['P', 'T', 'O']
+        """
+        new_match = (val, cls)
+        descendants = [] # descendants of cls
+        old_match = self._shortcuts.get(cls, None)
+        if old_match:
+            # cls already present as a shortcut for match_cls
+            match_val, match_cls = old_match
+            kept = [] # descendants of match_cls, but not descendants of cls
+            for d in self._descendants[match_cls]:
+                if issubclass(d, cls):
+                    if d is not cls:
+                        descendants.append(d)
+                else:
+                    kept.append(d)
+            self._descendants[cls] = descendants
+            self._descendants[match_cls] = kept
+            # replace shortcuts for descendants of cls
+            for d in descendants:
+                self._shortcuts[d] = new_match
+        self._descendants[cls] = descendants
+        self._shortcuts[cls] = new_match
+
+
 class lazy(object):
     """A lazily-evaluated attribute"""
 
