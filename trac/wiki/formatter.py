@@ -39,7 +39,9 @@ from trac.util.translation import _
 from trac.wiki.api import (
     IWikiFormatterProvider, WikiSystem, parse_args
 )
-from trac.wiki.parser import WikiBlock, WikiParser, parse_processor_args
+from trac.wiki.parser import (
+    Sourcer, WikiBlock, WikiParser, parse_processor_args
+)
 
 __all__ = ['wiki_to_html', 'wiki_to_oneliner', 'wiki_to_outline',
            'Formatter', 'format_to', 'format_to_html', 'format_to_oneliner',
@@ -1617,6 +1619,33 @@ class DebugFormatter(Component):
                                class_='debugblock depth%d' % depth)
             return format_rec(node, 1)
         yield ('debugblock', "Debug Block structure", format_block)
+
+
+class WikiSourceFormatter(Component):
+
+    implements(IWikiFormatterProvider)
+
+    # IWikiFormatterProvider methods
+
+    def get_wiki_formatters(self):
+        def format_to_source(context, wikidoc, node):
+            s = Sourcer(wikidoc)
+            node.to_source(s)
+            return s.out.getvalue()
+        yield ('source', "Re-create the wiki source", format_to_source)
+
+        def format_to_source(context, wikidoc, node):
+            s = Sourcer(wikidoc)
+            node.to_source(s)
+            return tag.table(
+                tag.thead(
+                    tag.tr(tag.th(_("Line"), class_='lineno'),
+                           tag.th(_("Source")))),
+                tag.tbody(
+                    tag.tr(tag.th(i, class_='lineno'), tag.td(line))
+                    for i, line in enumerate(s.out.getvalue().splitlines())),
+                class_='code')
+        yield ('debugsource', "Debug to_source", format_to_source)
 
 
 # -- Public API

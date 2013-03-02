@@ -18,11 +18,51 @@
 #         Christopher Lenz <cmlenz@gmx.de>
 #         Christian Boos <cboos@edgewall.org>
 
+from StringIO import StringIO
 import re
+
 
 from trac.core import *
 from trac.notification import EMAIL_LOOKALIKE_PATTERN
 from .api import IWikiBlockSyntaxProvider, IWikiInlineSyntaxProvider
+
+
+class Sourcer(object):
+    """Helper class for regenerating the wiki source from the WikiDOM tree.
+
+    Used together with `WikiNode.to_source` for recreating the wiki source.
+    """
+    def __init__(self, wikidoc, out=None):
+        self.wikidoc = wikidoc
+        self.out = StringIO() if out is None else out
+        self.scopes = (wikidoc,)
+
+    def enter(self, node):
+        """Must be called each time a node with a new horizontal indent
+        is entered."""
+        s = Sourcer(self.wikidoc, self.out)
+        s.scopes = (node, self.scopes)
+        return s
+
+    def indent(self, node):
+        indent = node.j - self.scopes[0].j
+        if indent:
+            self.out.write(' ' * indent)
+
+    def raw(self, i, j, k=None):
+        """Output raw text for line *i* between column *j* and *k*"""
+        if k is None:
+            eol = self.wikidoc.eol(i)
+            if j < eol:
+                self.out.write(self.wikidoc.lines[i][j:])
+        else:
+            self.out.write(self.wikidoc.lines[i][j:k])
+
+    def printnl(self, i):
+        self.out.write(self.wikidoc.lines[i] + '\n')
+
+    def nl(self):
+        self.out.write('\n')
 
 
 # -- Wiki DOM
@@ -45,6 +85,9 @@ class WikiNode(object):
         self.i = i #: line in corresponding `WikiDocument.lines`
         self.j = j #: start of node within the line
 
+    def lastline(self):
+        return self.end or self.i
+
 
 class WikiBlock(WikiNode):
     """A block corresponds to a multiline section delimited by a pair
@@ -56,7 +99,7 @@ class WikiBlock(WikiNode):
            .j          B3<1-5>
            |
         ................................
-        ...{{{.......................... .i
+        ...{{{#!optional-name........... .i
         ...Content starts here.......... .start
         ................................
         ...Content ends here............
@@ -69,10 +112,10 @@ class WikiBlock(WikiNode):
            |
         ................................
         ...{{{.......................... .i
-        ...#!diff.......................
+        ...#!name.......................
         ...Content starts here.......... .start
         ...Content ends here............
-        ...}}}.......................... .end
+        ...}}}...optional comment....... .end
         ................................
 
     If a block processor is specified (e.g. ``#!diff``), ``name``
@@ -92,6 +135,57 @@ class WikiBlock(WikiNode):
         return 'B%d<%d%s-%d>%s%s' % (
             self.j, self.i, '+' * (self.start - self.i - 1), self.end,
             self.name or '', self.comment[:10])
+
+    def to_source(self, sourcer):
+        self._processor_to_source(sourcer)
+        if self.nodes:
+            s = sourcer.enter(self)
+            i = self.i
+            for node in self.nodes:
+                for ii in xrange(i, node.i): # raw text before node
+                    sourcer.out.write('[[%s %s]] ' %(self.i, ii))
+                    sourcer.printnl(ii)
+                node.to_source(s)
+                i = node.lastline() + 1
+            for ii in xrange(i, self.end):
+                sourcer.printnl(ii)
+        self._trailer_to_source(sourcer)
+
+    def _processor_to_source(self, sourcer):
+        header = WikiParser.STARTBLOCK
+        if self.start > self.i + 1:
+            header += '\n'
+        params = []
+        if self.name:
+            header += self.name
+            for pname in self.params: # self.param_list (keep order!)
+                pval = self.params[pname]
+                if pval is True:
+                    param = pname
+                elif pval is False:
+                    param = '-' + pname
+                else:
+                    q = "'" in pval
+                    qq = '"' in pval
+                    if q and qq:
+                        pval = '"%s"' % pval.sub('"', r'\"') # check \" input
+                    elif q:
+                        pval = '"%s"' % pval
+                    elif qq:
+                        pval = "'%s'" % pval
+                    param = '%s=%s' % (pname, pval)
+                params.append(param)
+        sourcer.indent(self)
+        sourcer.out.write(header)
+        if params:
+            sourcer.out.write(' '.join(params))
+
+    def _trailer_to_source(self, sourcer):
+        trailer = WikiParser.ENDBLOCK
+        if self.comment:
+            trailer += self.comment
+        sourcer.indent(self)
+        sourcer.out.write(trailer)
 
     def nodes_of_type(self, types):
         """Iterate on the subset of `.nodes` which are of the given type(s)."""
@@ -116,6 +210,12 @@ class WikiDocument(WikiBlock):
     def __repr__(self):
         return 'WikiDocument (%d lines)' % len(self.lines)
 
+    def _processor_to_source(self, sourcer):
+        pass
+
+    def _trailer_to_source(self, sourcer):
+        pass
+
     def eol(self, i):
         return len(self.lines[i])
 
@@ -133,6 +233,14 @@ class WikiItem(WikiNode):
         return '(%s)%d<%s%s>' % (
             self.kind, self.j, self.i, '-%d' % self.end if self.end else '')
 
+    def to_source(self, sourcer):
+        sourcer.indent(self)
+        sourcer.out.write(self.kind)
+        if self.nodes:
+            s = sourcer.enter(self)
+            for node in self.nodes:
+                node.to_source(s)
+
 
 class WikiEnumeratedItem(WikiItem):
     """Specialized item for numbered lists."""
@@ -142,10 +250,28 @@ class WikiDescriptionItem(WikiItem):
     """Specialized item for description lists."""
     kind = '::' #: default kind for the WikiDescriptionItem
 
+    def to_source(self, sourcer):
+        sourcer.indent(self)
+        self.term.to_source(sourcer)
+        sourcer.out.write(self.kind)
+        if self.nodes:
+            s = sourcer.enter(self)
+            for node in self.nodes:
+                node.to_source(s)
 
 class WikiRow(WikiItem):
     """Specialized "item" corresponding to a row in a table."""
+
     kind = '||' #: default kind for the WikiRow
+
+    def to_source(self, sourcer):
+        sourcer.indent(self)
+        sourcer.out.write(self.kind)
+        if self.nodes:
+            s = sourcer.enter(self)
+            for node in self.nodes:
+                node.to_source(s)
+                sourcer.out.write(self.kind)
 
 
 # -- Standard inline elements
@@ -159,6 +285,22 @@ class WikiInline(WikiNode):
     def __repr__(self):
         return 'T%d<%d>:%s' % (self.j, self.i, self.k if self.k > -1 else '')
 
+    def to_source(self, sourcer):
+        """Write inline element subnodes with interspersed raw text fragments
+        """
+        sourcer.indent(self)
+        j = self.j
+        if self.nodes:
+            for node in self.nodes:
+                if j < node.j: # raw text before node
+                    sourcer.raw(node.i, j, node.j)
+                node.to_source(sourcer)
+                j = node.k
+        sourcer.raw(self.i, j) # raw text after last node
+        sourcer.nl()
+
+
+
 class WikiBlankLine(WikiInline):
     """Special kind of inline-level wiki syntax (or non-syntax).
 
@@ -169,6 +311,8 @@ class WikiBlankLine(WikiInline):
     def __repr__(self):
         return '/'
 
+    def to_source(self, sourcer):
+        sourcer.nl()
 
 
 class WikiParser(Component):
