@@ -88,6 +88,9 @@ Data structures which don't fit anywhere else
 
 .. autofunction :: to_ranges
 
+.. autoclass :: TypeDict
+   :members:
+
 .. autoclass :: lazy
 
 
