@@ -1708,9 +1708,10 @@ class WikiSourceFormatter(WikiFormatter):
         self._trailer_to_source(block, parent)
 
     def _processor_to_source(self, block, parent):
+        ### Likely to become more complex once we add citation support...
         header = WikiParser.STARTBLOCK
         if block.start > block.i + 1:
-            header += '\n'
+            header += '\n' + (block.j - (parent.k if parent else 0)) * ' '
         params = []
         if block.name:
             header += '#!' + block.name
@@ -1721,21 +1722,23 @@ class WikiSourceFormatter(WikiFormatter):
                 elif pval is False:
                     param = '-' + pname
                 else:
-                    q = "'" in pval
-                    qq = '"' in pval
-                    if q and qq:
-                        pval = '"%s"' % pval.sub('"', r'\"') # check \" input
-                    elif q:
-                        pval = '"%s"' % pval
-                    elif qq:
-                        pval = "'%s'" % pval
+                    if ' ' in pval:
+                        q = "'" in pval
+                        qq = '"' in pval
+                        if q and qq: ### need to support \" and \' in parser
+                            pval = '"%s"' % pval.sub('"', r'\"') ### check \"
+                        elif qq:
+                            pval = "'%s'" % pval
+                        else:
+                            pval = '"%s"' % pval
                     param = '%s=%s' % (pname, pval)
+
                 params.append(param)
         self.indent(block, parent)
         self.out.write(header)
-        self.nl()
         if params:
-            self.out.write(' '.join(params))
+            self.out.write(' ' + ' '.join(params))
+        self.nl()
 
     def _trailer_to_source(self, block, parent):
         trailer = WikiParser.ENDBLOCK
