@@ -41,7 +41,7 @@ from trac.wiki.api import (
 )
 from trac.wiki.parser import (
     Sourcer,
-    WikiBlock, WikiEnumeratedItem, WikiInline, WikiItem, WikiNode,
+    WikiBlock, WikiEnumeratedItem, WikiInline, WikiItem, WikiNode, WikiSection,
     WikiParser, parse_processor_args
 )
 
@@ -1694,6 +1694,20 @@ class WikiHtmlFormatter(Component):
         yield WikiInlineFormatter
         yield WikiOutlineFormatter
 
+# -- Element builders
+
+def _tag_bi(*a, **k):
+    return tag.b(tag.i(*a, **k))
+
+def _tag_b(*a, **k):
+    return tag.b(*a, **k)
+
+def _tag_i(*a, **k):
+    return tag.i(*a, **k)
+
+def _tag_span(*a, **k):
+    return tag.span(*a, **k)
+
 
 class WikiPageFormatter(WikiFormatter):
     """HTML (WikiDOM)"""
@@ -1737,6 +1751,10 @@ class WikiPageFormatter(WikiFormatter):
             n += 1
         return items, n
 
+    def format_Section(self, parent, n, section):
+        return Element('h%d' % section.depth)(self.format_nodes(section),
+                                              id=section.anchor), n + 1
+
     def format_Inline(self, parent, n, inline):
         fragments = []
         i, j, k = inline.i, inline.j, inline.k
@@ -1762,6 +1780,7 @@ class WikiPageFormatter(WikiFormatter):
         (WikiBlock, format_Block),
         (WikiItem, format_Item),
         (WikiEnumeratedItem, format_EnumeratedItem),
+        (WikiSection, format_Section),
         (WikiInline, format_Inline),
         )
 
@@ -1791,18 +1810,25 @@ class WikiInlineFormatter(WikiPageFormatter):
 
     debug = True
 
+    # -- WikiNode formatters
+
     def format_Block(self, parent, n, block):
         return u"[\u2026]\n", n + 1 # [...]
 
     def format_Item(self, parent, n, item):
         return tag(item.kind, self.format_nodes(item)), n + 1
 
-    from .parser import WikiItem, WikiInline
+    headings = [(), _tag_bi, _tag_b, _tag_i, _tag_i, _tag_span, _tag_span]
+
+    def format_Section(self, parent, n, section):
+        return self.headings[section.depth](self.format_nodes(section),
+                                            id=section.anchor), n + 1
 
     formatters = TypeDict(
         (WikiNode, None),
         (WikiBlock, format_Block),
         (WikiItem, format_Item),
+        (WikiSection, format_Section),
         (WikiInline, WikiPageFormatter.format_Inline),
         )
 
@@ -1812,8 +1838,31 @@ class WikiOutlineFormatter(WikiPageFormatter):
 
     debug = True
 
-    def format(self, context, wikidoc, node):
-        return tag.h1("Not implemented")
+    def format_Section(self, parent, n, section):
+        inline_formatter = WikiInlineFormatter() ### fill constructor
+        outline = []
+        def push():
+            level = tag.ol()
+            if outline:
+                outline[-1].append(tag.li(level))
+            outline.append(level)
+        push()
+        for section in parent.nodes_of_type(WikiSection):
+            for i in xrange(len(outline), section.depth):
+                push()
+            for i in xrange(len(outline), section.depth, -1):
+                outline.pop()
+            outline[-1].append(tag.li(tag.a(# section.depth, '. ',
+                        inline_formatter.format(self.context, self.wikidoc,
+                                                section), href='/')))
+                       ### href=self.context.get_resource_url() + section.anchor
+        return tag.div(outline[0], class_='wiki-toc'), len(parent.nodes)
+
+    formatters = TypeDict(
+        (WikiNode, None),
+        (WikiSection, format_Section),
+        )
+
 
 
 

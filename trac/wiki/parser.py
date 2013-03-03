@@ -275,6 +275,25 @@ class WikiRow(WikiItem):
                 node.to_source(s)
                 sourcer.out.write(self.kind)
 
+class WikiSection(WikiItem):
+    kind = '='
+    depth = 1 #: depth of the section
+    anchor = None #: explicit section id
+    both_sides = False #: are the '=' characters on both sides?
+
+    def to_source(self, sourcer):
+        sourcer.indent(self)
+        depth = self.kind * self.depth
+        sourcer.out.write(depth)
+        if self.nodes:
+            s = sourcer.enter(self)
+            for node in self.nodes:
+                node.to_source(s)
+        if self.both_sides:
+            sourcer.out.write(' ' + depth)
+        if self.anchor:
+            sourcer.out.write(' #%s' % self.anchor)
+        sourcer.nl()
 
 # -- Standard inline elements
 

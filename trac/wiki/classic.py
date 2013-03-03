@@ -13,7 +13,10 @@
 
 from ..core import *
 from .api import IWikiBlockSyntaxProvider, wiki_regexp
-from .parser import WikiDescriptionItem, WikiInline, WikiItem, WikiRow
+from .parser import (
+    WikiDescriptionItem, WikiInline, WikiItem, WikiRow, WikiSection,
+    WikiParser
+)
 
 
 class TracWikiSyntax(Component):
@@ -52,6 +55,30 @@ class TracWikiSyntax(Component):
             row.k = k
             return row
         yield build_row
+
+        @wiki_regexp(r'(?P<trac_sec_depth>={1,6})'  ### verbose
+                     r'(?P<trac_sec>.*?)'
+                     r'(?P<trac_sec_anchor>#%s)? *$' % WikiParser.XML_NAME)
+        def build_section(wikidoc, wikinodes, i, match):
+            j = wikinodes[-1].j
+            depth = match.group('trac_sec_depth')
+            heading = match.group('trac_sec')
+            anchor = match.group('trac_sec_anchor')
+            both_sides = heading.endswith(depth)
+            depth = len(depth)
+            k = j + depth + 1
+            section = WikiSection(i, j, k)
+            section.depth = depth
+            j = k
+            k = match.end('trac_sec')
+            if both_sides:
+                k -= depth
+                section.both_sides = True
+            if anchor:
+                section.anchor = anchor[1:]
+            section.nodes = [WikiInline(i, j, k)]
+            return section
+        yield build_section
 
 
     def get_wiki_verbatim_sensitive_line_patterns(self):
