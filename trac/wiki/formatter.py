@@ -1580,66 +1580,6 @@ class DebugParseTime(WikiFormatter):
         return '{}'
 
 
-class DebugBlockStructure(WikiFormatter):
-    """Debug Block structure"""
-
-    debug = True
-
-    def format(self, node):
-        self.out = StringIO()
-        from .parser import WikiItem, WikiInline
-        def spaces(n):
-            return u'\u2420' * n
-        def subst_spaces(text):
-            return re.sub(r'^ +', lambda m: spaces(len(m.group(0))),
-                          text)
-        def linenum(i):
-            return '%04d\t' % i
-
-        def format_rec(node, depth):
-            subdivs = []
-            start = node.start
-            def nonblock(end):
-                subdivs.append(
-                    tag.pre('\n'.join(
-                            linenum(i) +
-                            subst_spaces(self.wikidoc.lines[i])
-                            for i in xrange(start, end))))
-            for n in node.nodes:
-                if isinstance(n, WikiBlock):
-                    if n.i > start:
-                        nonblock(n.i)
-                    subdivs.append(format_rec(n, depth + 1))
-                    start = n.end + 1
-                elif isinstance(n, (WikiItem, WikiInline)):
-                    name = n.__class__.__name__.replace('Wiki', '')
-                    line = self.wikidoc.lines[n.i]
-                    if isinstance(n, WikiItem):
-                        name += ' ' + n.kind
-                        part = line[n.j:n.k]
-                        extra = line[n.k:]
-                    else:
-                        part, extra = line[n.j:], ''
-                    subdivs.append(
-                        tag.pre(
-                            linenum(n.i), spaces(n.j),
-                            tag.span(name, class_='name debugitem'),
-                            tag.span(part, class_='underline'),
-                            extra))
-                    start = (n.end or n.i) + 1
-            if start < node.end:
-                nonblock(node.end)
-            return tag.div(tag.pre(linenum(node.i), spaces(node.j)),
-                           tag.span(node.name, class_='name')
-                           if node.name else None,
-                           tag.dl((tag.dt(k), tag.dd(v))
-                                  for k, v in node.params.iteritems())
-                           if node.params else None,
-                           subdivs,
-                           class_='debugblock depth%d' % depth)
-        return format_rec(node, 1)
-
-
 # ------------------------------------------------------------------
 
 class WikiSourceFormatters(Component):
@@ -1956,7 +1896,7 @@ class WikiPageFormatter(WikiFormatter):
     def page_DescriptionItem(self, item, parent, n):
         items, n = self._group_items(self.page_DescriptionItem, item,
                                      parent, n)
-        return tag.dl(([tag.dt(self.format(item.term, item)),
+        return tag.dl(([tag.dt(self.format_node(item.term, item)),
                         tag.dd(self.format_nodes(item))]
                        for item in items),
                       class_='wiki'), n
@@ -2027,15 +1967,18 @@ class WikiPageFormatter(WikiFormatter):
                 n += 1 # skip unformattable node
         return tag(fragments)
 
-    def format(self, node, parent=None):
+    def format_node(self, node, parent=None, n=-1):
+        formatter = self.formatters.get(node)
+        if formatter:
+            content, n = formatter(self, node, parent, n)
+            return content
+
+    def format(self, node):
         """Format the *node* into HTML.
 
         :rtype: `~genshi.build.Fragment`
         """
-        formatter = self.formatters.get(node)
-        if formatter:
-            content, n = formatter(self, node, parent, -1)
-            return content
+        return self.format_node(node)
 
 
 class WikiInlineFormatter(WikiPageFormatter):
@@ -2055,7 +1998,7 @@ class WikiInlineFormatter(WikiPageFormatter):
         return tag(item.kind, self.format_nodes(item)), n + 1
 
     def inline_DescriptionItem(self, item, parent, n):
-        return tag(tag.em(self.format(item.term, item), ': '),
+        return tag(tag.em(self.format_node(item.term, item), ': '),
                    self.format_nodes(item)), n + 1
 
     headings = [(), _tag_bi, _tag_b, _tag_i, _tag_i, _tag_span, _tag_span]
@@ -2109,8 +2052,82 @@ class WikiOutlineFormatter(WikiPageFormatter):
         )
 
 
-# ------------------------------------------------------------------
+class DebugBlockStructure(WikiPageFormatter):
+    """Debug Block structure"""
 
+    debug = True
+
+    # -- WikiNode formatters
+
+    def debug_Block(self, block, parent, n):
+        subdivs = []
+        start = block.start
+        def subst_spaces(text):
+            return re.sub(r'^ +', lambda m: spaces(len(m.group(0))), text)
+        def nonblock(end):
+            subdivs.append(
+                tag.pre('\n'.join(linenum(i) +
+                                  subst_spaces(self.wikidoc.lines[i])
+                                  for i in xrange(start, end))))
+        for n, node in enumerate(block.nodes):
+            if node.i > start:
+                nonblock(node.i)
+            self.depth += 1
+            subdivs.append(self.format_node(node, parent, n))
+            self.depth -= 1
+            start = (node.end or node.i) + 1
+        if start < block.end:
+            nonblock(block.end)
+        return tag.div(
+            tag.pre(linenum(block.i), spaces(block.j)),
+            tag.span(block.name, class_='name') if block.name else None,
+            tag.dl((tag.dt(k),
+                    tag.dd(v)) for k, v in block.params.iteritems()) \
+                if block.params else None,
+            subdivs,
+            class_='debugblock depth%d' % self.depth), n + 1
+
+    def debug_Item(self, item, parent, n):
+        name, line = self._node_data(item)
+        name += ' ' + item.kind
+        part = line[item.j:item.k]
+        extra = line[item.k:]
+        return self._debug_item(item, name, part, extra), n + 1
+
+    def debug_Inline(self, inline, parent, n):
+        name, line = self._node_data(inline)
+        part, extra = line[inline.j:], ''
+        return self._debug_item(inline, name, part, extra), n + 1
+
+    def _node_data(self, node):
+        name = node.__class__.__name__.replace('Wiki', '')
+        line = self.wikidoc.lines[node.i]
+        return name, line
+
+    def _debug_item(self, node, name, part, extra):
+        return tag.pre(linenum(node.i), spaces(node.j),
+                       tag.span(name, class_='name debugitem'),
+                       tag.span(part, class_='underline'),
+                       extra)
+
+    formatters = TypeDict(
+        (WikiBlock, debug_Block),
+        (WikiItem, debug_Item),
+        (WikiInline, debug_Inline),
+        )
+
+    def format(self, node):
+        self.depth = 1
+        return self.format_node(node)
+
+
+def spaces(n):
+    return u'\u2420' * n
+
+def linenum(i):
+    return '%04d\t' % i
+
+# ------------------------------------------------------------------
 
 # -- Public API
 
