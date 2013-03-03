@@ -41,7 +41,8 @@ from trac.wiki.api import (
 )
 from trac.wiki.parser import (
     Sourcer,
-    WikiBlock, WikiEnumeratedItem, WikiInline, WikiItem, WikiNode, WikiSection,
+    WikiBlock, WikiDescriptionItem, WikiEnumeratedItem,
+    WikiInline, WikiItem, WikiNode, WikiSection,
     WikiParser, parse_processor_args
 )
 
@@ -1751,6 +1752,14 @@ class WikiPageFormatter(WikiFormatter):
             n += 1
         return items, n
 
+    def format_DescriptionItem(self, parent, n, item):
+        items, n = self._group_items(self.format_DescriptionItem, parent, n,
+                                     item)
+        return tag.dl(([tag.dt(self.format_node(item, item.term)),
+                        tag.dd(self.format_nodes(item))]
+                       for item in items),
+                      class_='wiki'), n
+
     def format_Section(self, parent, n, section):
         return Element('h%d' % section.depth)(self.format_nodes(section),
                                               id=section.anchor), n + 1
@@ -1762,7 +1771,7 @@ class WikiPageFormatter(WikiFormatter):
             for node in inline.nodes:
                 if j < node.j: # raw text before node
                     self.rawtext(fragments, i, j, node.j)
-                fragments.extend(self.format_node(node))
+                fragments.extend(self.format_nodes(node))
                 j = node.k
         # raw text after last node
         if k:
@@ -1780,9 +1789,16 @@ class WikiPageFormatter(WikiFormatter):
         (WikiBlock, format_Block),
         (WikiItem, format_Item),
         (WikiEnumeratedItem, format_EnumeratedItem),
+        (WikiDescriptionItem, format_DescriptionItem),
         (WikiSection, format_Section),
         (WikiInline, format_Inline),
         )
+
+    def format_node(self, parent, node):
+        formatter = self.formatters.get(node)
+        if formatter:
+            content, n = formatter(self, parent, -1, node)
+            return content
 
     def format_nodes(self, parent):
         fragments = []
@@ -1818,6 +1834,10 @@ class WikiInlineFormatter(WikiPageFormatter):
     def format_Item(self, parent, n, item):
         return tag(item.kind, self.format_nodes(item)), n + 1
 
+    def format_DescriptionItem(self, parent, n, item):
+        return tag(tag.em(self.format_node(item, item.term), ': '),
+                   self.format_nodes(item)), n + 1
+
     headings = [(), _tag_bi, _tag_b, _tag_i, _tag_i, _tag_span, _tag_span]
 
     def format_Section(self, parent, n, section):
@@ -1828,6 +1848,7 @@ class WikiInlineFormatter(WikiPageFormatter):
         (WikiNode, None),
         (WikiBlock, format_Block),
         (WikiItem, format_Item),
+        (WikiDescriptionItem, format_DescriptionItem),
         (WikiSection, format_Section),
         (WikiInline, WikiPageFormatter.format_Inline),
         )
