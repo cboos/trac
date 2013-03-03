@@ -2100,6 +2100,9 @@ class DebugBlockStructure(WikiPageFormatter):
         extra = line[item.k:]
         return self._debug_item(item, name, part, extra), n + 1
 
+    def debug_Rule(self, rule, parent, n):
+        return tag.pre(linenum(rule.i), spaces(rule.j), tag.hr()), n + 1
+
     def debug_Inline(self, inline, parent, n):
         name, line = self._node_data(inline)
         part, extra = line[inline.j:], ''
@@ -2120,6 +2123,7 @@ class DebugBlockStructure(WikiPageFormatter):
         (WikiNode, debug_Node),
         (WikiBlock, debug_Block),
         (WikiItem, debug_Item),
+        (WikiRule, debug_Rule),
         (WikiInline, debug_Inline),
         )
 
