@@ -1562,7 +1562,7 @@ class InlineHtmlFormatter(object):
 
 # -- 1.1.x formatters
 
-class DebugFormatter(Component):
+class DebugFormatters(Component):
     """Debug formatters, not interesting for end-users."""
 
     implements(IWikiFormatterProvider)
@@ -1570,75 +1570,78 @@ class DebugFormatter(Component):
     # IWikiFormatterProvider methods
 
     def get_wiki_formatters(self):
-        class DebugParseTime(WikiFormatter):
-            """No-op (time parsing)"""
-
-            debug = True
-
-            def format(self, *args):
-                return '{}'
-
         yield DebugParseTime
-
-        class DebugBlockStructure(WikiFormatter):
-            """Debug Block structure"""
-
-            debug = True
-
-            def format(self, node):
-                from .parser import WikiItem, WikiInline
-                def spaces(n):
-                    return u'\u2420' * n
-                def subst_spaces(text):
-                    return re.sub(r'^ +', lambda m: spaces(len(m.group(0))),
-                                  text)
-                def linenum(i):
-                    return '%04d\t' % i
-
-                def format_rec(node, depth):
-                    subdivs = []
-                    start = node.start
-                    def nonblock(end):
-                        subdivs.append(
-                            tag.pre('\n'.join(
-                                    linenum(i) +
-                                    subst_spaces(self.wikidoc.lines[i])
-                                    for i in xrange(start, end))))
-                    for n in node.nodes:
-                        if isinstance(n, WikiBlock):
-                            if n.i > start:
-                                nonblock(n.i)
-                            subdivs.append(format_rec(n, depth + 1))
-                            start = n.end + 1
-                        elif isinstance(n, (WikiItem, WikiInline)):
-                            name = n.__class__.__name__.replace('Wiki', '')
-                            line = self.wikidoc.lines[n.i]
-                            if isinstance(n, WikiItem):
-                                name += ' ' + n.kind
-                                part = line[n.j:n.k]
-                                extra = line[n.k:]
-                            else:
-                                part, extra = line[n.j:], ''
-                            subdivs.append(
-                                tag.pre(
-                                    linenum(n.i), spaces(n.j),
-                                    tag.span(name, class_='name debugitem'),
-                                    tag.span(part, class_='underline'),
-                                    extra))
-                            start = (n.end or n.i) + 1
-                    if start < node.end:
-                        nonblock(node.end)
-                    return tag.div(tag.pre(linenum(node.i), spaces(node.j)),
-                                   tag.span(node.name, class_='name')
-                                   if node.name else None,
-                                   tag.dl((tag.dt(k), tag.dd(v))
-                                          for k, v in node.params.iteritems())
-                                   if node.params else None,
-                                   subdivs,
-                                   class_='debugblock depth%d' % depth)
-                return format_rec(node, 1)
-
         yield DebugBlockStructure
+
+
+class DebugParseTime(WikiFormatter):
+    """No-op (time parsing)"""
+
+    debug = True
+
+    def format(self, *args):
+        return '{}'
+
+
+class DebugBlockStructure(WikiFormatter):
+    """Debug Block structure"""
+
+    debug = True
+
+    def format(self, node):
+        self.out = StringIO() if out is None else out
+        self.scopes = (wikidoc,)
+        from .parser import WikiItem, WikiInline
+        def spaces(n):
+            return u'\u2420' * n
+        def subst_spaces(text):
+            return re.sub(r'^ +', lambda m: spaces(len(m.group(0))),
+                          text)
+        def linenum(i):
+            return '%04d\t' % i
+
+        def format_rec(node, depth):
+            subdivs = []
+            start = node.start
+            def nonblock(end):
+                subdivs.append(
+                    tag.pre('\n'.join(
+                            linenum(i) +
+                            subst_spaces(self.wikidoc.lines[i])
+                            for i in xrange(start, end))))
+            for n in node.nodes:
+                if isinstance(n, WikiBlock):
+                    if n.i > start:
+                        nonblock(n.i)
+                    subdivs.append(format_rec(n, depth + 1))
+                    start = n.end + 1
+                elif isinstance(n, (WikiItem, WikiInline)):
+                    name = n.__class__.__name__.replace('Wiki', '')
+                    line = self.wikidoc.lines[n.i]
+                    if isinstance(n, WikiItem):
+                        name += ' ' + n.kind
+                        part = line[n.j:n.k]
+                        extra = line[n.k:]
+                    else:
+                        part, extra = line[n.j:], ''
+                    subdivs.append(
+                        tag.pre(
+                            linenum(n.i), spaces(n.j),
+                            tag.span(name, class_='name debugitem'),
+                            tag.span(part, class_='underline'),
+                            extra))
+                    start = (n.end or n.i) + 1
+            if start < node.end:
+                nonblock(node.end)
+            return tag.div(tag.pre(linenum(node.i), spaces(node.j)),
+                           tag.span(node.name, class_='name')
+                           if node.name else None,
+                           tag.dl((tag.dt(k), tag.dd(v))
+                                  for k, v in node.params.iteritems())
+                           if node.params else None,
+                           subdivs,
+                           class_='debugblock depth%d' % depth)
+        return format_rec(node, 1)
 
 
 class WikiSourceFormatter(Component):
