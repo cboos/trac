@@ -488,10 +488,10 @@ class WikiDocumentItems(WikiDocumentTest):
                            },
                            T0<62>:,
                            B0<63-65>comment comment2,
-                            (-)1<66>,
+                            (-)1<66> {T3<66>:},
                               B3<67-69> b1,
                              B2<70-72> b2,
-                            (-)1<73>
+                            (-)1<73>  {T3<73>:}
                           }'''))
 
 def suite():
