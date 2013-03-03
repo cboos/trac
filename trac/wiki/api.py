@@ -296,6 +296,17 @@ class WikiFormatter(object):
     (or a Wiki syntax or formatter provider plugin)."""
     debug = False
 
+    def __init__(self, context, wikidoc):
+        """Create a formatter for a parse tree in a given rendering context.
+
+        :param context: the context of rendering
+        :type context: `~trac.mimeview.api.RenderingContext`
+        :param wikidoc: the root of the parse tree
+        :type wikidoc: `~trac.wiki.parser.WikiDocument`
+        """
+        self.context = context
+        self.wikidoc = wikidoc
+
     @classmethod
     def get_description(cls):
         """Return a short description for this formatter."""
@@ -306,18 +317,16 @@ class WikiFormatter(object):
         """Return the unique identifier for this formatter."""
         return cls.flavor or cls.__name__
 
-    def format(self, context, wikidoc, node):
-        """Format a WikiDOM tree to some rendered output.
+    def format(self, node):
+        """Format a node in the WikiDOM parse tree associated to this
+        formatter.
 
-        :param context: specify the rendering context
-        :type context: `~trac.mimeview.api.RenderingContext`
-        :param wikidoc: the Wiki parse tree
-        :type wikidoc: `~trac.wiki.parser.WikiDocument`
-        :param node: node that should be formatted. This will usually
+        :param node: node that should be formatted. This may
                      correspond to the whole document, i.e. *wikidoc*.
         :type node: `~trac.wiki.parser.WikiNode`
 
-        The generated output is returned as an unicode string.
+        The generated output is returned as an unicode string
+        or a Genshi `~genshi.builder.Fragment` object.
         """
 
 
@@ -448,16 +457,14 @@ class WikiSystem(Component):
 
 
     def get_wiki_formatter(self, flavor):
-        """Retrieve a formatter instance matching the given formatting flavor.
+        """Retrieve a formatter class matching the given formatting flavor.
         """
         if self._formatters is None:
             self._formatters = {}
             for provider in self.formatter_providers:
                 for cls in provider.get_wiki_formatters() or []:
                     self._formatters[cls.get_flavor()] = cls
-        cls = self._formatters.get(flavor)
-        if cls:
-            return cls()
+        return self._formatters.get(flavor)
 
     # IWikiSyntaxProvider methods
 

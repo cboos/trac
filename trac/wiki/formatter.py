@@ -1585,7 +1585,7 @@ class DebugFormatter(Component):
 
             debug = True
 
-            def format(self, context, wikidoc, node):
+            def format(self, node):
                 from .parser import WikiItem, WikiInline
                 def spaces(n):
                     return u'\u2420' * n
@@ -1601,7 +1601,8 @@ class DebugFormatter(Component):
                     def nonblock(end):
                         subdivs.append(
                             tag.pre('\n'.join(
-                                    linenum(i) + subst_spaces(wikidoc.lines[i])
+                                    linenum(i) +
+                                    subst_spaces(self.wikidoc.lines[i])
                                     for i in xrange(start, end))))
                     for n in node.nodes:
                         if isinstance(n, WikiBlock):
@@ -1611,7 +1612,7 @@ class DebugFormatter(Component):
                             start = n.end + 1
                         elif isinstance(n, (WikiItem, WikiInline)):
                             name = n.__class__.__name__.replace('Wiki', '')
-                            line = wikidoc.lines[n.i]
+                            line = self.wikidoc.lines[n.i]
                             if isinstance(n, WikiItem):
                                 name += ' ' + n.kind
                                 part = line[n.j:n.k]
@@ -1656,8 +1657,8 @@ class WikiSourceFormatter(Component):
             description = _("Re-create the wiki source")
             mimetype = 'text/x-trac-wiki'
 
-            def format(self, context, wikidoc, node):
-                s = Sourcer(wikidoc)
+            def format(self, node):
+                s = Sourcer(self.wikidoc)
                 node.to_source(s)
                 return s.out.getvalue()
 
@@ -1667,8 +1668,8 @@ class WikiSourceFormatter(Component):
             """Debug to_source"""
             debug = True
 
-            def format(self, context, wikidoc, node):
-                s = Sourcer(wikidoc)
+            def format(self, node):
+                s = Sourcer(self.wikidoc)
                 node.to_source(s)
                 lines = s.out.getvalue().splitlines()
                 return tag.table(
@@ -1815,9 +1816,7 @@ class WikiPageFormatter(WikiFormatter):
                     n += 1 # skip unformattable node
         return tag(fragments)
 
-    def format(self, context, wikidoc, node):
-        self.context = context
-        self.wikidoc = wikidoc
+    def format(self, node):
         return self.format_nodes(node)
 
 
@@ -1860,7 +1859,7 @@ class WikiOutlineFormatter(WikiPageFormatter):
     debug = True
 
     def format_Section(self, parent, n, section):
-        inline_formatter = WikiInlineFormatter() ### fill constructor
+        inline_formatter = WikiInlineFormatter(self.context, self.wikidoc)
         outline = []
         def push():
             level = tag.ol()
@@ -1873,9 +1872,8 @@ class WikiOutlineFormatter(WikiPageFormatter):
                 push()
             for i in xrange(len(outline), section.depth, -1):
                 outline.pop()
-            outline[-1].append(tag.li(tag.a(# section.depth, '. ',
-                        inline_formatter.format(self.context, self.wikidoc,
-                                                section), href='/')))
+            outline[-1].append(
+                tag.li(tag.a(inline_formatter.format(section), href='/')))
                        ### href=self.context.get_resource_url() + section.anchor
         return tag.div(outline[0], class_='wiki-toc'), len(parent.nodes)
 
@@ -1925,7 +1923,7 @@ def format_to(env, flavor, context, wikidoc, node=None, **options):
                 node = wikidoc = WikiParser(env).parse(wikidoc)
                 if flavor == 'DebugParseTime':
                     return "Parsed in %f seconds" % (time.time() - start)
-            return formatter.format(context, wikidoc, node or wikidoc)
+            return formatter(context, wikidoc).format(node or wikidoc)
         # 0.12 compat
         return format_to_html(env, context, wikidoc, **options)
 
