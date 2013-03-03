@@ -1713,7 +1713,7 @@ class WikiSourceFormatter(WikiFormatter):
             header += '\n'
         params = []
         if block.name:
-            header += block.name
+            header += '#!' + block.name
             for pname in block.params: # block.param_list (keep order!)
                 pval = block.params[pname]
                 if pval is True:
