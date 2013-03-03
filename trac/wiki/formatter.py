@@ -1679,7 +1679,7 @@ class WikiSourceFormatter(Component):
                     tag.tbody(
                         tag.tr(tag.th(i, class_='lineno'), tag.td(line))
                         for i, line in enumerate(lines)),
-                    class_='code')
+                    class_='code debugsource')
 
         yield DebugSource
 

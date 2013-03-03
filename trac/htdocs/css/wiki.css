@@ -135,6 +135,7 @@ div.tracini td.nodefault {
 }
 
 /* Debugging */
+table.debugsource td { white-space: pre-wrap; }
 div.debugblock.depth8 { background: #b9b9b9; }
 div.debugblock.depth7 { background: #c0c0c0; }
 div.debugblock.depth6 { background: #c9c9c9; }
