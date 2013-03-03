@@ -1562,6 +1562,8 @@ class InlineHtmlFormatter(object):
 
 # -- 1.1.x formatters
 
+# ------------------------------------------------------------------
+
 class DebugFormatters(Component):
     """Debug formatters, not interesting for end-users."""
 
@@ -1643,7 +1645,9 @@ class DebugBlockStructure(WikiFormatter):
         return format_rec(node, 1)
 
 
-class WikiSourceFormatter(Component):
+# ------------------------------------------------------------------
+
+class WikiSourceFormatters(Component):
     """Format a Wiki parse tree into a wiki source text.
 
     This can be used for saving a modified WikiDOM into source form.
@@ -1654,39 +1658,39 @@ class WikiSourceFormatter(Component):
     # IWikiFormatterProvider methods
 
     def get_wiki_formatters(self):
-
-        class WikiSourceFormatter(WikiFormatter):
-            description = _("Re-create the wiki source")
-            mimetype = 'text/x-trac-wiki'
-
-            def format(self, node):
-                s = Sourcer(self.wikidoc)
-                node.to_source(s)
-                return s.out.getvalue()
-
         yield WikiSourceFormatter
-
-        class DebugSource(WikiFormatter):
-            """Debug to_source"""
-            debug = True
-
-            def format(self, node):
-                s = Sourcer(self.wikidoc)
-                node.to_source(s)
-                lines = s.out.getvalue().splitlines()
-                return tag.table(
-                    tag.thead(
-                        tag.tr(tag.th(_("Line"), class_='lineno'),
-                               tag.th(_("Source")))),
-                    tag.tbody(
-                        tag.tr(tag.th(i, class_='lineno'), tag.td(line))
-                        for i, line in enumerate(lines)),
-                    class_='code debugsource')
-
         yield DebugSource
 
 
-class WikiHtmlFormatter(Component):
+class WikiSourceFormatter(WikiFormatter):
+    description = _("Re-create the wiki source")
+    mimetype = 'text/x-trac-wiki'
+
+    def format(self, node):
+        s = Sourcer(self.wikidoc)
+        node.to_source(s)
+        return s.out.getvalue()
+
+class DebugSource(WikiFormatter):
+    """Debug to_source"""
+    debug = True
+
+    def format(self, node):
+        s = Sourcer(self.wikidoc)
+        node.to_source(s)
+        lines = s.out.getvalue().splitlines()
+        return tag.table(
+            tag.thead(
+                tag.tr(tag.th(_("Line"), class_='lineno'),
+                       tag.th(_("Source")))),
+            tag.tbody(
+                tag.tr(tag.th(i, class_='lineno'), tag.td(line))
+                for i, line in enumerate(lines)),
+            class_='code debugsource')
+
+# ------------------------------------------------------------------
+
+class WikiHtmlFormatters(Component):
     """Format a Wiki parse tree into HTML."""
 
     implements(IWikiFormatterProvider)
@@ -1885,6 +1889,7 @@ class WikiOutlineFormatter(WikiPageFormatter):
         )
 
 
+# ------------------------------------------------------------------
 
 
 # -- Public API
@@ -1963,6 +1968,7 @@ def extract_link(env, context, wikidoc):
     if not wikidoc:
         return Markup()
     return LinkFormatter(env, context).match(wikidoc)
+
 
 
 # pre-0.11 wiki text to Markup compatibility methods
