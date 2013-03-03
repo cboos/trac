@@ -170,6 +170,13 @@ class WikiSection(WikiItem):
     both_sides = False #: are the '=' characters on both sides?
 
 
+class WikiRule(WikiNode):
+    """Line used as separator."""
+
+    def __repr__(self):
+        return '----<%d>' % self.i
+
+
 # -- Standard inline elements
 
 class WikiInline(WikiNode):

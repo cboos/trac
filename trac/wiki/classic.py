@@ -13,11 +13,7 @@
 
 from ..core import *
 from .api import IWikiBlockSyntaxProvider, wiki_regexp
-from .parser import (
-    WikiDescriptionItem, WikiInline, WikiItem, WikiRow, WikiSection,
-    WikiParser
-)
-
+from .parser import *
 
 class TracWikiSyntax(Component):
     """Parser for the classic Trac WikiFormatting syntax, originally
@@ -79,6 +75,14 @@ class TracWikiSyntax(Component):
             section.nodes = [WikiInline(i, j, k)]
             return section
         yield build_section
+
+        @wiki_regexp(r' *-{4,} *$')
+        def build_rule(wikidoc, wikinodes, i, match):
+            j = wikinodes[-1].j
+            j = wikidoc.lines[i].find('-', j)
+            k = wikidoc.lines[i].rfind('-')
+            return WikiRule(i, j, k)
+        yield build_rule
 
 
     def get_wiki_verbatim_sensitive_line_patterns(self):

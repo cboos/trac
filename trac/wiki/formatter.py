@@ -1773,6 +1773,11 @@ class WikiSourceFormatter(WikiFormatter):
             self.out.write(' #%s' % section.anchor)
         self.nl()
 
+    def source_Rule(self, rule, parent):
+        self.indent(rule, parent)
+        self.out.write('-' * (rule.k - rule.j + 1))
+        self.nl()
+
     def source_Inline(self, inline, parent):
         """Write inline element subnodes with interspersed raw text fragments
         """
@@ -1800,6 +1805,7 @@ class WikiSourceFormatter(WikiFormatter):
         (WikiItem, source_Item),
         (WikiDescriptionItem, source_DescriptionItem),
         (WikiSection, source_Section),
+        (WikiRule, source_Rule),
         (WikiInline, source_Inline),
         (WikiBlankLine, source_BlankLine),
         )
@@ -1959,6 +1965,9 @@ class WikiPageFormatter(WikiFormatter):
         return Element('h%d' % section.depth)(self.format_nodes(section),
                                               id=section.anchor), n + 1
 
+    def page_Rule(self, rule, parent, n):
+        return tag.hr(), n + 1
+
     def page_Inline(self, inline, parent, n):
         fragments = []
         i, j, k = inline.i, inline.j, inline.k
@@ -1989,6 +1998,7 @@ class WikiPageFormatter(WikiFormatter):
         (WikiEnumeratedItem, page_EnumeratedItem),
         (WikiDescriptionItem, page_DescriptionItem),
         (WikiSection, page_Section),
+        (WikiRule, page_Rule),
         (WikiInline, page_Inline),
         )
 
