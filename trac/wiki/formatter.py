@@ -2057,23 +2057,29 @@ class DebugBlockStructure(WikiPageFormatter):
 
     debug = True
 
+    def rawlines(self, start, end):
+        def subst_spaces(text):
+            return re.sub(r'^ +', lambda m: spaces(len(m.group(0))), text)
+        return tag.pre(
+            '\n'.join(linenum(i) + subst_spaces(self.wikidoc.lines[i])
+                      for i in xrange(start, end)))
+
     # -- WikiNode formatters
+
+    def debug_Node(self, node, parent, n):
+        return tag.span(self.rawlines(node.i, node.end or node.i + 1),
+                        tag.span(node.__class__.__name__, class_='name')), n + 1
 
     def debug_Block(self, block, parent, n):
         subdivs = []
         start = block.start
-        def subst_spaces(text):
-            return re.sub(r'^ +', lambda m: spaces(len(m.group(0))), text)
         def nonblock(end):
-            subdivs.append(
-                tag.pre('\n'.join(linenum(i) +
-                                  subst_spaces(self.wikidoc.lines[i])
-                                  for i in xrange(start, end))))
+            subdivs.append(self.rawlines(start, end))
         for n, node in enumerate(block.nodes):
             if node.i > start:
                 nonblock(node.i)
             self.depth += 1
-            subdivs.append(self.format_node(node, parent, n))
+            subdivs.append(self.format_node(node, block, n))
             self.depth -= 1
             start = (node.end or node.i) + 1
         if start < block.end:
@@ -2111,6 +2117,7 @@ class DebugBlockStructure(WikiPageFormatter):
                        extra)
 
     formatters = TypeDict(
+        (WikiNode, debug_Node),
         (WikiBlock, debug_Block),
         (WikiItem, debug_Item),
         (WikiInline, debug_Inline),
