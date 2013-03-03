@@ -77,13 +77,16 @@ class WikiNode(object):
 
     A node may have children ``nodes``.
     """
+
     nodes = None #: subnodes
     end = None   #: multiline if not `None`
-    k = -1       #: eol for this node
+    k = None     #: eol for this node
 
-    def __init__(self, i, j):
+    def __init__(self, i, j, k=None):
         self.i = i #: line in corresponding `WikiDocument.lines`
         self.j = j #: start of node within the line
+        if k:
+            self.k = k
 
     def lastline(self):
         return self.end or self.i
@@ -283,7 +286,7 @@ class WikiInline(WikiNode):
     """
 
     def __repr__(self):
-        return 'T%d<%d>:%s' % (self.j, self.i, self.k if self.k > -1 else '')
+        return 'T%d<%d>:%s' % (self.j, self.i, self.k or '')
 
     def to_source(self, sourcer):
         """Write inline element subnodes with interspersed raw text fragments
@@ -296,8 +299,12 @@ class WikiInline(WikiNode):
                     sourcer.raw(i, j, node.j)
                 node.to_source(sourcer)
                 j = node.k
-        sourcer.raw(self.i, j) # raw text after last node
-        sourcer.nl()
+        if self.k:
+            if j < self.k:
+                sourcer.raw(self.i, j, self.k)
+        else:
+            sourcer.raw(self.i, j) # raw text after last node
+            sourcer.nl()
 
 
 

@@ -1739,14 +1739,19 @@ class WikiPageFormatter(WikiFormatter):
 
     def format_Inline(self, parent, n, inline):
         fragments = []
-        i, j = inline.i, inline.j
+        i, j, k = inline.i, inline.j, inline.k
         if inline.nodes:
             for node in inline.nodes:
                 if j < node.j: # raw text before node
                     self.rawtext(fragments, i, j, node.j)
                 fragments.extend(self.format_node(node))
                 j = node.k
-        self.rawtext(fragments, i, j) # raw text after last node
+        # raw text after last node
+        if k:
+            if j < k:
+                self.rawtext(fragments, i, j, k)
+        else:
+            self.rawtext(fragments, i, j)
         fragments.append('\n')
         return fragments, n + 1
 
