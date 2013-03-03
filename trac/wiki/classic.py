@@ -43,7 +43,7 @@ class TracWikiSyntax(Component):
             j, k = match.span('trac_bullet')
             item = WikiItem(i, j, k)
             item.kind = match.group('trac_bullet')
-            item.nodes = [WikiInline(i, k)]
+            item.nodes = [WikiInline(i, k + 1)]
             return item
         yield build_ulist_item
 
@@ -56,7 +56,7 @@ class TracWikiSyntax(Component):
             return row
         yield build_row
 
-        @wiki_regexp(r'(?P<trac_sec_depth>={1,6})'  ### verbose
+        @wiki_regexp(r'(?P<trac_sec_depth>={1,6}) '  ### verbose
                      r'(?P<trac_sec>.*?)'
                      r'(?P<trac_sec_anchor>#%s)? *$' % WikiParser.XML_NAME)
         def build_section(wikidoc, wikinodes, i, match):
