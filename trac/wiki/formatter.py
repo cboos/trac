@@ -1589,8 +1589,7 @@ class DebugBlockStructure(WikiFormatter):
     debug = True
 
     def format(self, node):
-        self.out = StringIO() if out is None else out
-        self.scopes = (wikidoc,)
+        self.out = StringIO()
         from .parser import WikiItem, WikiInline
         def spaces(n):
             return u'\u2420' * n
