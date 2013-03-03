@@ -1690,12 +1690,11 @@ class WikiSourceFormatter(WikiFormatter):
 
     def _format_nodes(self, block):
         i = block.start
-        if block.nodes:
-            for node in block.nodes:
-                for ii in xrange(i, node.i): # raw text before node
-                    self.printnl(ii)
-                self.format_node(block, node)
-                i = node.lastline() + 1
+        for node in block.nodes:
+            for ii in xrange(i, node.i): # raw text before node
+                self.printnl(ii)
+            self.format_node(block, node)
+            i = node.lastline() + 1
         for ii in xrange(i, block.end):
             self.printnl(ii)
 
@@ -1745,25 +1744,22 @@ class WikiSourceFormatter(WikiFormatter):
     def format_Item(self, parent, n, item):
         self.indent(parent, item)
         self.out.write(item.kind)
-        if item.nodes:
-            for node in item.nodes:
-                self.format_node(item, node)
+        for node in item.nodes:
+            self.format_node(item, node)
 
     def format_DescriptionItem(self, parent, n, item):
         self.indent(parent, item)
         self.format_node(item, item.term)
         self.out.write(item.kind)
-        if item.nodes:
-            for node in item.nodes:
-                self.format_node(item, node)
+        for node in item.nodes:
+            self.format_node(item, node)
 
     def format_Section(self, parent, n, section):
         self.indent(parent, section)
         depth = section.kind * section.depth
         self.out.write(depth + ' ')
-        if section.nodes:
-            for node in section.nodes:
-                self.format_node(section, node)
+        for node in section.nodes:
+            self.format_node(section, node)
         if section.both_sides:
             self.out.write(' ' + depth)
         if section.anchor:
@@ -1775,12 +1771,11 @@ class WikiSourceFormatter(WikiFormatter):
         """
         self.indent(parent, inline)
         i, j, k = inline.i, inline.j, inline.k
-        if inline.nodes:
-            for node in inline.nodes:
-                if j < node.j: # raw text before node
-                    self.raw(i, j, node.j)
-                self.format_node(inline, node)
-                j = node.k
+        for node in inline.nodes:
+            if j < node.j: # raw text before node
+                self.raw(i, j, node.j)
+            self.format_node(inline, node)
+            j = node.k
         if k:
             if j < k:
                 self.raw(i, j, k)
@@ -1916,12 +1911,11 @@ class WikiPageFormatter(WikiFormatter):
     def format_Inline(self, parent, n, inline):
         fragments = []
         i, j, k = inline.i, inline.j, inline.k
-        if inline.nodes:
-            for node in inline.nodes:
-                if j < node.j: # raw text before node
-                    self.rawtext(fragments, i, j, node.j)
-                fragments.extend(self.format_nodes(node))
-                j = node.k
+        for node in inline.nodes:
+            if j < node.j: # raw text before node
+                self.rawtext(fragments, i, j, node.j)
+            fragments.extend(self.format_nodes(node))
+            j = node.k
         # raw text after last node
         if k:
             if j < k:
@@ -1951,17 +1945,16 @@ class WikiPageFormatter(WikiFormatter):
 
     def format_nodes(self, parent):
         fragments = []
-        if parent.nodes:
-            n = 0
-            while n < len(parent.nodes):
-                node = parent.nodes[n]
-                formatter = self.formatters.get(node)
-                if formatter:
-                    content, n = formatter(self, parent, n, node)
-                    if content:
-                        fragments.append(content)
-                else:
-                    n += 1 # skip unformattable node
+        n = 0
+        while n < len(parent.nodes):
+            node = parent.nodes[n]
+            formatter = self.formatters.get(node)
+            if formatter:
+                content, n = formatter(self, parent, n, node)
+                if content:
+                    fragments.append(content)
+            else:
+                n += 1 # skip unformattable node
         return tag(fragments)
 
     def format(self, node):

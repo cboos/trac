@@ -42,7 +42,7 @@ class WikiNode(object):
     A node may have children ``nodes``.
     """
 
-    nodes = None #: subnodes
+    nodes = ()   #: subnodes
     end = None   #: multiline if not `None`
     k = None     #: eol for this node
 
