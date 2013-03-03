@@ -36,6 +36,9 @@ class WikiNode(object):
     text stored in the document.  All nodes have a starting point in
     the document, line ``i`` and column ``j``.
 
+    A node may have a logical end column ``k``, otherwise it expands
+    till the end of the line.
+
     A node may have children ``nodes``.
     """
 
@@ -134,25 +137,33 @@ class WikiItem(WikiNode):
 
     Also used as items in plain unnumbered lists.
     """
+
     kind = '' #: detail on the nature of the item (e.g. bullet type)
 
     def __repr__(self):
         return '(%s)%d<%s%s>' % (
             self.kind, self.j, self.i, '-%d' % self.end if self.end else '')
 
+
 class WikiEnumeratedItem(WikiItem):
     """Specialized item for numbered lists."""
 
+
 class WikiDescriptionItem(WikiItem):
     """Specialized item for description lists."""
+
     kind = '::' #: default kind for the WikiDescriptionItem
+
 
 class WikiRow(WikiItem):
     """Specialized "item" corresponding to a row in a table."""
 
     kind = '||' #: default kind for the WikiRow
 
+
 class WikiSection(WikiItem):
+    """Specialized "item" corresponding to a section."""
+
     kind = '='
     depth = 1 #: depth of the section
     anchor = None #: explicit section id
