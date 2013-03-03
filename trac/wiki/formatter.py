@@ -1661,9 +1661,9 @@ class WikiSourceFormatter(WikiFormatter):
     description = _("Re-create the wiki source")
     mimetype = 'text/x-trac-wiki'
 
-    def indent(self, parent, node):
+    def indent(self, node, parent=None):
         indent = node.j
-        if parent.k:
+        if parent and parent.k:
             indent -= parent.k
         if indent:
             self.out.write(' ' * indent)
@@ -1685,25 +1685,29 @@ class WikiSourceFormatter(WikiFormatter):
 
     # -- WikiNode formatters
 
-    def format_Document(self, parent, n, doc):
-        return self._format_nodes(doc)
+    def format_Document(self, node, parent):
+        """Formatter for a `~trac.wiki.parser.WikiDocument` node.
 
-    def _format_nodes(self, block):
-        i = block.start
-        for node in block.nodes:
-            for ii in xrange(i, node.i): # raw text before node
-                self.printnl(ii)
-            self.format_node(block, node)
-            i = node.lastline() + 1
-        for ii in xrange(i, block.end):
-            self.printnl(ii)
+        Like all the other `format_` registered methods, it expects
+        the following parameters:
 
-    def format_Block(self, parent, n, block):
-        self._processor_to_source(parent, block)
-        self._format_nodes(block)
-        self._trailer_to_source(parent, block)
+        :param node: first parameter is the node being formatted
+        :type node: an instance of the class against which this method
+                    has been registered (or of an ancestor of that
+                    class); here, a `~trac.wiki.parser.WikiDocument`.
+        :param parent: the parent containing the *node*
+        :type parent: a `~trac.wiki.parser.WikiNode` or `None`; here, `None`.
 
-    def _processor_to_source(self, parent, block):
+        No return value is expected.
+        """
+        self.format_nodes(node)
+
+    def format_Block(self, block, parent):
+        self._processor_to_source(block, parent)
+        self.format_nodes(block)
+        self._trailer_to_source(block, parent)
+
+    def _processor_to_source(self, block, parent):
         header = WikiParser.STARTBLOCK
         if block.start > block.i + 1:
             header += '\n'
@@ -1727,54 +1731,54 @@ class WikiSourceFormatter(WikiFormatter):
                         pval = "'%s'" % pval
                     param = '%s=%s' % (pname, pval)
                 params.append(param)
-        self.indent(parent, block)
+        self.indent(block, parent)
         self.out.write(header)
         self.nl()
         if params:
             self.out.write(' '.join(params))
 
-    def _trailer_to_source(self, parent, block):
+    def _trailer_to_source(self, block, parent):
         trailer = WikiParser.ENDBLOCK
         if block.comment:
             trailer += block.comment
-        self.indent(parent, block)
+        self.indent(block, parent)
         self.out.write(trailer)
         self.nl()
 
-    def format_Item(self, parent, n, item):
-        self.indent(parent, item)
+    def format_Item(self, item, parent):
+        self.indent(item, parent)
         self.out.write(item.kind)
         for node in item.nodes:
-            self.format_node(item, node)
+            self.format_node(node, item)
 
-    def format_DescriptionItem(self, parent, n, item):
-        self.indent(parent, item)
-        self.format_node(item, item.term)
+    def format_DescriptionItem(self, item, parent):
+        self.indent(item, parent)
+        self.format_node(item.term, item)
         self.out.write(item.kind)
         for node in item.nodes:
-            self.format_node(item, node)
+            self.format_node(node, item)
 
-    def format_Section(self, parent, n, section):
-        self.indent(parent, section)
+    def format_Section(self, section, parent):
+        self.indent(section, parent)
         depth = section.kind * section.depth
         self.out.write(depth + ' ')
         for node in section.nodes:
-            self.format_node(section, node)
+            self.format_node(node, section)
         if section.both_sides:
             self.out.write(' ' + depth)
         if section.anchor:
             self.out.write(' #%s' % section.anchor)
         self.nl()
 
-    def format_Inline(self, parent, n, inline):
+    def format_Inline(self, inline, parent):
         """Write inline element subnodes with interspersed raw text fragments
         """
-        self.indent(parent, inline)
+        self.indent(inline, parent)
         i, j, k = inline.i, inline.j, inline.k
         for node in inline.nodes:
             if j < node.j: # raw text before node
                 self.raw(i, j, node.j)
-            self.format_node(inline, node)
+            self.format_node(node, inline)
             j = node.k
         if k:
             if j < k:
@@ -1783,7 +1787,7 @@ class WikiSourceFormatter(WikiFormatter):
             self.raw(i, j) # raw text after last node
             self.nl()
 
-    def format_BlankLine(self, parent, n, blankline):
+    def format_BlankLine(self, blankline, parent):
         self.nl()
 
     formatters = TypeDict(
@@ -1797,14 +1801,29 @@ class WikiSourceFormatter(WikiFormatter):
         (WikiBlankLine, format_BlankLine),
         )
 
-    def format_node(self, parent, node):
+    def format_nodes(self, block):
+        i = block.start
+        for node in block.nodes:
+            for ii in xrange(i, node.i): # raw text before node
+                self.printnl(ii)
+            self.format_node(node, block)
+            i = node.lastline() + 1
+        for ii in xrange(i, block.end):
+            self.printnl(ii)
+
+    def format_node(self, node, parent=None):
         formatter = self.formatters.get(node)
         if formatter:
-            formatter(self, parent, -1, node)
+            formatter(self, node, None)
 
     def format(self, node):
+        """Format *node* and return an `unicode` string.
+
+        The result corresponds to a canonical version of the Wiki
+        source for the given parse tree.
+        """
         self.out = StringIO()
-        self.format_node(None, node)
+        self.format_node(node)
         return self.out.getvalue()
 
 
@@ -1815,6 +1834,11 @@ class DebugSource(WikiSourceFormatter):
     debug = True
 
     def format(self, node):
+        """Format *node* and return a "table" `~genshi.builder.Element` .
+
+        The result corresponds to the canonical version of the Wiki
+        source embedded in a wiki table, showing the line numbers.
+        """
         lines = super(DebugSource, self).format(node).splitlines()
         return tag.table(
             tag.thead(
@@ -1870,21 +1894,45 @@ class WikiPageFormatter(WikiFormatter):
 
     # -- WikiNode formatters
 
-    def format_Block(self, parent, n, block):
+    def format_Document(self, node, parent, n):
+        """Formatter for a `WikiDocument` node.
+
+        Like all the other `format_` registered methods, it expects
+        the following parameters:
+
+        :param node: the node being formatted
+        :type node: an instance of the class against which this method
+                    has been registered (or of an ancestor of that
+                    class); here, a `~trac.wiki.parser.WikiDocument`
+        :param parent: the parent containing the *node*
+        :type parent: a `~trac.wiki.parser.WikiNode` or `None`; here, `None`
+        :param n: the index of the *node* in its *parent*, i.e.
+                  ``node is parent[n]``
+        :type n: `int`; -1 if *parent* is `None`
+
+        :return: the formatted content corresponding to this node and
+                 the index of the next children within `parent` to format;
+                 this can be used to skip siblings which might have already
+                 been formatted by the current formatter
+        :rtype: `~genshi.builder.Fragment`, `int`
+        """
+        return tag.div(self.format_nodes(node)), n + 1
+
+    def format_Block(self, block, parent, n):
         return (tag.pre('\n'.join(self.wikidoc.lines[block.start:block.end])),
                 n + 1)
 
-    def format_Item(self, parent, n, item):
-        items, n = self._group_items(self.format_Item, parent, n, item)
-        return (tag.ul(tag.li(self.format_nodes(item))
-                       for item in items), n)
+    def format_Item(self, item, parent, n):
+        items, n = self._group_items(self.format_Item, item, parent, n)
+        return tag.ul(tag.li(self.format_nodes(item))
+                      for item in items), n
 
-    def format_EnumeratedItem(self, parent, n, item):
-        items, n = self._group_items(format_EnumeratedItem, parent, n, item)
-        return (tag.ol((tag.li(self.format_nodes(item))
-                        for item in items)), n)
+    def format_EnumeratedItem(self, item, parent, n):
+        items, n = self._group_items(format_EnumeratedItem, item, parent, n)
+        return tag.ol((tag.li(self.format_nodes(item))
+                       for item in items)), n
 
-    def _group_items(self, formatter, parent, n, item):
+    def _group_items(self, formatter, item, parent, n):
         items = [item]
         n += 1
         while n < len(parent.nodes):
@@ -1896,19 +1944,19 @@ class WikiPageFormatter(WikiFormatter):
             n += 1
         return items, n
 
-    def format_DescriptionItem(self, parent, n, item):
-        items, n = self._group_items(self.format_DescriptionItem, parent, n,
-                                     item)
-        return tag.dl(([tag.dt(self.format_node(item, item.term)),
+    def format_DescriptionItem(self, item, parent, n):
+        items, n = self._group_items(self.format_DescriptionItem, item,
+                                     parent, n)
+        return tag.dl(([tag.dt(self.format(item.term, item)),
                         tag.dd(self.format_nodes(item))]
                        for item in items),
                       class_='wiki'), n
 
-    def format_Section(self, parent, n, section):
+    def format_Section(self, section, parent, n):
         return Element('h%d' % section.depth)(self.format_nodes(section),
                                               id=section.anchor), n + 1
 
-    def format_Inline(self, parent, n, inline):
+    def format_Inline(self, inline, parent, n):
         fragments = []
         i, j, k = inline.i, inline.j, inline.k
         for node in inline.nodes:
@@ -1927,8 +1975,12 @@ class WikiPageFormatter(WikiFormatter):
 
     # -- bind formatters to WikiNode subclasses
 
+    """A `TypeDict` associating `~trac.wiki.parser.WikiNode` subclasses
+    to a formatting method (e.g. binding `~trac.wiki.parser.WikiDocument`
+    to `format_Document`)"""
     formatters = TypeDict(
         (WikiNode, None),
+        (WikiDocument, format_Document),
         (WikiBlock, format_Block),
         (WikiItem, format_Item),
         (WikiEnumeratedItem, format_EnumeratedItem),
@@ -1937,28 +1989,40 @@ class WikiPageFormatter(WikiFormatter):
         (WikiInline, format_Inline),
         )
 
-    def format_node(self, parent, node):
-        formatter = self.formatters.get(node)
-        if formatter:
-            content, n = formatter(self, parent, -1, node)
-            return content
-
     def format_nodes(self, parent):
+        """Format the content of *parent* by formatting its subnodes.
+
+        Start with the first sub node (``parent.nodes[0]``), and find
+        the corresponding registered formatter (see `formatters`).
+        Applying this formatter gives some content which is accumulated
+        and the index of the next sub node to process. Iterate while
+        there is nodes to process.
+
+        :return: the accumulated content
+        :rtype: `~genshi.builder.Fragment`
+        """
         fragments = []
         n = 0
         while n < len(parent.nodes):
             node = parent.nodes[n]
             formatter = self.formatters.get(node)
             if formatter:
-                content, n = formatter(self, parent, n, node)
+                content, n = formatter(self, node, parent, n)
                 if content:
                     fragments.append(content)
             else:
                 n += 1 # skip unformattable node
         return tag(fragments)
 
-    def format(self, node):
-        return self.format_nodes(node)
+    def format(self, node, parent=None):
+        """Format the *node* into HTML.
+
+        :rtype: `~genshi.build.Fragment`
+        """
+        formatter = self.formatters.get(node)
+        if formatter:
+            content, n = formatter(self, node, parent, -1)
+            return content
 
 
 class WikiInlineFormatter(WikiPageFormatter):
@@ -1968,24 +2032,28 @@ class WikiInlineFormatter(WikiPageFormatter):
 
     # -- WikiNode formatters
 
-    def format_Block(self, parent, n, block):
+    def format_Document(self, doc, parent, n):
+        return tag.span(self.format_nodes(doc)), n + 1
+
+    def format_Block(self, block, parent, n):
         return u"[\u2026]\n", n + 1 # [...]
 
-    def format_Item(self, parent, n, item):
+    def format_Item(self, item, parent, n):
         return tag(item.kind, self.format_nodes(item)), n + 1
 
-    def format_DescriptionItem(self, parent, n, item):
-        return tag(tag.em(self.format_node(item, item.term), ': '),
+    def format_DescriptionItem(self, item, parent, n):
+        return tag(tag.em(self.format(item.term, item), ': '),
                    self.format_nodes(item)), n + 1
 
     headings = [(), _tag_bi, _tag_b, _tag_i, _tag_i, _tag_span, _tag_span]
 
-    def format_Section(self, parent, n, section):
+    def format_Section(self, section, parent, n):
         return self.headings[section.depth](self.format_nodes(section),
                                             id=section.anchor), n + 1
 
     formatters = TypeDict(
         (WikiNode, None),
+        (WikiDocument, format_Document),
         (WikiBlock, format_Block),
         (WikiItem, format_Item),
         (WikiDescriptionItem, format_DescriptionItem),
@@ -1999,7 +2067,10 @@ class WikiOutlineFormatter(WikiPageFormatter):
 
     debug = True
 
-    def format_Section(self, parent, n, section):
+    def format_Document(self, doc, parent, n):
+        return tag.div(self.format_nodes(doc), class_='wiki-toc'), n + 1
+
+    def format_Section(self, section, parent, n):
         inline_formatter = WikiInlineFormatter(self.context, self.wikidoc)
         outline = []
         def push():
@@ -2014,12 +2085,13 @@ class WikiOutlineFormatter(WikiPageFormatter):
             for i in xrange(len(outline), section.depth, -1):
                 outline.pop()
             outline[-1].append(
-                tag.li(tag.a(inline_formatter.format(section), href='/')))
+                tag.li(tag.a(inline_formatter.format_nodes(section), href='/')))
                        ### href=self.context.get_resource_url() + section.anchor
-        return tag.div(outline[0], class_='wiki-toc'), len(parent.nodes)
+        return outline[0], len(parent.nodes)
 
     formatters = TypeDict(
         (WikiNode, None),
+        (WikiDocument, format_Document),
         (WikiSection, format_Section),
         )
 

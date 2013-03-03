@@ -22,7 +22,7 @@ Utilities
 The implementation of standard formatters
 -----------------------------------------
 
-.. autoclass :: WikiHtmlFormatter
+.. autoclass :: WikiHtmlFormatters
    :members:
 
 The above component yields the following `~trac.wiki.api.WikiFormatter`:
@@ -34,6 +34,28 @@ The above component yields the following `~trac.wiki.api.WikiFormatter`:
    :members:
 
 .. autoclass :: WikiOutlineFormatter
+   :members:
+
+Besides HTML, it is also possible out of the box to format to text.
+
+.. autoclass :: WikiSourceFormatters
+   :members:
+
+.. autoclass :: WikiSourceFormatter
+   :members:
+
+.. autoclass :: DebugSource
+   :members:
+
+There are a few more formatters for helping to debug the wiki parser.
+
+.. autoclass :: DebugFormatters
+   :members:
+
+.. autoclass :: DebugParseTime
+   :members:
+
+.. autoclass :: DebugBlockStructure
    :members:
 
 
