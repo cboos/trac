@@ -41,9 +41,9 @@ class TracWikiSyntax(Component):
         @wiki_regexp(r' +(?P<trac_bullet>[-*])(?: |$)')
         def build_ulist_item(wikidoc, wikinodes, i, match):
             j, k = match.span('trac_bullet')
-            item = WikiItem(i, j)
+            item = WikiItem(i, j, k)
             item.kind = match.group('trac_bullet')
-            item.k = k
+            item.nodes = [WikiInline(i, k)]
             return item
         yield build_ulist_item
 
@@ -51,8 +51,8 @@ class TracWikiSyntax(Component):
         def build_row(wikidoc, wikinodes, i, match):
             k = match.end(0)
             j = k - 2
-            row = WikiRow(i, j)
-            row.k = k
+            row = WikiRow(i, j, k)
+            row.nodes = [WikiInline(i, k)]
             return row
         yield build_row
 
@@ -89,10 +89,9 @@ class TracWikiSyntax(Component):
         @wiki_regexp(r' +(?P<trac_term>(?:[^:]|:[^:])+)::(?: |$)')
         def build_dl(wikidoc, wikinodes, i, match):
             j, k = match.span('trac_term')
-            desc = WikiDescriptionItem(i, j)
-            desc.k = k
-            #desc.term = WikiInline(i, j)
-            #desc.term.k = k
+            desc = WikiDescriptionItem(i, k, k + 2)
+            desc.term = WikiInline(i, j, k)
+            desc.nodes = [WikiInline(i, k + 2)]
             # No, rather set a continuation function:
             # desc.postprocess = postprocess_dl
             return desc
