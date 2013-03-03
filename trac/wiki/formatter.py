@@ -1922,8 +1922,8 @@ class WikiPageFormatter(WikiFormatter):
         return tag.div(self.format_nodes(node)), n + 1
 
     def page_Block(self, block, parent, n):
-        return (tag.pre('\n'.join(self.wikidoc.lines[block.start:block.end])),
-                n + 1)
+        return tag.pre('\n'.join(self.wikidoc.lines[block.start:block.end]),
+                       class_="wiki"), n + 1
 
     def page_Item(self, item, parent, n):
         items, n = self._group_items(self.page_Item, item, parent, n)
