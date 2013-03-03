@@ -39,12 +39,7 @@ from trac.util.translation import _
 from trac.wiki.api import (
     IWikiFormatterProvider, WikiFormatter, WikiSystem, parse_args
 )
-from trac.wiki.parser import (
-    Sourcer,
-    WikiBlock, WikiDescriptionItem, WikiEnumeratedItem,
-    WikiInline, WikiItem, WikiNode, WikiSection,
-    WikiParser, parse_processor_args
-)
+from trac.wiki.parser import *
 
 __all__ = ['wiki_to_html', 'wiki_to_oneliner', 'wiki_to_outline',
            'Formatter', 'format_to', 'format_to_html', 'format_to_oneliner',
@@ -1666,19 +1661,166 @@ class WikiSourceFormatter(WikiFormatter):
     description = _("Re-create the wiki source")
     mimetype = 'text/x-trac-wiki'
 
-    def format(self, node):
-        s = Sourcer(self.wikidoc)
-        node.to_source(s)
-        return s.out.getvalue()
+    def indent(self, parent, node):
+        indent = node.j
+        if parent.k:
+            indent -= parent.k
+        if indent:
+            self.out.write(' ' * indent)
 
-class DebugSource(WikiFormatter):
-    """Debug to_source"""
+    def raw(self, i, j, k=None):
+        """Output raw text for line *i* between column *j* and *k*"""
+        if k is None:
+            eol = self.wikidoc.eol(i)
+            if j < eol:
+                self.out.write(self.wikidoc.lines[i][j:])
+        else:
+            self.out.write(self.wikidoc.lines[i][j:k])
+
+    def printnl(self, i):
+        self.out.write(self.wikidoc.lines[i] + '\n')
+
+    def nl(self):
+        self.out.write('\n')
+
+    # -- WikiNode formatters
+
+    def format_Document(self, parent, n, doc):
+        return self._format_nodes(doc)
+
+    def _format_nodes(self, block):
+        i = block.start
+        if block.nodes:
+            for node in block.nodes:
+                for ii in xrange(i, node.i): # raw text before node
+                    self.printnl(ii)
+                self.format_node(block, node)
+                i = node.lastline() + 1
+        for ii in xrange(i, block.end):
+            self.printnl(ii)
+
+    def format_Block(self, parent, n, block):
+        self._processor_to_source(parent, block)
+        self._format_nodes(block)
+        self._trailer_to_source(parent, block)
+
+    def _processor_to_source(self, parent, block):
+        header = WikiParser.STARTBLOCK
+        if block.start > block.i + 1:
+            header += '\n'
+        params = []
+        if block.name:
+            header += block.name
+            for pname in block.params: # block.param_list (keep order!)
+                pval = block.params[pname]
+                if pval is True:
+                    param = pname
+                elif pval is False:
+                    param = '-' + pname
+                else:
+                    q = "'" in pval
+                    qq = '"' in pval
+                    if q and qq:
+                        pval = '"%s"' % pval.sub('"', r'\"') # check \" input
+                    elif q:
+                        pval = '"%s"' % pval
+                    elif qq:
+                        pval = "'%s'" % pval
+                    param = '%s=%s' % (pname, pval)
+                params.append(param)
+        self.indent(parent, block)
+        self.out.write(header)
+        self.nl()
+        if params:
+            self.out.write(' '.join(params))
+
+    def _trailer_to_source(self, parent, block):
+        trailer = WikiParser.ENDBLOCK
+        if block.comment:
+            trailer += block.comment
+        self.indent(parent, block)
+        self.out.write(trailer)
+        self.nl()
+
+    def format_Item(self, parent, n, item):
+        self.indent(parent, item)
+        self.out.write(item.kind)
+        if item.nodes:
+            for node in item.nodes:
+                self.format_node(item, node)
+
+    def format_DescriptionItem(self, parent, n, item):
+        self.indent(parent, item)
+        self.format_node(item, item.term)
+        self.out.write(item.kind)
+        if item.nodes:
+            for node in item.nodes:
+                self.format_node(item, node)
+
+    def format_Section(self, parent, n, section):
+        self.indent(parent, section)
+        depth = section.kind * section.depth
+        self.out.write(depth + ' ')
+        if section.nodes:
+            for node in section.nodes:
+                self.format_node(section, node)
+        if section.both_sides:
+            self.out.write(' ' + depth)
+        if section.anchor:
+            self.out.write(' #%s' % section.anchor)
+        self.nl()
+
+    def format_Inline(self, parent, n, inline):
+        """Write inline element subnodes with interspersed raw text fragments
+        """
+        self.indent(parent, inline)
+        i, j, k = inline.i, inline.j, inline.k
+        if inline.nodes:
+            for node in inline.nodes:
+                if j < node.j: # raw text before node
+                    self.raw(i, j, node.j)
+                self.format_node(inline, node)
+                j = node.k
+        if k:
+            if j < k:
+                self.raw(i, j, k)
+        else:
+            self.raw(i, j) # raw text after last node
+            self.nl()
+
+    def format_BlankLine(self, parent, n, blankline):
+        self.nl()
+
+    formatters = TypeDict(
+        (WikiNode, None),
+        (WikiDocument, format_Document),
+        (WikiBlock, format_Block),
+        (WikiItem, format_Item),
+        (WikiDescriptionItem, format_DescriptionItem),
+        (WikiSection, format_Section),
+        (WikiInline, format_Inline),
+        (WikiBlankLine, format_BlankLine),
+        )
+
+    def format_node(self, parent, node):
+        formatter = self.formatters.get(node)
+        if formatter:
+            formatter(self, parent, -1, node)
+
+    def format(self, node):
+        self.out = StringIO()
+        self.format_node(None, node)
+        return self.out.getvalue()
+
+
+class DebugSource(WikiSourceFormatter):
+    """Debug WikiSourceFormatter"""
+
+    description = None # use __doc__
     debug = True
 
     def format(self, node):
-        s = Sourcer(self.wikidoc)
-        node.to_source(s)
-        lines = s.out.getvalue().splitlines()
+        lines = super(DebugSource, self).format(node).splitlines()
         return tag.table(
             tag.thead(
                 tag.tr(tag.th(_("Line"), class_='lineno'),
