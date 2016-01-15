@@ -1,0 +1,59 @@
+version: '{branch}.{build}'
+clone_depth: 10
+init:
+- ps: >-
+    # Note 1: in 'Environment variables' groups above, use:
+
+    #  - SKIP_ENV=1 to completely skip a problematic environment
+
+    #  - SKIP_BUILD=1 to skip the Build step
+
+    #  - SKIP_TESTS=1 to skip the Tests step
+
+    # Note 2: restoration of cached directories happens *after* this step
+environment:
+  matrix:
+  - SVN_BRANCH: 1.0-stable
+    TRAC_TEST_DB_URI:
+    PYTHONHOME: C:\Python27
+    SKIP_ENV:
+  - SVN_BRANCH: 1.0-stable
+    TRAC_TEST_DB_URI: sqlite:test.db
+    PYTHONHOME: C:\Python27-x64
+    SKIP_ENV:
+  - SVN_BRANCH: 1.0-stable
+    TRAC_TEST_DB_URI: sqlite:test.db
+    PYTHONHOME: C:\Python26
+    SKIP_TESTS:
+  - SVN_BRANCH: 1.0-stable
+    TRAC_TEST_DB_URI:
+    PYTHONHOME: C:\Python26-x64
+    SKIP_ENV:
+  - SVN_BRANCH: 1.0-stable
+    TRAC_TEST_DB_URI: mysql://tracuser:password@localhost/trac
+    PYTHONHOME: C:\Miniconda
+    SKIP_TESTS:
+  - SVN_BRANCH: 1.0-stable
+    TRAC_TEST_DB_URI: postgres://tracuser:password@localhost/trac?schema=tractest
+    PYTHONHOME: C:\Miniconda-x64
+    SKIP_TESTS:
+services:
+- mysql56
+- postgresql93
+install:
+- ps: >-
+    . .\contrib\appveyor.ps1
+
+    Trac-Install
+cache: C:\projects\dependencies
+build_script:
+- ps: >-
+    . .\contrib\appveyor.ps1
+
+    Trac-Build
+test_script:
+- ps: >-
+    . .\contrib\appveyor.ps1
+
+    Trac-Tests
+notifications:
