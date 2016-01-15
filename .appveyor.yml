@@ -3,9 +3,13 @@ clone_depth: 1
 init:
 - ps: >-
     # Note 1: in 'Environment variables' groups above, use:
+
     #  - SKIP_ENV=1 to completely skip a problematic environment
+
     #  - SKIP_BUILD=1 to skip the Build step
+
     #  - SKIP_TESTS=1 to skip the Tests step
+
     # Note 2: restoration of cached directories happens *after* this step
 environment:
   matrix:
@@ -39,14 +43,16 @@ services:
 install:
 - ps: >-
     . .\contrib\appveyor.ps1
+
     Trac-Install
 cache: C:\projects\dependencies
 build_script:
 - ps: >-
     . .\contrib\appveyor.ps1
+
     Trac-Build
 test_script:
 - ps: >-
     . .\contrib\appveyor.ps1
-    Trac-Tests
 
+    Trac-Tests
