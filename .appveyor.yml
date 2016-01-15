@@ -49,4 +49,4 @@ test_script:
 - ps: >-
     . .\contrib\appveyor.ps1
     Trac-Tests
-notifications:
+
