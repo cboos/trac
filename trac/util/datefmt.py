@@ -48,7 +48,7 @@ from trac.util.translation import _, ngettext
 # Date/time utilities
 
 if os.name == 'nt':
-    def _datetime_now_windows():
+    def _precise_now_windows():
         """Provide high-resolution system time if Windows 8+ and Windows
         Server 2012+.
         """
@@ -59,8 +59,8 @@ if os.name == 'nt':
         GetLastError = kernel32.GetLastError
         SystemTimeToFileTime = kernel32.SystemTimeToFileTime
         try:
-            # GetSystemTimePreciseAsFileTime is available in Windows 8+ and
-            # Windows Server 2012+
+            # GetSystemTimePreciseAsFileTime is available under Windows 8+
+            # and Windows Server 2012+
             GetSystemTimePreciseAsFileTime = \
                 kernel32.GetSystemTimePreciseAsFileTime
             get_systime = GetSystemTimePreciseAsFileTime
@@ -100,20 +100,25 @@ if os.name == 'nt':
 
         ft_epoch = get_filetime_epoch()
 
-        def now(tz=None):
+        def time_now():
+            """Return the precise current time in seconds since the Epoch."""
             ft = FILETIME()
             if not get_systime(ctypes.pointer(ft)):
                 raise RuntimeError('[LastError %s %d]' %
                                    (func_systime, GetLastError()))
             ft = ft.dwHighDateTime * 0x100000000L + ft.dwLowDateTime
             usec = (ft - ft_epoch) / 10L
-            return datetime.fromtimestamp(usec / 1000000.0, tz)
+            return usec / 1000000.0
 
-        return now
+        def datetime_now(tz=None):
+            """Return new datetime with precise current time."""
+            return datetime.fromtimestamp(time_now(), tz)
 
-    datetime_now = _datetime_now_windows()
+        return time_now, datetime_now
+
+    time_now, datetime_now = _precise_now_windows()
 else:
-    datetime_now = datetime.now
+    time_now, datetime_now = time.time, datetime.now
 
 # -- conversion
 

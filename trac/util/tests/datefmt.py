@@ -590,6 +590,13 @@ class ParseDateValidRangeTestCase(unittest.TestCase):
 
 class DateFormatTestCase(unittest.TestCase):
 
+    def test_time_now(self):
+        now = time.time()
+        actual = datefmt.time_now()
+        self.assertEqual(float, type(actual))
+        self.assertTrue(now - 1.0 < actual < now + 1.0,
+                        'now %r, actual %r' % (now, actual))
+
     def test_datetime_now(self):
         self.assertEqual(datetime.datetime.now().tzinfo,
                          datefmt.datetime_now().tzinfo)
@@ -598,11 +605,12 @@ class DateFormatTestCase(unittest.TestCase):
         gmt01 = datefmt.timezone('GMT +1:00')
         self.assertEqual(datetime.datetime.now(gmt01).tzinfo,
                          datefmt.datetime_now(gmt01).tzinfo)
-        t1 = datefmt.datetime_now(gmt01)
-        t2 = datefmt.datetime_now(gmt01)
-        delta = abs(t1 - t2)
-        self.assertTrue(delta < datetime.timedelta(microseconds=20000),  # 20ms
-                        '%r - %r = %r' % (t1, t2, delta))
+        now = datetime.datetime.now(gmt01)
+        actual = datefmt.datetime_now(gmt01)
+        delta = datetime.timedelta(seconds=1)
+        self.assertTrue(now - delta < actual < now + delta,
+                        'now %s, actual %s' %
+                        (now.isoformat(), actual.isoformat()))
 
     def test_to_datetime(self):
         expected = datetime.datetime.fromtimestamp(23, datefmt.localtz)
