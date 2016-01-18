@@ -100,8 +100,8 @@ def rmtree(path):
                 mode = os.stat(path).st_mode
                 m = GetFileAttributes(path)
                 print 'force rw on %s (0%o) %x' % (path, mode, m)
-                ## os.chmod(path, mode | 0666)
-                SetFileAttributes(path, FILE_ATTRIBUTE_NORMAL)
+                os.chmod(path, mode | 0666)
+                ## SetFileAttributes(path, FILE_ATTRIBUTE_NORMAL)
                 mode = os.stat(path).st_mode
                 m = GetFileAttributes(path)
                 print '         -> %s (0%o) %x' % (' ' * len(path), mode, m)
