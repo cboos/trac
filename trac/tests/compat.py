@@ -81,20 +81,33 @@ if not hasattr(unittest.TestCase, 'assertNotIsInstance'):
 
 
 def rmtree(path):
-    import errno
-    def onerror(function, path, excinfo):
-        # `os.remove` fails for a readonly file on Windows.
-        # Then, it attempts to be writable and remove.
-        if function != os.remove:
-            raise
-        e = excinfo[1]
-        if isinstance(e, OSError) and e.errno == errno.EACCES:
-            mode = os.stat(path).st_mode
-            os.chmod(path, mode | 0666)
-            function(path)
-        else:
-            raise
+    onerror = None
     if os.name == 'nt' and isinstance(path, str):
+        import errno
+        # Note: os.chmod(path, mode | 0666) doesn't always work... (AppVeyor)
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        SetFileAttributes = kernel32.SetFileAttributesW
+        GetFileAttributes = kernel32.GetFileAttributesW ####
+        FILE_ATTRIBUTE_NORMAL = 0x80
+        def onerror(function, path, excinfo):
+            # `os.remove` fails for a readonly file on Windows.
+            # Then, it attempts to be writable and remove.
+            if function != os.remove:
+                raise
+            e = excinfo[1]
+            if isinstance(e, OSError) and e.errno == errno.EACCES:
+                mode = os.stat(path).st_mode
+                m = GetFileAttributes(path)
+                print 'force rw on %s (0%o) %x' % (path, mode, m)
+                ## os.chmod(path, mode | 0666)
+                SetFileAttributes(path, FILE_ATTRIBUTE_NORMAL)
+                mode = os.stat(path).st_mode
+                m = GetFileAttributes(path)
+                print '         -> %s (0%o) %x' % (' ' * len(path), mode, m)
+                function(path)
+            else:
+                raise
         # Use unicode characters in order to allow non-ansi characters
         # on Windows.
         path = unicode(path, sys.getfilesystemencoding())
