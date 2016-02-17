@@ -578,7 +578,7 @@ class GitCachedRepositoryTestCase(GitRepositoryTestCase):
     def test_sync_too_many_merges(self):
         data = self._generate_data_many_merges(100)
         self._git_init(data=False, bare=True)
-        self._git('config', 'gc.auto', '0')
+        self._git('config', 'gc.autodetach', 'false')
         self._git_fast_import(data)
         self._add_repository('gitrepos', bare=True)
         repos = self._repomgr.get_repository('gitrepos')
