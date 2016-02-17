@@ -90,6 +90,10 @@ def rmtree(path):
         SetFileAttributes = kernel32.SetFileAttributesW
         GetFileAttributes = kernel32.GetFileAttributesW ####
         FILE_ATTRIBUTE_NORMAL = 0x80
+        def pperm(path):
+            mode = os.stat(path).st_mode
+            m = GetFileAttributes(path)
+            print '%s (0%o) %x' % (path, mode, m)
         def onerror(function, path, excinfo):
             # `os.remove` fails for a readonly file on Windows.
             # Then, it attempts to be writable and remove.
@@ -97,15 +101,18 @@ def rmtree(path):
                 raise
             e = excinfo[1]
             if isinstance(e, OSError) and e.errno == errno.EACCES:
-                mode = os.stat(path).st_mode
-                m = GetFileAttributes(path)
-                print 'force rw on %s (0%o) %x' % (path, mode, m)
+                pperm(path)
                 ## os.chmod(path, mode | 0666)
                 SetFileAttributes(path, FILE_ATTRIBUTE_NORMAL)
-                mode = os.stat(path).st_mode
-                m = GetFileAttributes(path)
-                print '         -> %s (0%o) %x' % (' ' * len(path), mode, m)
-                function(path)
+                pperm(path)
+                try:
+                    function(path)
+                except WindowsError, e:
+                    print str(e), ' but trying one more time'
+                    pperm(path)
+                    SetFileAttributes(path, FILE_ATTRIBUTE_NORMAL)
+                    pperm(path)
+                    function(path)
             else:
                 raise
         # Use unicode characters in order to allow non-ansi characters
