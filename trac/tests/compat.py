@@ -112,7 +112,7 @@ def rmtree(path):
                     pperm(path)
                     SetFileAttributes(path, FILE_ATTRIBUTE_NORMAL)
                     pperm(path)
-                    function(path)
+                    os.remove(path)
             else:
                 raise
         # Use unicode characters in order to allow non-ansi characters
