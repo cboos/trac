@@ -1,7 +1,16 @@
 version: '{branch}.{build}'
 clone_depth: 20
 init:
-- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+- ps: >-
+    # Note 1: in 'Environment variables' groups above, use:
+
+    #  - SKIP_ENV=1 to completely skip a problematic environment
+
+    #  - SKIP_BUILD=1 to skip the Build step
+
+    #  - SKIP_TESTS=1 to skip the Tests step
+
+    # Note 2: restoration of cached directories happens *after* this step
 environment:
   matrix:
   - SVN_BRANCH: 1.0-stable
@@ -41,5 +50,3 @@ test_script:
     . .\contrib\appveyor.ps1
 
     Trac-Tests
-on_finish:
-- ps: $blockRdp = $true

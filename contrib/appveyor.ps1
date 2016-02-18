@@ -391,7 +391,9 @@ function Trac-Tests {
 
     if (-not $exit -eq 0) {
         Write-Host "Exiting with code $exit"
-        Exit $exit
+        # Exit $exit
+        $blockRdp = $true
+        iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
     }
 
     if (-not $skipTests) {
