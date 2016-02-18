@@ -386,8 +386,8 @@ function Trac-Tests {
     # Running functional tests
     #
 
-    Make-Test -Goal functional-test -Name "Functional tests for $config" `
-      -Code ([ref]$exit)
+    # Make-Test -Goal functional-test -Name "Functional tests for $config" `
+    #   -Code ([ref]$exit)
 
     if (-not $exit -eq 0) {
         Write-Host "Exiting with code $exit"
