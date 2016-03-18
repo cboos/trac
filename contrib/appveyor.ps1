@@ -53,11 +53,11 @@ $pgPassword = 'Password12!'
 # External Python dependencies
 
 $pipCommonPackages = @(
-    'genshi', 
-    'babel', 
+    'genshi',
+    'babel',
     'twill==0.9.1',
     'configobj',
-    'docutils', 
+    'docutils',
     'pygments',
     'pytz'
 )
@@ -65,7 +65,7 @@ $pipCommonPackages = @(
 $fcrypt    = "$deps\fcrypt-1.3.1.tar.gz"
 $fcryptUrl = 'http://www.carey.geek.nz/code/python-fcrypt/fcrypt-1.3.1.tar.gz'
 
-$pipPackages = @{ 
+$pipPackages = @{
     '1.0-stable' = @($fcrypt)
     trunk = @('passlib')
 }
@@ -93,7 +93,7 @@ $condaCommonPackages = @(
 #
 # Note that any combination should work, except for MySQL which can
 # only be installed conveniently from a Conda version of Python.
- 
+
 # "Aliases"
 
 $pyHome = $env:PYTHONHOME
@@ -142,8 +142,8 @@ $name
 
 if (-not $env:APPVEYOR) {
     function Debug-Caller {
-	$caller = (Get-Variable MyInvocation -Scope 1).Value.MyCommand.Name
-	Write-Debug "$caller $args"
+        $caller = (Get-Variable MyInvocation -Scope 1).Value.MyCommand.Name
+        Write-Debug "$caller $args"
     }
     function Add-AppveyorMessage() { Debug-Caller @args }
     function Add-AppveyorTest() { Debug-Caller @args }
@@ -186,7 +186,7 @@ function Trac-Install {
         if (-not (Test-Path $fcrypt)) {
             & curl.exe -sS $fcryptUrl -o $fcrypt
         }
-    } 
+    }
 
     # Install packages via pip
 
@@ -208,7 +208,7 @@ function Trac-Install {
     & pip install $pipCommonPackages $pipPackages.$svnBranch
 
     if ($pyIsConda) {
-	& conda.exe install -qy $condaCommonPackages
+        & conda.exe install -qy $condaCommonPackages
         & conda.exe list
         & python.exe -c "from svn import core; print core.SVN_VER_NUM"
     }
@@ -268,11 +268,10 @@ function Trac-Build {
         #
         $env:MYSQL_PWD = $mysqlPwd
         $env:Path      = "$mysqlHome\bin;$($env:Path)"
-        
         Write-Host "Creating 'trac' MySQL database with user 'tracuser'"
 
         & mysql.exe -u root -e `
-          ('CREATE DATABASE trac DEFAULT CHARACTER SET utf8mb4' + 
+          ('CREATE DATABASE trac DEFAULT CHARACTER SET utf8mb4' +
            ' COLLATE utf8mb4_bin')
         & mysql.exe -u root -e `
           'CREATE USER tracuser@localhost IDENTIFIED BY ''password'';'
@@ -323,7 +322,7 @@ function Trac-Build {
     }
     else {
         Add-AppveyorMessage -Message "2.2. make compile was successful" `
-          -Category Information 
+          -Category Information
     }
 }
 
@@ -351,7 +350,7 @@ function Trac-Tests {
         & make.exe $goal 2>&1 | Tee-Object -Variable make
 
         # Determine outcome Passed or Failed
-	
+
         $outcome = 'Passed'
         if ($LastExitCode) {
             $outcome = 'Failed'
