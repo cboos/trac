@@ -210,7 +210,6 @@ function Trac-Install {
     if ($pyIsConda) {
         & conda.exe install -qy $condaCommonPackages
         & conda.exe list
-        & python.exe -m conda list
         $env:Path = $env:Path `
             -replace "C:\\Program Files \(x86\)\\Subversion\\bin;", ""
         & python.exe -c "from svn import core; print core.SVN_VER_NUM"
