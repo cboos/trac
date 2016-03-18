@@ -210,7 +210,9 @@ function Trac-Install {
     if ($pyIsConda) {
         & conda.exe install -qy $condaCommonPackages
         & conda.exe list
+        & python.exe -m conda list
         & python.exe -c "from svn import core; print core.SVN_VER_NUM"
+        Write-Host "PATH is", $env:Path
     }
 
     if ($usingMysql) {
