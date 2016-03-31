@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>$project.name: $title</title>
+    <title>${project.name}: ${title}</title>
     <link>${abs_href.report(report.id)}</link>
-    <description>Trac Report - $description</description>
+    <description>Trac Report - ${description}</description>
     <language>en-us</language>
     # if chrome.logo.src_abs:
     <image>
-      <title>$project.name</title>
-      <url>$chrome.logo.src_abs</url>
+      <title>${project.name}</title>
+      <url>${chrome.logo.src_abs}</url>
       <link>${abs_href.report(report.id if report.id != -1 else '')}</link>
     </image>
     # endif
@@ -30,7 +30,7 @@
       <pubDate>${http_date(from_utimestamp(long(cell.value)))}</pubDate>
       #         endif
       #       elif col == 'summary':
-      <title>#$row.id: $cell.value</title>
+      <title>#${row.id}: ${cell.value}</title>
       #     elif col == 'description':
       <description>${
       unicode(wiki_to_html(context.child(row.resource), cell.value))
