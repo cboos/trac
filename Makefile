@@ -573,7 +573,7 @@ ifeq "$(OS)" "Windows_NT"
         python-exe := $(shell python -c 'import sys; print sys.executable')
         python-home := $(subst \python.exe,,$(python-exe))
         ifeq "$(SEP)" ":"
-            python-home := /$(subst :,,$(python-home)) # cygpath...
+            python-home := /$(subst :,,$(subst \,/,$(python-home)))
         endif
     endif
     python-bin = $(python-home)$(SEP)$(python-home)/Scripts
