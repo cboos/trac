@@ -42,7 +42,7 @@
 $msysHome = 'C:\msys64\usr\bin'
 $deps     = 'C:\projects\dependencies'
 
-$mysqlHome = 'C:\Program Files\MySql\MySQL Server 5.6'
+$mysqlHome = 'C:\Program Files\MySql\MySQL Server 5.7'
 $mysqlPwd  = 'Password12!'
 
 $pgHome     = 'C:\Program Files\PostgreSQL\9.3'
