@@ -149,14 +149,16 @@ status:
 	@python contrib/make_status.py
 	@echo
 	@echo "Variables:"
-	@echo "  PATH=$(PATH-extension)$(SEP)\$$PATH"
-	@echo "  PYTHONPATH=$(PYTHONPATH-extension)$(SEP)\$$PYTHONPATH"
+	@echo "  PATH=$$PATH"
+	@echo "  PYTHONPATH=$$PYTHONPATH"
 	@echo "  TRAC_TEST_DB_URI=$$TRAC_TEST_DB_URI"
 	@echo "  server-options=$(server-options)"
 	@echo
 	@echo "External dependencies:"
 	@echo -n "  Git version: "
 	@git --version 2>/dev/null || echo "not installed"
+	@echo -n "  Subversion version: "
+	@svn --version -q 2>/dev/null || echo "not installed"
 	@echo
 
 Trac.egg-info: status
@@ -557,18 +559,24 @@ clean-doc:
 
 python-home := $(python.$(or $(python),$($(db).python)))
 
+ifeq "$(findstring ;,$(PATH))" ";"
+    SEP = ;
+    START ?= start
+else
+    SEP = :
+    START ?= xdg-open
+endif
+
 ifeq "$(OS)" "Windows_NT"
     ifndef python-home
         # Detect location of current python
         python-exe := $(shell python -c 'import sys; print sys.executable')
         python-home := $(subst \python.exe,,$(python-exe))
+        ifeq "$(SEP)" ":"
+            python-home := /$(subst :,,$(subst \,/,$(python-home)))
+        endif
     endif
-    SEP = ;
     python-bin = $(python-home)$(SEP)$(python-home)/Scripts
-    START ?= start
-else
-    SEP = :
-    START ?= xdg-open
 endif
 
 PATH-extension = $(python-bin)$(SEP)$(path.$(python))
