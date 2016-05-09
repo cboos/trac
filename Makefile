@@ -579,12 +579,16 @@ ifeq "$(OS)" "Windows_NT"
     python-bin = $(python-home)$(SEP)$(python-home)/Scripts
 endif
 
-PATH-extension = $(python-bin)$(SEP)$(path.$(python))
-PYTHONPATH-extension = .$(SEP)$(pythonpath.$(python))
+define prepend-path
+$(if $2,$(if $1,$1$(SEP)$2,$2),$1)
+endef
 
-export PATH := $(PATH-extension)$(SEP)$(PATH)
+PATH-extension = $(call prepend-path,$(python-bin),$(path.$(python)))
+PYTHONPATH-extension = $(call prepend-path,.,$(pythonpath.$(python)))
+
+export PATH := $(call prepend-path,$(PATH-extension),$(PATH))
 $(info export PYTHONPATH := $(PYTHONPATH-extension)$(SEP)$(PYTHONPATH))
-export PYTHONPATH := $(PYTHONPATH-extension)$(SEP)$(PYTHONPATH)
+export PYTHONPATH := $(call prepend-path,$(PYTHONPATH-extension),$(PYTHONPATH))
 $(info PYTHONPATH=$(shell echo $$PYTHONPATH))
 export TRAC_TEST_DB_URI = $($(db).uri)
 
