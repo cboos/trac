@@ -583,7 +583,9 @@ PATH-extension = $(python-bin)$(SEP)$(path.$(python))
 PYTHONPATH-extension = .$(SEP)$(pythonpath.$(python))
 
 export PATH := $(PATH-extension)$(SEP)$(PATH)
+$(info export PYTHONPATH := $(PYTHONPATH-extension)$(SEP)$(PYTHONPATH))
 export PYTHONPATH := $(PYTHONPATH-extension)$(SEP)$(PYTHONPATH)
+$(info PYTHONPATH=$(shell echo $$PYTHONPATH))
 export TRAC_TEST_DB_URI = $($(db).uri)
 
 # Misc.
