@@ -116,19 +116,20 @@
           <select id="format-${distributor}" name="format-${distributor}"
                   class="subscription-format">
             # for f in data['formatters'][distributor]:
-            <option value="${f}"
-                    selected="${(f == data['selected_format'][distributor])
-                              or None}">${f}</option>
+            <option${{'selected': f == data['selected_format'][distributor]
+                     }|htmlattr} value="${f}">${f}</option>
             # endfor
           </select>
-          <noscript>
+        </p>
+        <noscript>
+          <p>
             &nbsp;
             <button class="trac-button" type="submit" name="action"
                     title="${_("Save format")}"
                     value="set-format_${distributor}"
                     >${_("Save")}</button>
-          </noscript>
-        </p>
+          </p>
+        </noscript>
         <p class="hint">
           # trans distributor
 
