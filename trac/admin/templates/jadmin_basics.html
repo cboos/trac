@@ -1,4 +1,4 @@
-<!--!  Copyright (C) 2006-2014 Edgewall Software
+{# Copyright (C) 2006-2014 Edgewall Software
 
   This software is licensed as described in the file COPYING, which
   you should have received as part of this distribution. The terms
@@ -7,109 +7,148 @@
   This software consists of voluntary contributions made by many
   individuals. For the exact contribution history, see the revision
   history and logs, available at http://trac.edgewall.org/.
--->
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n">
-  <xi:include href="admin.html" />
+#}
+# extends "jadmin.html"
+<!DOCTYPE html>
+<html>
   <head>
-    <title>Basics</title>
+    <title>
+      # block admintitle
+      ${_("Basics")}
+      # endblock admintitle
+    </title>
   </head>
 
   <body>
-    <h2>Basic Settings</h2>
+    # block adminpanel
+    <h2>${_("Basic Settings")}</h2>
 
     <form class="mod" id="modbasic" method="post" action="">
+      ${jmacros.form_token_input()}
       <fieldset>
-        <legend>Project</legend>
+        <legend>${_("Project")}</legend>
         <div class="field">
-          <label>Name:<br />
+          <label>${_("Name:")}<br />
             <input type="text" name="name" value="${project.name}" />
           </label>
         </div>
         <div class="field">
-          <label>URL:<br />
+          <label>${_("URL:")}<br />
             <input type="text" name="url" size="48" value="${project.url}" />
           </label>
         </div>
         <div class="field">
-          <label>Description:<br />
+          <label>${_("Description:")}<br />
             <textarea name="descr" class="trac-resizable" rows="3" cols="50">
 ${project.descr}</textarea>
           </label>
         </div>
         <div class="field">
-          <label>Default handler:<br />
+          <label>${_("Default handler:")}<br />
             <select name="default_handler">
-              <option py:if="default_handler not in valid_default_handlers"
-                      value="$default_handler">$default_handler</option>
-              <option py:for="handler in valid_default_handlers"
-                      selected="${handler == default_handler or None}"
-                      value="$handler">$handler</option>
+              # if default_handler not in valid_default_handlers:
+              <option value="${default_handler}">${default_handler}</option>
+              # endif
+              # for handler in valid_default_handlers:
+              <option${{'selected': handler == default_handler}|htmlattr}
+                      value="${handler}">${handler}</option>
+              # endfor
             </select>
           </label>
-          <span py:if="default_handler not in valid_default_handlers"
-                class="hint" i18n:msg="handler">
-            $default_handler is not a valid IRequestHandler or is not enabled.
+          # if default_handler not in valid_default_handlers:
+          <span class="hint">
+            # trans handler
+
+            ${default_handler} is not a valid IRequestHandler or is not enabled.
+
+            # endtrans
           </span>
+          # endif
         </div>
       </fieldset>
       <fieldset>
-        <legend>Localization</legend>
+        <legend>${_("Localization")}</legend>
         <div class="field">
-          <label>Default timezone:<br />
+          <label>${_("Default timezone:")}<br />
             <select name="default_timezone">
-              <option value="">Server's local time zone</option>
-              <option py:for="tzname in timezones"
-                      selected="${tzname == default_timezone or None}"
+              <option value="">${_("Server's local time zone")}</option>
+              # for tzname in timezones:
+              <option${{'selected': tzname == default_timezone}|htmlattr}
                       value="${tzname}">${tzname}</option>
+              # endfor
             </select>
           </label>
-          <span py:if="not has_pytz" class="hint">
+          # if not has_pytz:
+          <span class="hint">
+            # trans
+
             Install pytz for a complete list of timezones.
+
+            # endtrans
           </span>
+          # endif
         </div>
         <div class="field">
-          <label>Default language:<br />
-            <select name="default_language" disabled="${not languages or None}"
-                    title="${_('Translations are currently unavailable')
-                             if not languages else None}">
-              <option value="">Browser's language</option>
-              <option py:for="locale, language in languages"
-                      selected="${locale == default_language or None}"
+          <label>${_("Default language:")}<br />
+            <select name="default_language"
+                ${{'disabled': not languages,
+                   'title': _('Translations are currently unavailable')
+                    if not languages
+                  }|htmlattr}>
+              <option value="">${_("Browser's language")}</option>
+              # for locale, language in languages:
+              <option${{'selected': locale == default_language}|htmlattr}
                       value="${locale}">${language}</option>
+              # endfor
             </select>
           </label>
-          <span py:if="not has_babel" class="hint">
+          # if not has_babel:
+          <span class="hint">
+            # trans
+
             Install Babel for extended language support.
+
+            # endtrans
           </span>
-          <span py:if="has_babel and not languages" class="hint">
+          # endif
+          # if has_babel and not languages:
+          <span class="hint">
+            # trans
+
             Message catalogs have not been compiled.
+
+            # endtrans
           </span>
+          # endif
         </div>
         <div class="field">
-          <label>Default date format:<br />
+          <label>${_("Default date format:")}<br />
             <select name="default_date_format">
-              <option value="">Browser's language</option>
-              <option selected="${default_date_format == 'iso8601' or None}"
-                      value="iso8601">ISO 8601 format</option>
+              <option value="">${_("Browser's language")}</option>
+              <option${{'selected': default_date_format == 'iso8601'
+                       }|htmlattr}
+                      value="iso8601">${_("ISO 8601 format")}</option>
             </select>
           </label>
-          <span py:if="not has_babel" class="hint">
+          # if not has_babel:
+          <span class="hint">
+            # trans
+
             Install Babel for localized date formats.
+
+            # endtrans
           </span>
+          # endif
         </div>
         <div class="field">
-          <label>Default time format:<br />
+          <label>${_("Default time format:")}<br />
             <select name="default_dateinfo_format">
-              <option selected="${default_dateinfo_format == 'relative' or None}"
-                      value="relative">Relative format</option>
-              <option selected="${default_dateinfo_format == 'absolute' or None}"
-                      value="absolute">Absolute format</option>
+              <option${{'selected': default_dateinfo_format == 'relative'
+                       }|htmlattr}
+                      value="relative">${_("Relative format")}</option>
+              <option${{'selected': default_dateinfo_format == 'absolute'
+                      }|htmlattr}
+                      value="absolute">${_("Absolute format")}</option>
             </select>
           </label>
         </div>
@@ -118,6 +157,7 @@ ${project.descr}</textarea>
         <input type="submit" value="${_('Apply changes')}" />
       </div>
     </form>
+    # endblock adminpanel
   </body>
 
 </html>
