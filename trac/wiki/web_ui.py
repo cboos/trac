@@ -34,8 +34,8 @@ from trac.util.text import shorten_line
 from trac.util.translation import _, tag_
 from trac.versioncontrol.diff import get_diff_options, diff_blocks
 from trac.web.api import IRequestHandler
-from trac.web.chrome import (Chrome, INavigationContributor,
-                             ITemplateProvider, add_ctxtnav, add_link,
+from trac.web.chrome import (Chrome, INavigationContributor, ITemplateProvider,
+                             accesskey, add_ctxtnav, add_link,
                              add_notice, add_script, add_stylesheet,
                              add_warning, prevnext_nav, web_context)
 from trac.wiki.api import IWikiPageManipulator, WikiSystem, validate_page_name
@@ -81,11 +81,12 @@ class WikiModule(Component):
     def get_navigation_items(self, req):
         if 'WIKI_VIEW' in req.perm(self.realm, 'WikiStart'):
             yield ('mainnav', 'wiki',
-                   tag.a(_("Wiki"), href=req.href.wiki(), accesskey=1))
+                   tag.a(_("Wiki"), href=req.href.wiki(),
+                         accesskey=accesskey(req, 1)))
         if 'WIKI_VIEW' in req.perm(self.realm, 'TracGuide'):
             yield ('metanav', 'help',
                    tag.a(_("Help/Guide"), href=req.href.wiki('TracGuide'),
-                         accesskey=6))
+                         accesskey=accesskey(req, 6)))
 
     # IPermissionRequestor methods
 

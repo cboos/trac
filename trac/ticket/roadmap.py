@@ -39,7 +39,7 @@ from trac.ticket.notification import BatchTicketChangeEvent
 from trac.ticket.model import Milestone, MilestoneCache, Ticket
 from trac.timeline.api import ITimelineEventProvider
 from trac.web import IRequestHandler, RequestDone
-from trac.web.chrome import (Chrome, INavigationContributor,
+from trac.web.chrome import (Chrome, INavigationContributor, accesskey,
                              add_link, add_notice, add_script, add_stylesheet,
                              add_warning, auth_link, prevnext_nav, web_context)
 from trac.wiki.api import IWikiSyntaxProvider
@@ -416,7 +416,8 @@ class RoadmapModule(Component):
     def get_navigation_items(self, req):
         if 'ROADMAP_VIEW' in req.perm:
             yield ('mainnav', 'roadmap',
-                   tag.a(_('Roadmap'), href=req.href.roadmap(), accesskey=3))
+                   tag.a(_('Roadmap'), href=req.href.roadmap(),
+                         accesskey=accesskey(req, 3)))
 
     # IPermissionRequestor methods
 

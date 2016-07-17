@@ -122,6 +122,12 @@ class ITemplateProvider(Interface):
         """
 
 
+def accesskey(req, key):
+    """Helper function for creating accesskey HTML attribute according
+    to preference values"""
+    return key if int(req.session.get('accesskeys', 0)) else None
+
+
 def add_meta(req, content, http_equiv=None, name=None, scheme=None, lang=None):
     """Add a `<meta>` tag into the `<head>` of the generated HTML."""
     meta = {'content': content, 'http-equiv': http_equiv, 'name': name,
@@ -1022,9 +1028,9 @@ class Chrome(Component):
         def get_abs_url(resource, **kwargs):
             return get_resource_url(self.env, resource, abs_href, **kwargs)
 
-        def accesskey(key):
-            return Markup('accesskey="%s"') % key if \
-                int(req.session.get('accesskeys', 0)) else ''
+        def accesskey_attr(key):
+            key = accesskey(req, key)
+            return Markup('accesskey="%s"') % key if key else ''
 
         d.update({
             'context': web_context(req) if req else None,
@@ -1053,7 +1059,7 @@ class Chrome(Component):
             'format_emails': self.format_emails,
             'get_systeminfo': self.env.get_systeminfo,
             'captioned_button': partial(presentation.captioned_button, req),
-            'accesskey': accesskey,
+            'accesskey': accesskey_attr,
 
             # Date/time formatting
             'dateinfo': dateinfo,

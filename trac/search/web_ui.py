@@ -29,7 +29,7 @@ from trac.util.text import quote_query_string
 from trac.util.translation import _
 from trac.web.api import IRequestHandler
 from trac.web.chrome import (INavigationContributor, ITemplateProvider,
-                             add_link, add_stylesheet, add_warning,
+                             accesskey, add_link, add_stylesheet, add_warning,
                              web_context)
 from trac.wiki.api import IWikiSyntaxProvider
 from trac.wiki.formatter import extract_link
@@ -69,7 +69,8 @@ class SearchModule(Component):
     def get_navigation_items(self, req):
         if 'SEARCH_VIEW' in req.perm:
             yield ('mainnav', 'search',
-                   tag.a(_('Search'), href=req.href.search(), accesskey=4))
+                   tag.a(_('Search'), href=req.href.search(),
+                         accesskey=accesskey(req, 4)))
 
     # IPermissionRequestor methods
 

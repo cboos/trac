@@ -34,8 +34,8 @@ from trac.util.html import tag
 from trac.util.text import exception_to_unicode, to_unicode
 from trac.util.translation import _, tag_
 from trac.web import IRequestHandler, IRequestFilter
-from trac.web.chrome import (Chrome, INavigationContributor,
-                             ITemplateProvider, add_link, add_stylesheet,
+from trac.web.chrome import (Chrome, INavigationContributor, ITemplateProvider,
+                             accesskey, add_link, add_stylesheet,
                              add_warning, auth_link, prevnext_nav, web_context)
 from trac.wiki.api import IWikiSyntaxProvider
 from trac.wiki.formatter import concat_path_query_fragment, \
@@ -76,7 +76,8 @@ class TimelineModule(Component):
     def get_navigation_items(self, req):
         if 'TIMELINE_VIEW' in req.perm('timeline'):
             yield ('mainnav', 'timeline',
-                   tag.a(_("Timeline"), href=req.href.timeline(), accesskey=2))
+                   tag.a(_("Timeline"), href=req.href.timeline(),
+                         accesskey=accesskey(req, 2)))
 
     # IPermissionRequestor methods
 

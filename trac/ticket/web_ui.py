@@ -52,7 +52,7 @@ from trac.util.translation import _, tag_, tagn_, N_, ngettext
 from trac.versioncontrol.diff import get_diff_options, diff_blocks
 from trac.web.api import IRequestHandler, arg_list_to_args, parse_arg_list
 from trac.web.chrome import (
-    Chrome, INavigationContributor, ITemplateProvider,
+    Chrome, INavigationContributor, ITemplateProvider, accesskey,
     add_ctxtnav, add_link, add_notice, add_script, add_script_data,
     add_stylesheet, add_warning, auth_link, chrome_info_script, prevnext_nav,
     web_context
@@ -156,7 +156,7 @@ class TicketModule(Component):
         if 'TICKET_CREATE' in req.perm:
             yield ('mainnav', 'newticket',
                    tag.a(_("New Ticket"), href=req.href.newticket(),
-                         accesskey=7))
+                         accesskey=accesskey(req, 7)))
 
     # IRequestHandler methods
 
