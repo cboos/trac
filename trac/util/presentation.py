@@ -79,7 +79,8 @@ def htmlattr_filter(_eval_ctx, d, autospace=True):
     """Create an SGML/XML attribute string based on the items in a dict.
 
     If the dict itself is `none` or `undefined`, it returns the empty
-    string.
+    string. ``d`` can also be an iterable or a mapping, in which case
+    it will be converted to a ``dict``.
 
     All values that are neither `none` nor `undefined` are
     automatically escaped.
@@ -119,6 +120,7 @@ def htmlattr_filter(_eval_ctx, d, autospace=True):
     """
     if not d:
         return ''
+    d = d if isinstance(d, dict) else dict(d)
     # Note: at some point, switch to
     #       https://www.w3.org/TR/html-markup/syntax.html#syntax-attr-empty
     attrs = []
