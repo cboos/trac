@@ -50,8 +50,9 @@ ${project.descr}</textarea>
               <option value="${default_handler}">${default_handler}</option>
               # endif
               # for handler in valid_default_handlers:
-              <option${{'selected': handler == default_handler}|htmlattr}
-                      value="${handler}">${handler}</option>
+              <option${{'selected': handler == default_handler,
+                        'value': handler
+                       }|htmlattr}>${handler}</option>
               # endfor
             </select>
           </label>
@@ -73,8 +74,9 @@ ${project.descr}</textarea>
             <select name="default_timezone">
               <option value="">${_("Server's local time zone")}</option>
               # for tzname in timezones:
-              <option${{'selected': tzname == default_timezone}|htmlattr}
-                      value="${tzname}">${tzname}</option>
+              <option${{'selected': tzname == default_timezone,
+                        'value': tzname
+                       }|htmlattr}>${tzname}</option>
               # endfor
             </select>
           </label>
@@ -90,15 +92,16 @@ ${project.descr}</textarea>
         </div>
         <div class="field">
           <label>${_("Default language:")}<br />
-            <select name="default_language"
-                ${{'disabled': not languages,
-                   'title': _('Translations are currently unavailable')
-                    if not languages
-                  }|htmlattr}>
+            <select${{'disabled': not languages,
+                      'title': _('Translations are currently unavailable')
+                               if not languages,
+                      'name': 'default_language'
+                     }|htmlattr}>
               <option value="">${_("Browser's language")}</option>
               # for locale, language in languages:
-              <option${{'selected': locale == default_language}|htmlattr}
-                      value="${locale}">${language}</option>
+              <option${{'selected': locale == default_language,
+                        'value': locale
+                       }|htmlattr}>${language}</option>
               # endfor
             </select>
           </label>
@@ -125,9 +128,9 @@ ${project.descr}</textarea>
           <label>${_("Default date format:")}<br />
             <select name="default_date_format">
               <option value="">${_("Browser's language")}</option>
-              <option${{'selected': default_date_format == 'iso8601'
-                       }|htmlattr}
-                      value="iso8601">${_("ISO 8601 format")}</option>
+              <option${{'selected': default_date_format == 'iso8601',
+                        'value': 'iso8601'
+                       }|htmlattr}>${_("ISO 8601 format")}</option>
             </select>
           </label>
           # if not has_babel:
@@ -143,12 +146,12 @@ ${project.descr}</textarea>
         <div class="field">
           <label>${_("Default time format:")}<br />
             <select name="default_dateinfo_format">
-              <option${{'selected': default_dateinfo_format == 'relative'
-                       }|htmlattr}
-                      value="relative">${_("Relative format")}</option>
-              <option${{'selected': default_dateinfo_format == 'absolute'
-                      }|htmlattr}
-                      value="absolute">${_("Absolute format")}</option>
+              <option${{'selected': default_dateinfo_format == 'relative',
+                        'value': 'relative'
+                       }|htmlattr}>${_("Relative format")}</option>
+              <option${{'selected': default_dateinfo_format == 'absolute',
+                        'value': 'absolute'
+                       }|htmlattr}>${_("Absolute format")}</option>
             </select>
           </label>
         </div>

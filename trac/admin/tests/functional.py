@@ -119,8 +119,8 @@ class TestDefaultHandler(FunctionalTwillTestCaseSetup):
                                      'disabled')
             self._tester.go_to_admin("Basic Settings")
             tc.find(r'<option value="TimelineModule">TimelineModule</option>')
-            tc.find(r'<span class="hint">TimelineModule is not a valid '
-                    r'IRequestHandler or is not enabled.</span>')
+            tc.find(r'<span class="hint">\s*TimelineModule is not a valid '
+                    r'IRequestHandler or is not enabled.\s*</span>')
             tc.go(self._tester.url)
             tc.find(r'<h1>Configuration Error</h1>')
             tc.find(r'Cannot find an implementation of the '
@@ -137,14 +137,14 @@ class TestDefaultHandler(FunctionalTwillTestCaseSetup):
             self._tester.go_to_admin("Basic Settings")
             tc.find(r'<option value="BatchModifyModule">BatchModifyModule'
                     r'</option>')
-            tc.find(r'<span class="hint">BatchModifyModule is not a valid '
-                    r'IRequestHandler or is not enabled.</span>')
+            tc.find(r'<span class="hint">\s*BatchModifyModule is not a valid '
+                    r'IRequestHandler or is not enabled.\s*</span>')
             tc.formvalue('modbasic', 'default_handler', 'BatchModifyModule')
             tc.submit()  # Invalid value should not be replaced on submit
             tc.find(r'<option value="BatchModifyModule">BatchModifyModule'
                     r'</option>')
-            tc.find(r'<span class="hint">BatchModifyModule is not a valid '
-                    r'IRequestHandler or is not enabled.</span>')
+            tc.find(r'<span class="hint">\s*BatchModifyModule is not a valid '
+                    r'IRequestHandler or is not enabled.\s*</span>')
             tc.go(self._tester.url)
             tc.find(r'<h1>Configuration Error</h1>')
             tc.find(r'<code>BatchModifyModule</code> is not a valid default '
