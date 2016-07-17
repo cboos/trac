@@ -105,208 +105,201 @@
     # endblock head
   </head>
   <body>
-    # set prefpanel_has_forms = true
     # block prefpanel
     <h2 id="subscriptions-section">${_("Subscriptions")}</h2>
-    <form action="" method="post">
-      # for distributor, rules in data['rules'].iteritems():
-      <div class="ruleset">
-        <h3>${distributor}</h3>
-        <div class="field">
-          <p>
-            <label for="format-${distributor}">${_("Format:")}</label>
-            <select id="format-${distributor}" name="format-${distributor}"
-                    class="subscription-format">
-              # for f in data['formatters'][distributor]:
-              <option value="${f}"
-                      selected="${(f == data['selected_format'][distributor])
-                                  or None}">${f}</option>
-              # endfor
-            </select>
-            <noscript>
-              &nbsp;
-              <button class="trac-button" type="submit" name="action"
-                      title="${_("Save format")}"
-                      value="set-format_${distributor}"
-                      >${_("Save")}</button>
-            </noscript>
-          </p>
-          <p class="hint">
-            # trans distributor
-
-            Configure the format of your ${distributor} notifications.
-
-            # endtrans
-          </p>
-        </div>
-        # if data['subscribers']:
-        <div class="field">
-          <label>${_("Subscription rules:")}</label>
-          <table class="subscription-rules"
-                 summary="${_("Subscription rules")}">
-            <tbody class="rules rules-${distributor}">
-              # for rule in rules:
-              <tr class="rule">
-                <td>
-                  <div class="inlinebuttons">
-                    <button class="trac-button move-up-rule"
-                            type="submit" name="action"
-                            title="${_("Move rule up")}"
-                            value="move-rule_${rule.id}-${rule.priority - 1}"
-                            >↑</button>
-                  </div>
-                </td>
-                <td>
-                  <div class="inlinebuttons">
-                    <button class="trac-button move-down-rule"
-                            type="submit" name="action"
-                            title="${_("Move rule down")}"
-                            value="move-rule_${rule.id}-${rule.priority + 1}"
-                            >↓</button>
-                  </div>
-                </td>
-                <td>
-                  <div class="inlinebuttons">
-                    <button class="trac-button delete-rule"
-                            type="submit" name="action"
-                            title="${_("Delete rule")}"
-                            value="delete-rule_${rule.id}"
-                            >–</button>
-                  </div>
-                </td>
-                <td class="rule-label">
-                  # trans key = data.adverb_labels[rule.adverb], value = rule.description
-                  ${key}: ${value}
-
-                  # endtrans
-                  <div style="display:none">
-                    <input type="hidden" name="class-${distributor}"
-                           value="${rule['class']}" />
-                    <input type="hidden" name="adverb-${distributor}"
-                           value="${rule.adverb}" />
-                  </div>
-                </td>
-              </tr>
-              # endfor
-            </tbody>
-            <tbody class="new-rule-${distributor}" style="display:none">
-              <tr class="rule">
-                <td>
-                  <div class="inlinebuttons">
-                    <button class="trac-button move-up-rule"
-                            type="submit" name="action"
-                            title="${_("Move rule up")}"
-                            value="">↑</button>
-                  </div>
-                </td>
-                <td>
-                  <div class="inlinebuttons">
-                    <button class="trac-button move-down-rule"
-                            type="submit" name="action"
-                            title="${_("Move rule down")}"
-                            value="">↓</button>
-                  </div>
-                </td>
-                <td>
-                  <div class="inlinebuttons">
-                    <button class="trac-button delete-rule"
-                            type="submit" name="action"
-                            title="${_("Delete rule")}"
-                            value="">–</button>
-                  </div>
-                </td>
-                <td class="rule-label">
-                  <span class="new-rule-label"></span>
-                  <div style="display:none">
-                    <input type="hidden" name="adverb-${distributor}" value=""
-                           disabled="disabled" />
-                    <input type="hidden" name="class-${distributor}" value=""
-                           disabled="disabled" />
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p>
-            <select name="new-adverb-${distributor}">
-              # for a in data['adverbs']:
-              <option value="${a}">${data.adverb_labels[a]}:</option>
-              # endfor
-            </select>
-            <select name="new-rule-${distributor}">
-              # for s in data['subscribers']:
-              <option value="${s['class']}">${s.description}</option>
-              # endfor
-            </select>
-            <button class="trac-button add-rule"
-                    type="submit" name="action"
-                    title="${_("Add rule")}"
-                    value="add-rule_${distributor}">${_("Add")}</button>
-          </p>
-          <p class="hint">
-            # trans distributor
-
-            Add, remove or reorder subscription rules to
-            ${distributor} notifications. Only the first matching rule
-            is applied.
-
-            # endtrans
-          </p>
-          <p class="hint">
-            # trans
-
-            Example: The rule
-            <strong>"Never notify: I update a ticket"</strong>
-            should be above
-            <strong>"Notify: Any ticket changes"</strong>
-            to get notifications of any ticket changes except when
-            you update a ticket.
-
-            # endtrans
-          </p>
-        </div>
-        # endif
-        # if data.default_rules[distributor]:
-        <div class="field">
-          <label>${_("Default rules:")}</label>
-          <ul>
-            # for rule in  data['default_rules'][distributor]:
-            <li class="default_rule">
-              # trans key = data.adverb_labels[rule.adverb], value = rule.description
-              ${key}: ${value}
-
-              # endtrans
-            </li>
+    #   for distributor, rules in data['rules'].iteritems():
+    <div class="ruleset">
+      <h3>${distributor}</h3>
+      <div class="field">
+        <p>
+          <label for="format-${distributor}">${_("Format:")}</label>
+          <select id="format-${distributor}" name="format-${distributor}"
+                  class="subscription-format">
+            # for f in data['formatters'][distributor]:
+            <option value="${f}"
+                    selected="${(f == data['selected_format'][distributor])
+                              or None}">${f}</option>
             # endfor
-          </ul>
-          <p class="hint">
-            # trans
+          </select>
+          <noscript>
+            &nbsp;
+            <button class="trac-button" type="submit" name="action"
+                    title="${_("Save format")}"
+                    value="set-format_${distributor}"
+                    >${_("Save")}</button>
+          </noscript>
+        </p>
+        <p class="hint">
+          # trans distributor
 
-            These default rules have been configured by the site
-            administrator. Configure subscription rules to override
-            them.
+          Configure the format of your ${distributor} notifications.
 
-            # endtrans
-          </p>
-          <p class="hint">
-            # trans
-
-            Example: The subscription rule
-            <strong>"Notify: Any ticket changes"</strong>
-            overrides the default rule
-            <strong>"Never notify: I update a ticket"</strong>.
-
-            # endtrans
-          </p>
-        </div>
-        # endif
+          # endtrans
+        </p>
       </div>
-      # endfor
-      <p class="trac-noscript">
-        <button class="trac-button" type="submit" name="action"
-                value="replace_all">${_("Save changes")}</button>
-      </p>
-    </form>
+      #   if data['subscribers']:
+      <div class="field">
+        <label>${_("Subscription rules:")}</label>
+        <table class="subscription-rules"
+               summary="${_("Subscription rules")}">
+          <tbody class="rules rules-${distributor}">
+            # for rule in rules:
+            <tr class="rule">
+              <td>
+                <div class="inlinebuttons">
+                  <button class="trac-button move-up-rule"
+                          type="submit" name="action"
+                          title="${_("Move rule up")}"
+                          value="move-rule_${rule.id}-${rule.priority - 1}"
+                          >↑</button>
+                </div>
+              </td>
+              <td>
+                <div class="inlinebuttons">
+                  <button class="trac-button move-down-rule"
+                          type="submit" name="action"
+                          title="${_("Move rule down")}"
+                          value="move-rule_${rule.id}-${rule.priority + 1}"
+                          >↓</button>
+                </div>
+              </td>
+              <td>
+                <div class="inlinebuttons">
+                  <button class="trac-button delete-rule"
+                          type="submit" name="action"
+                          title="${_("Delete rule")}"
+                          value="delete-rule_${rule.id}"
+                          >–</button>
+                </div>
+              </td>
+              <td class="rule-label">
+                # trans key = data.adverb_labels[rule.adverb], value = rule.description
+                ${key}: ${value}
+
+                # endtrans
+                <div style="display:none">
+                  <input type="hidden" name="class-${distributor}"
+                         value="${rule['class']}" />
+                  <input type="hidden" name="adverb-${distributor}"
+                         value="${rule.adverb}" />
+                </div>
+              </td>
+            </tr>
+            # endfor
+          </tbody>
+          <tbody class="new-rule-${distributor}" style="display:none">
+            <tr class="rule">
+              <td>
+                <div class="inlinebuttons">
+                  <button class="trac-button move-up-rule"
+                          type="submit" name="action"
+                          title="${_("Move rule up")}"
+                          value="">↑</button>
+                </div>
+              </td>
+              <td>
+                <div class="inlinebuttons">
+                  <button class="trac-button move-down-rule"
+                          type="submit" name="action"
+                          title="${_("Move rule down")}"
+                          value="">↓</button>
+                </div>
+              </td>
+              <td>
+                <div class="inlinebuttons">
+                  <button class="trac-button delete-rule"
+                          type="submit" name="action"
+                          title="${_("Delete rule")}"
+                          value="">–</button>
+                </div>
+              </td>
+              <td class="rule-label">
+                <span class="new-rule-label"></span>
+                <div style="display:none">
+                  <input type="hidden" name="adverb-${distributor}" value=""
+                         disabled="disabled" />
+                  <input type="hidden" name="class-${distributor}" value=""
+                         disabled="disabled" />
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <select name="new-adverb-${distributor}">
+            # for a in data['adverbs']:
+            <option value="${a}">${data.adverb_labels[a]}:</option>
+            # endfor
+          </select>
+          <select name="new-rule-${distributor}">
+            # for s in data['subscribers']:
+            <option value="${s['class']}">${s.description}</option>
+            # endfor
+          </select>
+          <button class="trac-button add-rule"
+                  type="submit" name="action"
+                  title="${_("Add rule")}"
+                  value="add-rule_${distributor}">${_("Add")}</button>
+        </p>
+        <p class="hint">
+          # trans distributor
+
+          Add, remove or reorder subscription rules to
+          ${distributor} notifications. Only the first matching rule
+          is applied.
+
+          # endtrans
+        </p>
+        <p class="hint">
+          # trans
+
+          Example: The rule
+          <strong>"Never notify: I update a ticket"</strong>
+          should be above
+          <strong>"Notify: Any ticket changes"</strong>
+          to get notifications of any ticket changes except when
+          you update a ticket.
+
+          # endtrans
+        </p>
+      </div>
+      #   endif
+      #   if data.default_rules[distributor]:
+      <div class="field">
+        <label>${_("Default rules:")}</label>
+        <ul>
+          # for rule in  data['default_rules'][distributor]:
+          <li class="default_rule">
+            # trans key = data.adverb_labels[rule.adverb], value = rule.description
+            ${key}: ${value}
+
+            # endtrans
+          </li>
+          # endfor
+        </ul>
+        <p class="hint">
+          # trans
+
+          These default rules have been configured by the site
+          administrator. Configure subscription rules to override
+          them.
+
+          # endtrans
+        </p>
+        <p class="hint">
+          # trans
+
+          Example: The subscription rule
+          <strong>"Notify: Any ticket changes"</strong>
+          overrides the default rule
+          <strong>"Never notify: I update a ticket"</strong>.
+
+          # endtrans
+        </p>
+      </div>
+      #   endif
+    </div>
+    #   endfor
     # endblock prefpanel
   </body>
 </html>
