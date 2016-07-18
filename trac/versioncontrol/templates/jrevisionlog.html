@@ -135,7 +135,7 @@
       # macro diff_input(first_use=false)
       <div class="buttons">
         # if first_use:
-        <input type="hidden" name="reponame" value="${reponame}"/>
+        <input type="hidden" name="reponame" value="${reponame or ''}"/>
         # endif
         <input type="submit" value="${_('View changes')}"
                title="${
@@ -287,8 +287,8 @@
         # if len(items) is greaterthan(10) and len(item_ranges) == 1:
         ${diff_input()}
         # endif
-      # endfor
       </form>
+      # endfor
 
       <div id="help">
         # trans href = href.wiki('TracRevisionLog')
