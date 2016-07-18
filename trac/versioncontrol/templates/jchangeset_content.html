@@ -59,9 +59,9 @@
     #     endtrans
     #   else:
     #     if annotated:
-    #       trans newrev = newrev|safe, reponame
+    #       trans shortnewrev = shortnewrev|safe, reponame
 
-    Changeset ${shortnevrev} in ${reponame}
+    Changeset ${shortnewrev} in ${reponame}
 
     #       endtrans
     #     else:
@@ -93,7 +93,7 @@
     #     endtrans
     #   else:
     #     if annotated:
-    #       trans shortnewrev = shortnewrev|e
+    #       trans shortnewrev = shortnewrev|safe
 
     Changeset ${shortnewrev}
 
