@@ -79,6 +79,7 @@ facilities.
                  'locale/*/LC_MESSAGES/tracini.mo'],
         'trac.wiki': ['default-pages/*'],
         'trac.ticket': ['workflows/*.ini'],
+        'tracopt': ['ticket/htdocs/*.js'],
     },
 
     test_suite = 'trac.test.suite',
