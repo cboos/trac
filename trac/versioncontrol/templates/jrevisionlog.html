@@ -85,8 +85,8 @@
           <input type="text" id="rev" name="rev" value="${rev}" size="5" />
           # endset
           # set input_end
-          <input type="text" id="stop_rev" name="stop_rev" value="${stop_rev}"
-                 size="5" />
+          <input type="text" id="stop_rev" name="stop_rev"
+                 value="${stop_rev or ''}" size="5" />
           # endset
           # trans input_start = input_start|safe, input_end = input_end|safe
           <label>
