@@ -53,6 +53,8 @@ def jinja2env(**kwargs):
 
     """
     exts = ('html', 'rss', 'xml')
+    def filterout_none(v):
+        return '' if v is None else v
     def autoescape_extensions(template):
         return template and template.rsplit('.', 1)[1] in exts
     defaults = dict(
@@ -63,6 +65,7 @@ def jinja2env(**kwargs):
         trim_blocks=True,
         lstrip_blocks=True,
         extensions=['jinja2.ext.i18n', 'jinja2.ext.with_'],
+        finalize=filterout_none,
         autoescape=autoescape_extensions,
     )
     defaults.update(kwargs)

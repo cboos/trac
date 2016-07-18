@@ -68,7 +68,7 @@
           <div class="field">
             <label>${_("Your email or username:")}<br />
               <input type="text" name="author" class="trac-fullwidth"
-                     value="${attachment.author or author or ''}" />
+                     value="${attachment.author or author}" />
             </label>
             # set preferences_link
             <a href="${href.prefs()}" class="trac-target-new">${
@@ -89,7 +89,7 @@
           <div class="field">
             <label>${_("Description of the file (optional):")}<br />
               <input type="text" class="trac-fullwidth" name="description"
-                     value="${attachment.description or ''}" />
+                     value="${attachment.description}" />
             </label>
           </div>
           # if authname and authname != 'anonymous':

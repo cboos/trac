@@ -62,9 +62,9 @@
     #   endif
 
     #   for script in chrome.scripts:
-    ${script.prefix or ''
+    ${script.prefix
     }<script type="${script.type}" charset="${script.charset}"
-             src="${script.href}"></script>${script.suffix or ''}
+             src="${script.href}"></script>${script.suffix}
     #   endfor
 
     <script type="text/javascript">
@@ -138,9 +138,9 @@
     </script>
     #   endif
     #   for script in chrome.late_scripts:
-    ${script.prefix or ''}<script type="text/javascript">
+    ${script.prefix}<script type="text/javascript">
       jQuery.loadScript("${script.href}", "${script.type}", "${script.charset}");
-    </script>${script.suffix or ''}
+    </script>${script.suffix}
     #   endfor
 
     #   if 'alternate' in chrome.links:

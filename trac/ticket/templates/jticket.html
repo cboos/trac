@@ -321,7 +321,7 @@
                                 name="field_description"
                                 class="wikitext trac-fullwidth trac-resizable"
                                 rows="10" cols="68">${
-                        ticket.description or ''}</textarea>
+                        ticket.description}</textarea>
                     </fieldset>
                   </td>
                 </tr>
@@ -383,7 +383,7 @@
                                      wikitext=field.format == 'wiki')}"
                               cols="60" rows="${field.height}"
                        >{# jinjacheck: "ID field- already defined" OK #}${
-                      value or ''}</textarea>
+                      value}</textarea>
                     #       elif field.type == 'checkbox':
                     <span>
                       <input type="checkbox" id="field-${field.name}"
@@ -444,7 +444,7 @@
                                          addresses and usernames are
                                          accepted.")}"
                              name="field_${field.name}"
-                             value="${value or ''}"/>
+                             value="${value}"/>
                       ## jinjacheck: "ID field- already defined" OK
                       #         endif
                     </span>
@@ -541,7 +541,7 @@
                                          'trac-resizable',
                                          'trac-autofocus' if replyto)}"
                         rows="10" cols="78">${
-                comment or ''}</textarea>
+                comment}</textarea>
             </fieldset>
           </div>
         </div>
