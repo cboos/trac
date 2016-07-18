@@ -150,7 +150,8 @@ class SearchModule(Component):
         if not filters:
             session_filters = req.session.get('search.filters')
             if session_filters:
-                available_filters_dict = dict(available_filters)
+                available_filters_dict = dict([f[0:2]
+                                               for f in available_filters])
                 filters = [f for f in session_filters.split(',')
                            if f in available_filters_dict]
             else:
