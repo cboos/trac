@@ -1,4 +1,4 @@
-<!--!  Copyright (C) 2006-2014 Edgewall Software
+{# Copyright (C) 2006-2014 Edgewall Software
 
   This software is licensed as described in the file COPYING, which
   you should have received as part of this distribution. The terms
@@ -7,17 +7,16 @@
   This software consists of voluntary contributions made by many
   individuals. For the exact contribution history, see the revision
   history and logs, available at http://trac.edgewall.org/.
--->
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n">
-  <xi:include href="admin.html" />
+#}
+# extends "jadmin.html"
+<!DOCTYPE html>
+<html>
   <head>
-    <title>Permissions</title>
+    <title>
+      # block admintitle
+      Permissions
+      # endblock admintitle
+    </title>
     <script type="text/javascript">
       jQuery(document).ready(function($) {
         // Add group toggling behavior to row label.
@@ -33,6 +32,7 @@
   </head>
 
   <body>
+    # block adminpanel
     <h2>Manage Permissions and Groups</h2>
 
     <py:if test="'PERMISSION_GRANT' in perm('admin', 'general/perm')">
@@ -162,6 +162,7 @@
       Note that <em>Subject</em> or <em>Group</em> names can't be all upper-case,
       as that is reserved for permission names.
     </p>
+    # endblock adminpanel
   </body>
 
 </html>

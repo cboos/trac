@@ -1,4 +1,4 @@
-<!--!  Copyright (C) 2006-2014 Edgewall Software
+{# Copyright (C) 2006-2014 Edgewall Software
 
   This software is licensed as described in the file COPYING, which
   you should have received as part of this distribution. The terms
@@ -7,17 +7,16 @@
   This software consists of voluntary contributions made by many
   individuals. For the exact contribution history, see the revision
   history and logs, available at http://trac.edgewall.org/.
--->
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n">
-  <xi:include href="admin.html" />
+#}
+# extends "jadmin.html"
+<!DOCTYPE html>
+<html>
   <head>
-    <title>Plugins</title>
+    <title>
+      # block admintitle
+      Plugins
+      # endblock admintitle
+    </title>
     <script type="text/javascript" src="${chrome.htdocs_location}js/folding.js"></script>
     <script type="text/javascript">/*<![CDATA[*/
       jQuery(document).ready(function($) {
@@ -64,6 +63,7 @@
   </head>
 
   <body>
+    # block adminpanel
     <h2>Manage Plugins <span class="trac-count">(${len(plugins)})</span></h2>
 
     <form id="addplug" class="addnew" method="post" enctype="multipart/form-data" action="">
@@ -191,6 +191,7 @@
         </div>
       </div>
     </form>
+    # endblock adminpanel
   </body>
 
 </html>

@@ -1,4 +1,4 @@
-<!--!  Copyright (C) 2006-2014 Edgewall Software
+{# Copyright (C) 2006-2014 Edgewall Software
 
   This software is licensed as described in the file COPYING, which
   you should have received as part of this distribution. The terms
@@ -7,21 +7,16 @@
   This software consists of voluntary contributions made by many
   individuals. For the exact contribution history, see the revision
   history and logs, available at http://trac.edgewall.org/.
--->
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n"
-      py:with="perm = req.perm('admin', 'ticket/milestones');
-               can_create = 'MILESTONE_CREATE' in perm;
-               can_modify = 'MILESTONE_MODIFY' in perm;
-               can_remove = 'MILESTONE_DELETE' in perm">
-  <xi:include href="admin.html" />
+#}
+# extends "jadmin.html"
+<!DOCTYPE html>
+<html>
   <head>
-    <title>Milestones</title>
+    <title>
+      # block admintitle
+      Milestones
+      # endblock admintitle
+    </title>
     <script type="text/javascript">
       jQuery(document).ready(function($) {
         $("#millist").addSelectAllCheckboxes();
@@ -30,6 +25,7 @@
   </head>
 
   <body>
+    # block adminpanel
     <h2>Manage Milestones <span py:if="view == 'list'" class="trac-count">(${len(milestones)})</span></h2>
 
     <py:choose test="view">
@@ -115,6 +111,7 @@
         </py:choose>
       </py:otherwise>
     </py:choose>
+    # endblock adminpanel
   </body>
 
 </html>
