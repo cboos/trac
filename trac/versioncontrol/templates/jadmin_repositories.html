@@ -32,11 +32,11 @@
       <div class="field">
         <label>Type:<br py:if="multiline"/>
           <select size="1" id="trac-type" name="type" disabled="${not editable or None}">
-            <option py:for="type in types" value="$type" selected="${type == selected or None}">${type or _('(default)')}</option>
-            <option py:if="selected and selected not in types" selected="selected">$selected</option>
+            <option py:for="type in types" value="${type}" selected="${type == selected or None}">${type or _('(default)')}</option>
+            <option py:if="selected and selected not in types" selected="selected">${selected}</option>
           </select>
         </label>
-        <span class="hint">Default: $default_type</span>
+        <span class="hint">Default: ${default_type}</span>
       </div>
     </py:def>
 
@@ -45,8 +45,8 @@
         <label>Repository:<br py:if="multiline"/>
           <select size="1" id="trac-repository" name="alias" disabled="${not editable or None}">
             <option py:for="(reponame, info) in sorted_repos" py:if="'alias' not in info"
-                    value="$info.name" selected="${info.name == selected or None}">${info.name or _('(default)')}</option>
-            <option py:if="selected is not None and selected not in repositories" selected="selected">$selected</option>
+                    value="${info.name}" selected="${info.name == selected or None}">${info.name or _('(default)')}</option>
+            <option py:if="selected is not None and selected not in repositories" selected="selected">${selected}</option>
           </select>
         </label>
       </div>
@@ -64,7 +64,7 @@
           </p>
           <div class="field">
             <label>Name:<br/><input type="text" name="name" class="trac-autofocus"
-                                    value="$info.name" readonly="$readonly" /></label>
+                                    value="${info.name}" readonly="${readonly}" /></label>
           </div>
           <py:choose>
             <py:when test="'alias' in info">
@@ -73,10 +73,10 @@
             <py:otherwise>
               ${type_field(info.editable, True, info.type)}
               <div class="field">
-                <label>Directory:<br/><input type="text" name="dir" size="48" value="$info.dir" readonly="$readonly"/></label>
+                <label>Directory:<br/><input type="text" name="dir" size="48" value="${info.dir}" readonly="${readonly}"/></label>
               </div>
               <div class="field">
-                <label>URL:<br/><input type="text" name="url" size="48" value="$info.url" readonly="$readonly"/></label>
+                <label>URL:<br/><input type="text" name="url" size="48" value="${info.url}" readonly="${readonly}"/></label>
               </div>
             </py:otherwise>
           </py:choose>
@@ -98,7 +98,7 @@
               Description: (you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here)
             </label>
             <textarea id="description" name="description" class="wikitext trac-fullwidth trac-resizable"
-                      rows="8" cols="78" readonly="$readonly">$info.description</textarea>
+                      rows="8" cols="78" readonly="${readonly}">${info.description}</textarea>
           </div>
         </fieldset>
         <div class="buttons">
@@ -149,7 +149,7 @@
               <tr py:for="(reponame, info) in sorted_repos">
                 <td class="sel">
                   <input py:if="info.editable" type="checkbox" class="trac-disable-determinant"
-                         name="sel" value="$info.name"/>
+                         name="sel" value="${info.name}"/>
                 </td>
                 <td class="name">
                   <a href="${panel_href(info.name or '(default)')}">${info.name or _('(default)')}</a>
@@ -157,9 +157,9 @@
                 <td>${(info.type or _('(default)')) if 'alias' not in info else None}</td>
                 <td py:choose="">
                   <em py:when="'alias' in info" i18n:msg="repo">Alias of ${info.alias or _('(default)')}</em>
-                  <span py:otherwise="" py:strip="not info.error" class="missing" title="$info.error">$info.prettydir</span>
+                  <span py:otherwise="" py:strip="not info.error" class="missing" title="${info.error}">${info.prettydir}</span>
                 </td>
-                <td><a py:if="info.rev" href="${href.changeset(info.rev, reponame) or None}">[$info.display_rev]</a></td>
+                <td><a py:if="info.rev" href="${href.changeset(info.rev, reponame) or None}">[${info.display_rev}]</a></td>
               </tr>
             </tbody>
           </table>

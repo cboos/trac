@@ -34,11 +34,11 @@
           <py:choose>
             <select py:when="owners" size="1" id="owner" name="owner">
               <option py:for="owner in owners"
-                      selected="${owner == default_owner or None}" value="$owner">$owner</option>
+                      selected="${owner == default_owner or None}" value="${owner}">${owner}</option>
               <option py:if="default_owner and default_owner not in owners"
-                      selected="selected" value="$default_owner">$default_owner</option>
+                      selected="selected" value="${default_owner}">${default_owner}</option>
             </select>
-            <input py:otherwise="" type="text" name="owner" value="$default_owner" />
+            <input py:otherwise="" type="text" name="owner" value="${default_owner}" />
           </py:choose>
         </label>
       </div>
@@ -49,7 +49,7 @@
         <fieldset>
           <legend>Modify Component:</legend>
           <div class="field">
-            <label>Name:<br /><input type="text" name="name" class="trac-autofocus" value="$component.name" /></label>
+            <label>Name:<br /><input type="text" name="name" class="trac-autofocus" value="${component.name}" /></label>
           </div>
           ${owner_field(component.owner, True)}
           <div class="field description">
@@ -57,7 +57,7 @@
               Description: (you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here)
             </label>
             <textarea id="description" name="description" class="wikitext trac-fullwidth trac-resizable"
-                      rows="8" cols="78">$component.description</textarea>
+                      rows="8" cols="78">${component.description}</textarea>
           </div>
         </fieldset>
         <div class="buttons">
@@ -92,14 +92,14 @@
                 <tr py:for="comp in components">
                   <td class="sel">
                     <input type="checkbox" class="trac-disable-determinant"
-                           name="sel" value="$comp.name" />
+                           name="sel" value="${comp.name}" />
                   </td>
                   <td class="name">
-                    <a href="${panel_href(comp.name)}">$comp.name</a>
+                    <a href="${panel_href(comp.name)}">${comp.name}</a>
                   </td>
-                  <td class="owner">$comp.owner</td>
+                  <td class="owner">${comp.owner}</td>
                   <td class="default">
-                    <input type="radio" name="default" value="$comp.name"
+                    <input type="radio" name="default" value="${comp.name}"
                            checked="${comp.name == default or None}" />
                   </td>
                 </tr>

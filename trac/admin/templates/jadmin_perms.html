@@ -43,7 +43,7 @@
             <label>Action:
               <select id="action" name="action"
                       py:with="allowed_actions = [a for a in actions if a in perm]">
-                <option py:for="action in sorted(allowed_actions)">$action</option>
+                <option py:for="action in sorted(allowed_actions)">${action}</option>
               </select>
             </label>
           </div>
@@ -107,7 +107,7 @@
         <tbody>
           <tr py:for="idx, (subject, subject_actions) in enumerate(sorted(perms.items(), key=lambda p: p[0]))"
               class="${'odd' if idx % 2 else 'even'}">
-            <td>$subject</td>
+            <td>${subject}</td>
             <td>
               <label py:for="action in subject_actions"
                      py:with="invalid = action not in actions;
@@ -138,7 +138,7 @@
         <tbody>
           <tr py:for="idx, (group, group_subjects) in enumerate(sorted(groups.items(), key=lambda p: p[0]))"
               class="${'odd' if idx % 2 else 'even'}">
-            <td>$group</td>
+            <td>${group}</td>
             <td>
               <label py:for="subject in group_subjects">
                 <!--! base64 makes it safe to use ':' as separator when passing
@@ -146,7 +146,7 @@
                 <input py:if="can_revoke" type="checkbox" name="sel"
                        class="trac-disable-determinant"
                        value="${'%s:%s' % (unicode_to_base64(subject),
-                                           unicode_to_base64(group))}"/> $subject
+                                           unicode_to_base64(group))}"/> ${subject}
               </label>
             </td>
           </tr>

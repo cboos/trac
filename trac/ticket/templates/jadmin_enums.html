@@ -17,19 +17,19 @@
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="admin.html" />
   <head>
-    <title>$label_plural</title>
+    <title>${label_plural}</title>
   </head>
 
   <body>
     <h2>
-      <i18n:msg params="label_plural">Manage $label_plural</i18n:msg>
+      <i18n:msg params="label_plural">Manage ${label_plural}</i18n:msg>
       <span py:if="view == 'list'" class="trac-count">(${len(enums)})</span>
     </h2>
 
     <py:choose test="view">
       <form py:when="'detail'" id="edit" class="mod" method="post" action="">
         <fieldset>
-          <legend i18n:msg="label_singular">Modify $label_singular:</legend>
+          <legend i18n:msg="label_singular">Modify ${label_singular}:</legend>
           <div class="field">
             <label>Name: <input type="text" name="name" class="trac-autofocus" value="${enum.name}" /></label>
           </div>
@@ -43,7 +43,7 @@
       <py:otherwise>
         <form class="addnew" id="addenum" method="post" action="">
           <fieldset>
-            <legend i18n:msg="label_singular">Add $label_singular:</legend>
+            <legend i18n:msg="label_singular">Add ${label_singular}:</legend>
             <div class="field">
               <label>Name: <input type="text" name="name" id="name"/></label>
             </div>
