@@ -14,7 +14,7 @@
   <head>
     <title>
       # block admintitle
-      Plugins
+      ${_("Plugins")}
       # endblock admintitle
     </title>
     <script type="text/javascript" src="${chrome.htdocs_location}js/folding.js"></script>
@@ -64,14 +64,23 @@
 
   <body>
     # block adminpanel
-    <h2>Manage Plugins <span class="trac-count">(${len(plugins)})</span></h2>
+    <h2>
+      # set nb_plugins
+      <span class="trac-count">(${nb_plugins})</span>
+      # endset
+      # trans nb_plugins = nb_plugins|safe
+
+      Manage Plugins ${nb_plugins}
+
+      # endtrans
+    </h2>
 
     <form id="addplug" class="addnew" method="post" enctype="multipart/form-data" action="">
       <fieldset>
-        <legend>Install Plugin:</legend>
+        <legend>${_("Install Plugin:")}</legend>
         <div class="field">
-          <label i18n:msg="">
-            File: <input type="file" name="plugin_file" class="trac-disable-determinant" disabled="${readonly or None}" />
+          <label>
+            ${_("File:")} <input type="file" name="plugin_file" class="trac-disable-determinant" disabled="${readonly or None}" />
           </label>
         </div>
         <div class="buttons">
@@ -80,11 +89,19 @@
         </div>
         <p class="help" py:choose="readonly">
           <py:when test="True">
-            The web server does not have sufficient permissions to store files in
-            the environment plugins directory.
+            # trans
+
+            The web server does not have sufficient permissions to
+            store files in the environment plugins directory.
+
+            # endtrans
           </py:when>
           <py:otherwise>
+            # trans
+
             Upload a plugin packaged as Python egg.
+
+            # endtrans
           </py:otherwise>
         </p>
       </fieldset>
@@ -107,7 +124,7 @@
                      'author_email' in plugin.info"
               class="info">
             <py:if test="'author' in plugin.info or 'author_email' in plugin.info">
-              <dt>Author:</dt>
+              <dt>${_("Author:")}</dt>
               <dd>
                 <a py:strip="not plugin.info.get('author_email')"
                    href="mailto:${plugin.info.author_email}">
@@ -116,14 +133,14 @@
               </dd>
             </py:if>
             <py:if test="plugin.info.get('home_page')">
-              <dt>Home page:</dt>
+              <dt>${_("Home page:")}</dt>
               <dd>
                 <a onclick="window.open(this.href); return false"
                    href="${plugin.info.home_page}">${plugin.info.home_page}</a>
               </dd>
             </py:if>
             <py:if test="plugin.info.get('license')">
-              <dt>License:</dt>
+              <dt>${_("License:")}</dt>
               <dd>${plugin.info.license}</dd>
             </py:if>
           </dl>
@@ -132,7 +149,7 @@
           <thead>
             <tr>
               <th>
-                Component
+                ${_("Component")}
                 <span class="trac-toggler">
                   [<a title="Show all descriptions" href="${href.admin('general', 'plugin', show=plugin.name)
                                                             + '#trac-plugin-' + plugin.name}">+</a>]
@@ -140,7 +157,7 @@
                                                             + '#trac-plugin-' + plugin.name}">&ndash;</a>]
                 </span>
               </th>
-              <th class="sel">Enabled</th>
+              <th class="sel">${_("Enabled")}</th>
             </tr>
           </thead>
           <tbody py:for="module_name, module in sorted(plugin.modules.iteritems())">

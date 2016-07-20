@@ -14,7 +14,7 @@
   <head>
     <title>
       # block admintitle
-      Permissions
+      ${_("Permissions")}
       # endblock admintitle
     </title>
     <script type="text/javascript">
@@ -32,15 +32,14 @@
   </head>
 
   <body>
-    # block adminpanel
-    <h2>Manage Permissions and Groups</h2>
+    <h2>${_("Manage Permissions and Groups</h2>")}
 
     <py:if test="'PERMISSION_GRANT' in perm('admin', 'general/perm')">
       <form id="addperm" class="addnew" method="post" action="">
         <fieldset>
-          <legend>Grant Permission:</legend>
+          <legend>${_("Grant Permission:")}</legend>
           <div class="field">
-            <label>Action:
+            <label>${_("Action:")}
               <select id="action" name="action"
                       py:with="allowed_actions = [a for a in actions if a in perm]">
                 <option py:for="action in sorted(allowed_actions)">${action}</option>
@@ -48,61 +47,73 @@
             </label>
           </div>
           <div class="field">
-            <label>Subject: <input id="gp_subject" type="text" name="subject" /></label>
+            <label>${_("Subject:")} <input id="gp_subject" type="text" name="subject" /></label>
           </div>
           <div class="buttons">
             <input type="submit" name="add" class="trac-disable-on-submit" value="${_('Add')}" />
           </div>
           <p class="help">
-            Grant permission for an action to a subject, which can be either a user
-            or a group.
+            # trans
+
+            Grant permission for an action to a subject, which can be
+            either a user or a group.
+
+            # endtrans
           </p>
         </fieldset>
       </form>
 
       <form id="copyperm" class="addnew" method="post" action="">
         <fieldset>
-          <legend>Copy Permissions:</legend>
+          <legend>${_("Copy Permissions:")}</legend>
           <div class="field">
-            <label>Subject: <input id="cp_subject" type="text" name="subject" /></label>
+            <label>${_("Subject:")} <input id="cp_subject" type="text" name="subject" /></label>
           </div>
           <div class="field">
-            <label>Target: <input id="cp_target" type="text" name="target" /></label>
+            <label>${_("Target:")} <input id="cp_target" type="text" name="target" /></label>
           </div>
           <div class="buttons">
             <input type="submit" name="copy" value="${_('Add')}"/>
           </div>
           <p class="help">
+            # trans
+
             Copy all of subject's permissions to target.
             Subject and target can be either users or groups.
+
+            # endtrans
           </p>
         </fieldset>
       </form>
 
       <form id="addsubj" class="addnew" method="post" action="">
         <fieldset>
-          <legend>Add Subject to Group:</legend>
+          <legend>${_("Add Subject to Group:")}</legend>
           <div class="field">
-            <label>Subject: <input id="sg_subject" type="text" name="subject"/></label>
+            <label>${_("Subject:")} <input id="sg_subject" type="text" name="subject"/></label>
           </div>
           <div class="field">
-            <label>Group: <input id="sg_group" type="text" name="group" /></label>
+            <label>${_("Group:")} <input id="sg_group" type="text" name="group" /></label>
           </div>
           <div class="buttons">
             <input type="submit" name="add" class="trac-disable-on-submit" value="${_('Add')}"/>
           </div>
           <p class="help">
+            # trans
+
             Add a user or group to an existing permission group.
+
+            # endtrans
           </p>
         </fieldset>
       </form>
     </py:if>
 
     <form id="revokeform" method="post" action="" py:with="can_revoke = 'PERMISSION_REVOKE' in perm('admin', 'general/perm')">
-      <h3>Permissions</h3>
+      <h3>${_("Permissions")}</h3>
       <table class="listing" id="permlist">
         <thead>
-          <tr><th>Subject</th><th>Action</th></tr>
+          <tr><th>${_("Subject")}</th><th>${_("Action")}</th></tr>
         </thead>
         <tbody>
           <tr py:for="idx, (subject, subject_actions) in enumerate(sorted(perms.items(), key=lambda p: p[0]))"
@@ -126,14 +137,14 @@
               </label>
             </td>
           </tr>
-          <tr py:if="not perms"><td colspan="2">No permissions</td></tr>
+          <tr py:if="not perms"><td colspan="2">${_("No permissions")}</td></tr>
         </tbody>
       </table>
 
-      <h3>Group Membership</h3>
+      <h3>${_("Group Membership")}</h3>
       <table class="listing" id="grouplist">
         <thead>
-          <tr><th>Group</th><th>Subject</th></tr>
+          <tr><th>${_("Group")}</th><th>${_("Subject")}</th></tr>
         </thead>
         <tbody>
           <tr py:for="idx, (group, group_subjects) in enumerate(sorted(groups.items(), key=lambda p: p[0]))"
@@ -150,7 +161,7 @@
               </label>
             </td>
           </tr>
-          <tr py:if="not groups"><td colspan="2">No group memberships</td></tr>
+          <tr py:if="not groups"><td colspan="2">${_("No group memberships")}</td></tr>
         </tbody>
       </table>
       <div class="buttons" py:if="can_revoke">
@@ -158,11 +169,14 @@
       </div>
     </form>
 
-    <p class="help" i18n:msg="">
-      Note that <em>Subject</em> or <em>Group</em> names can't be all upper-case,
-      as that is reserved for permission names.
+    <p class="help">
+      # trans
+
+      Note that <em>Subject</em> or <em>Group</em> names can't be all
+      upper-case, as that is reserved for permission names.
+
+      # endtrans
     </p>
-    # endblock adminpanel
   </body>
 
 </html>

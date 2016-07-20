@@ -14,7 +14,7 @@
   <head>
     <title>
       # block admintitle
-      Versions
+      ${_("Versions")}
       # endblock admintitle
     </title>
     <script type="text/javascript">
@@ -26,29 +26,47 @@
 
   <body>
     # block adminpanel
-    <h2>Manage Versions <span py:if="view == 'list'" class="trac-count">(${len(versions)})</span></h2>
+    <h2>
+      # set nb_versions
+      <span py:if="view == 'list'" class="trac-count">(${len(versions)})</span>
+      # endset
+      # trans nb_versions = nb_versions|safe
+
+      Manage Versions
+
+      # endtrans
+    </h2>
 
     <py:choose test="view">
       <form py:when="'detail'" id="edit" class="mod" method="post" action="">
         <fieldset>
-          <legend>Modify Version:</legend>
+          <legend>${_("Modify Version:")}</legend>
           <div class="field">
-            <label>Name:<br />
+            <label>${_("Name:")}<br />
               <input type="text" name="name" class="trac-autofocus" value="${version.name}" />
             </label>
           </div>
           <div class="field">
-            <label>Released:<br />
+            <label>${_("Released:")}<br />
               <input type="text" id="releaseddate" class="trac-datetimepicker"
                      name="time" size="${len(datetime_hint) + 1}"
                      value="${format_datetime(version.time)}"
                      title="${_('Format: %(datehint)s', datehint=datetime_hint)}" />
-              <span class="trac-datetimehint" i18n:msg="datehint">Format: ${datetime_hint}</span>
+              <span class="trac-datetimehint">
+                ${_("Format: %(datehint)s", datehint=datetime_hint)}
+              </span>
             </label>
           </div>
           <div class="field description">
-            <label for="description" i18n:msg="">
-              Description: (you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here)
+            <label for="description">
+              # set wikiformatting
+              <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
+              # endset
+              # trans wikiformatting = wikiformatting|safe
+
+              Description: (you may use ${wikiformatting} here)
+
+              # endtrans
             </label>
             <textarea id="description" name="description" class="wikitext trac-fullwidth trac-resizable"
                       rows="8" cols="78">${version.description}</textarea>
@@ -63,18 +81,20 @@
       <py:otherwise>
         <form class="addnew" id="addversion" method="post" action="">
           <fieldset>
-            <legend>Add Version:</legend>
+            <legend>${_("Add Version:")}</legend>
             <div class="field">
-              <label>Name: <input type="text" name="name" id="name" size="22"/></label>
+              <label>${_("Name:")} <input type="text" name="name" id="name" size="22"/></label>
             </div>
             <div class="field">
               <label>
-                Released:
+                ${_("Released:")}
                 <input type="text" id="releaseddate" class="trac-datetimepicker"
                        name="time" size="${len(datetime_hint) + 1}"
                        title="${_('Format: %(datehint)s', datehint=datetime_hint)}"
                        value="${format_datetime()}"/>
-                <span class="trac-datetimehint" i18n:msg="datehint">Format: ${datetime_hint}</span>
+                <span class="trac-datetimehint">
+                  ${_("Format: %(datehint)s", datetime_hint=datetime_hint)}
+                </span>
               </label>
             </div>
             <div class="buttons">
@@ -88,7 +108,7 @@
             <table class="listing" id="verlist">
               <thead>
                 <tr><th class="sel"></th>
-                  <th>Name</th><th>Released</th><th>Default</th>
+                  <th>${_("Name")}</th><th>${_("Released")}</th><th>${_("Default")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -112,14 +132,22 @@
               <input type="submit" name="clear" value="${_('Clear default')}" />
             </div>
             <p class="help">
-              You can remove all items from this list to completely hide this
-              field from the user interface.
+              # trans
+
+              You can remove all items from this list to completely
+              hide this field from the user interface.
+
+              # endtrans
             </p>
           </form>
 
           <p py:otherwise="" class="help">
+            # trans
+
             As long as you don't add any items to the list, this field
             will remain completely hidden from the user interface.
+
+            # endtrans
           </p>
         </py:choose>
       </py:otherwise>

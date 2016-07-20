@@ -14,7 +14,7 @@
   <head>
     <title>
       # block admintitle
-      Repositories
+      ${_("Repositories")}
       # endblock admintitle
     </title>
     <script type="text/javascript">
@@ -26,23 +26,34 @@
 
   <body py:with="sorted_repos = sorted(repositories.iteritems(), key=lambda item: item[0].lower())">
     # block adminpanel
-    <h2>Manage Repositories <span py:if="view == 'list'" class="trac-count">(${len(repositories)})</span></h2>
+    <h2>
+      # set nb_repos
+      <span py:if="view == 'list'" class="trac-count">(${len(repositories)})</span>
+      # endset
+      # trans nb_repos = nb_repos|safe
+
+      Manage Repositories ${nb_repos}
+
+      # endtrans
+    </h2>
 
     <py:def function="type_field(editable, multiline=False, selected=None)">
       <div class="field">
-        <label>Type:<br py:if="multiline"/>
+        <label>${_("Type:")}<br py:if="multiline"/>
           <select size="1" id="trac-type" name="type" disabled="${not editable or None}">
             <option py:for="type in types" value="${type}" selected="${type == selected or None}">${type or _('(default)')}</option>
             <option py:if="selected and selected not in types" selected="selected">${selected}</option>
           </select>
         </label>
-        <span class="hint">Default: ${default_type}</span>
+        <span class="hint">
+          ${_("Default: %(default_type)s", default_type=default_type)}
+        </span>
       </div>
     </py:def>
 
     <py:def function="alias_field(editable, multiline=False, selected=None)">
       <div class="field">
-        <label>Repository:<br py:if="multiline"/>
+        <label>${_("Repository:")}<br py:if="multiline"/>
           <select size="1" id="trac-repository" name="alias" disabled="${not editable or None}">
             <option py:for="(reponame, info) in sorted_repos" py:if="'alias' not in info"
                     value="${info.name}" selected="${info.name == selected or None}">${info.name or _('(default)')}</option>
@@ -57,13 +68,18 @@
             id="edit" class="mod" method="post" action="">
         <fieldset py:choose="" py:with="disabled = 'disabled' if not info.editable else None;
                                         readonly = 'readonly' if not info.editable else None">
-          <legend py:when="info.editable">Modify Repository:</legend>
-          <legend py:otherwise="">View Repository:</legend>
-          <p py:if="not info.editable" class="hint" i18n:msg="">
-            <strong>Note:</strong> This repository is not defined in the database and cannot be edited on this page.
+          <legend py:when="info.editable">${_("Modify Repository:")}</legend>
+          <legend py:otherwise="">${_("View Repository:")}</legend>
+          <p py:if="not info.editable" class="hint">
+            # trans
+
+            <strong>Note:</strong> This repository is not defined in
+            the database and cannot be edited on this page.
+
+            # endtrans
           </p>
           <div class="field">
-            <label>Name:<br/><input type="text" name="name" class="trac-autofocus"
+            <label>${_("Name:")}<br/><input type="text" name="name" class="trac-autofocus"
                                     value="${info.name}" readonly="${readonly}" /></label>
           </div>
           <py:choose>
@@ -73,29 +89,45 @@
             <py:otherwise>
               ${type_field(info.editable, True, info.type)}
               <div class="field">
-                <label>Directory:<br/><input type="text" name="dir" size="48" value="${info.dir}" readonly="${readonly}"/></label>
+                <label>${_("Directory:")}<br/><input type="text" name="dir" size="48" value="${info.dir}" readonly="${readonly}"/></label>
               </div>
               <div class="field">
-                <label>URL:<br/><input type="text" name="url" size="48" value="${info.url}" readonly="${readonly}"/></label>
+                <label>${_("URL:")}<br/><input type="text" name="url" size="48" value="${info.url}" readonly="${readonly}"/></label>
               </div>
             </py:otherwise>
           </py:choose>
           <div class="field">
             <label><input type="checkbox" name="sync_per_request" value="1" checked="${info.sync_per_request or None}"
                           disabled="${not info.editable or None}" />
-              Sync on every request
+              ${_("Sync on every request")}
             </label>
-            <span class="hint" i18n:msg="">Not recommended. See <a href="${href.wiki('TracRepositoryAdmin') + '#ExplicitSync'}">explicit synchronization</a> for more info.</span>
+            <span class="hint">
+              # set tracreposadmin
+              <a href="${href.wiki('TracRepositoryAdmin') + '#ExplicitSync'}">${_("explicit synchronization")}</a>
+              # endset
+              # trans tracreposadmin = tracreposadmin|safe
+
+              Not recommended. See ${tracreposadmin} for more info.
+
+              # endtrans
+            </span>
           </div>
           <div class="field">
             <label><input type="checkbox" name="hidden" value="1" checked="${info.hidden or None}"
                           disabled="${not info.editable or None}"/>
-              Hide from repository index
+              ${_("Hide from repository index")}
             </label>
           </div>
           <div class="field description">
-            <label for="description" i18n:msg="">
-              Description: (you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here)
+            <label for="description">
+              # set wikiformatting
+              <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
+              # endset
+              # trans wikiformatting = wikiformatting|safe
+
+              Description: (you may use ${wikiformatting} here)
+
+              # endtrans
             </label>
             <textarea id="description" name="description" class="wikitext trac-fullwidth trac-resizable"
                       rows="8" cols="78" readonly="${readonly}">${info.description}</textarea>
@@ -110,13 +142,13 @@
       <py:otherwise>
         <form class="addnew" id="trac-addrepos" method="post" action="">
           <fieldset>
-            <legend>Add Repository:</legend>
+            <legend>${_("Add Repository:")}</legend>
             <div class="field">
-              <label>Name: <input type="text" name="name"/></label>
+              <label>${_("Name:")} <input type="text" name="name"/></label>
             </div>
             ${type_field(True)}
             <div class="field">
-              <label>Directory: <input type="text" name="dir"/></label>
+              <label>${_("Directory:")} <input type="text" name="dir"/></label>
             </div>
             <div class="buttons">
               <input type="submit" name="add_repos" class="trac-disable-on-submit" value="${_('Add')}"/>
@@ -127,9 +159,9 @@
         <form py:if="any('alias' not in info for info in repositories.itervalues())"
               class="addnew" id="trac-addalias" method="post" action="">
           <fieldset>
-            <legend>Add Alias:</legend>
+            <legend>${_("Add Alias:")}</legend>
             <div class="field">
-              <label>Name: <input type="text" name="name"/></label>
+              <label>${_("Name:")} <input type="text" name="name"/></label>
             </div>
             ${alias_field(True)}
             <div class="buttons">
@@ -142,7 +174,7 @@
           <table class="listing" id="trac-reposlist">
             <thead>
               <tr><th class="sel"></th>
-                <th>Name</th><th>Type</th><th>Directory</th><th>Revision</th>
+                <th>${_("Name")}</th><th>${_("Type")}</th><th>${_("Directory")}</th><th>Revision</th>
               </tr>
             </thead>
             <tbody>
@@ -156,7 +188,13 @@
                 </td>
                 <td>${(info.type or _('(default)')) if 'alias' not in info else None}</td>
                 <td py:choose="">
-                  <em py:when="'alias' in info" i18n:msg="repo">Alias of ${info.alias or _('(default)')}</em>
+                  <em py:when="'alias' in info">
+                    # trans repo = info.alias or _('(default)')
+
+                    Alias of ${repo}
+
+                    # endtrans
+                  </em>
                   <span py:otherwise="" py:strip="not info.error" class="missing" title="${info.error}">${info.prettydir}</span>
                 </td>
                 <td><a py:if="info.rev" href="${href.changeset(info.rev, reponame) or None}">[${info.display_rev}]</a></td>

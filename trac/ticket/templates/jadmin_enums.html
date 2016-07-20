@@ -22,16 +22,24 @@
   <body>
     # block adminpanel
     <h2>
-      <i18n:msg params="label_plural">Manage ${label_plural}</i18n:msg>
+      # set nb_enums
       <span py:if="view == 'list'" class="trac-count">(${len(enums)})</span>
+      # endset
+      # trans label_plural, nb_enums = nb_enums|safe
+
+      Manage ${label_plural} ${nb_enums}
+
+      # endtrans
     </h2>
 
     <py:choose test="view">
       <form py:when="'detail'" id="edit" class="mod" method="post" action="">
         <fieldset>
-          <legend i18n:msg="label_singular">Modify ${label_singular}:</legend>
+          <legend>
+            ${_("Modify %(label_singular)s:", label_singular=label_singular)}
+          </legend>
           <div class="field">
-            <label>Name: <input type="text" name="name" class="trac-autofocus" value="${enum.name}" /></label>
+            <label>${_("Name:")} <input type="text" name="name" class="trac-autofocus" value="${enum.name}" /></label>
           </div>
         </fieldset>
         <div class="buttons">
@@ -43,9 +51,11 @@
       <py:otherwise>
         <form class="addnew" id="addenum" method="post" action="">
           <fieldset>
-            <legend i18n:msg="label_singular">Add ${label_singular}:</legend>
+            <legend>
+              ${_("Add %(label_singular)s:", label_singular=label_singular)}
+            </legend>
             <div class="field">
-              <label>Name: <input type="text" name="name" id="name"/></label>
+              <label>${_("Name:")} <input type="text" name="name" id="name"/></label>
             </div>
             <div class="buttons">
               <input type="submit" name="add" class="trac-disable-on-submit" value="${_('Add')}"/>
@@ -58,7 +68,7 @@
             <table class="listing" id="enumlist">
               <thead>
                 <tr><th class="sel"></th>
-                  <th>Name</th><th>Default</th><th>Order</th>
+                  <th>${_("Name")}</th><th>${_("Default")}</th><th>${_("Order")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -87,18 +97,30 @@
               <input type="submit" name="clear" value="${_('Clear default')}" />
             </div>
             <p class="help">
-              You can remove all items from this list to completely hide this
-              field from the user interface.
+              # trans
+
+              You can remove all items from this list to completely
+              hide this field from the user interface.
+
+              # endtrans
             </p>
-            <p class="help" py:if="type=='priority'" i18n:msg="">
+            <p class="help" py:if="type=='priority'">
+              # trans
+
               <strong>Note:</strong> The order of priorities determines the
               coloring of entries in the ticket queries and reports.
+
+              # endtrans
             </p>
           </form>
 
           <p py:otherwise="" class="help">
+            # trans
+
             As long as you don't add any items to the list, this field
             will remain completely hidden from the user interface.
+
+            # endtrans
           </p>
         </py:choose>
       </py:otherwise>

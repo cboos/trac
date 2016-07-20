@@ -14,7 +14,7 @@
   <head>
     <title>
       # block admintitle
-      Components
+      ${_("Components")}
       # endblock admintitle
     </title>
     <script type="text/javascript">
@@ -26,11 +26,11 @@
 
   <body>
     # block adminpanel
-    <h2>Manage Components <span py:if="view == 'list'" class="trac-count">(${len(components)})</span></h2>
+    <h2>${_("Manage Components")} <span py:if="view == 'list'" class="trac-count">(${len(components)})</span></h2>
 
     <py:def function="owner_field(default_owner='', br_after_label=False)">
       <div class="field">
-        <label>Owner:<br py:if="br_after_label"/>
+        <label>${_("Owner:")}<br py:if="br_after_label"/>
           <py:choose>
             <select py:when="owners" size="1" id="owner" name="owner">
               <option py:for="owner in owners"
@@ -47,14 +47,21 @@
     <py:choose test="view">
       <form py:when="'detail'" id="edit" class="mod" method="post" action="">
         <fieldset>
-          <legend>Modify Component:</legend>
+          <legend>${_("Modify Component:")}</legend>
           <div class="field">
-            <label>Name:<br /><input type="text" name="name" class="trac-autofocus" value="${component.name}" /></label>
+            <label>${_("Name:")}<br /><input type="text" name="name" class="trac-autofocus" value="${component.name}" /></label>
           </div>
           ${owner_field(component.owner, True)}
           <div class="field description">
-            <label for="description" i18n:msg="">
-              Description: (you may use <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a> here)
+            <label for="description">
+              # set wikiformatting
+              <a tabindex="42" href="${href.wiki('WikiFormatting')}">WikiFormatting</a>
+              # endset
+              # trans wikiformatting=wikiformatting|safe
+
+              Description: (you may use ${wikiformatting} here)
+
+              # endtrans
             </label>
             <textarea id="description" name="description" class="wikitext trac-fullwidth trac-resizable"
                       rows="8" cols="78">${component.description}</textarea>
@@ -69,9 +76,9 @@
       <py:otherwise>
         <form class="addnew" id="addcomponent" method="post" action="">
           <fieldset>
-            <legend>Add Component:</legend>
+            <legend>${_("Add Component:")}</legend>
             <div class="field">
-              <label>Name: <input type="text" name="name"/></label>
+              <label>${_("Name:")} <input type="text" name="name"/></label>
             </div>
             ${owner_field()}
             <div class="buttons">
@@ -85,7 +92,7 @@
             <table class="listing" id="complist">
               <thead>
                 <tr><th class="sel"></th>
-                  <th>Name</th><th>Owner</th><th>Default</th>
+                  <th>${_("Name")}</th><th>${_("Owner")}</th><th>${_("Default")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -111,14 +118,22 @@
               <input type="submit" name="clear" value="${_('Clear default')}" />
             </div>
             <p class="help">
-              You can remove all items from this list to completely hide this
-              field from the user interface.
+              # trans
+
+              You can remove all items from this list to completely
+              hide this field from the user interface.
+
+              # endtrans
             </p>
           </form>
 
           <p py:otherwise="" class="help">
+            # trans
+
             As long as you don't add any items to the list, this field
             will remain completely hidden from the user interface.
+
+            # endtrans
           </p>
         </py:choose>
       </py:otherwise>
