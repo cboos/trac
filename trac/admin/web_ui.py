@@ -451,6 +451,7 @@ class PermissionAdminPanel(Component):
 
         return 'admin_perms.html', {
             'actions': all_actions,
+            'allowed_actions': [a for a in all_actions if a in req.perm],
             'perms': perm.get_users_dict(),
             'groups': perm.get_groups_dict(),
             'unicode_to_base64': unicode_to_base64
