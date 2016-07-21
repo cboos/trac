@@ -137,10 +137,11 @@
                                 if not has_perm and not invalid else None}"
                        value="${'%s:%s' % (unicode_to_base64(subject),
                                            unicode_to_base64(action))}"
-                       disabled="${'disabled' if not has_perm and not invalid else None}" />
+                       ${{'disabled': not has_perm and not invalid}|htmlattr} />
                 #   endif
-                <span class="${classes(missing=invalid)}"
-                      title="${_('%(action)s is no longer defined', action=action) if invalid else action}">${action}</span>
+                <span${{'class': {'missing': invalid},
+                        'title': _('%(action)s is no longer defined', action=action) if invalid else action
+                       }|htmlattr}>${action}</span>
               </label>
               # endfor
             </td>
