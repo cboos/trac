@@ -80,12 +80,13 @@
         <legend>${_("Install Plugin:")}</legend>
         <div class="field">
           <label>
-            ${_("File:")} <input type="file" name="plugin_file" class="trac-disable-determinant" disabled="${readonly or None}" />
+            ${_("File:")} <input type="file" name="plugin_file" class="trac-disable-determinant"
+                             ${{'disabled': readonly}|htmlattr} />
           </label>
         </div>
         <div class="buttons">
           <input type="submit" name="install" class="trac-disable trac-disable-on-submit"
-                 value="${_('Install')}" disabled="${readonly or None}" />
+                 value="${_('Install')}"${{'disabled': readonly}|htmlattr} />
         </div>
         <p class="help">
           # if readonly:
@@ -106,8 +107,8 @@
       </fieldset>
     </form>
 
+    #   for plugin in plugins:
     <form id="edit-plugin-${plugin.name.lower()}" method="post" action="">
-      # for plugin in plugins:
       <div class="plugin" id="trac-plugin-${plugin.name}">
         <h3 class="foldable">${plugin.name} ${plugin.version}</h3>
         <!--! FIXME: Plugin uninstall disabled as it is unreliable (#3545)
@@ -115,7 +116,7 @@
           <input type="hidden" name="plugin_filename"
                  value="${plugin.plugin_filename}" />
           <input type="submit" name="uninstall" value="${_('Uninstall')}"
-                 disabled="${plugin.readonly or None}" />
+                 ${{'disabled': readonly}|htmlattr} />
         </div> -->
         # if plugin.info:
         <p class="summary">${plugin.info.get('summary')}</p>
@@ -214,8 +215,8 @@
                 # endif
                 <input type="checkbox" name="enable"
                        value="${module_name}.${component_name}"
-                       checked="${component.enabled or None}"
-                       disabled="${component.required or None}" />
+                   ${{'checked': component.enabled,
+                      'disabled': component.required}|htmlattr} />
               </td>
             </tr>
             # endfor
@@ -227,8 +228,8 @@
           <input type="submit" name="update" value="${_('Apply changes')}" />
         </div>
       </div>
-      # endfor
     </form>
+    #   endfor
     # endblock adminpanel
   </body>
 
