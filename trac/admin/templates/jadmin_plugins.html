@@ -87,27 +87,27 @@
           <input type="submit" name="install" class="trac-disable trac-disable-on-submit"
                  value="${_('Install')}" disabled="${readonly or None}" />
         </div>
-        <p class="help" py:choose="readonly">
-          <py:when test="True">
-            # trans
+        <p class="help">
+          # if readonly:
+          #   trans
 
-            The web server does not have sufficient permissions to
-            store files in the environment plugins directory.
+          The web server does not have sufficient permissions to
+          store files in the environment plugins directory.
 
-            # endtrans
-          </py:when>
-          <py:otherwise>
-            # trans
+          #   endtrans
+          # else:
+          #   trans
 
-            Upload a plugin packaged as Python egg.
+          Upload a plugin packaged as Python egg.
 
-            # endtrans
-          </py:otherwise>
+          #   endtrans
+          # endif
         </p>
       </fieldset>
     </form>
 
-    <form py:for="idx, plugin in enumerate(plugins)" id="edit-plugin-${plugin.name.lower()}" method="post" action="">
+    <form id="edit-plugin-${plugin.name.lower()}" method="post" action="">
+      # for plugin in plugins:
       <div class="plugin" id="trac-plugin-${plugin.name}">
         <h3 class="foldable">${plugin.name} ${plugin.version}</h3>
         <!--! FIXME: Plugin uninstall disabled as it is unreliable (#3545)
@@ -117,34 +117,36 @@
           <input type="submit" name="uninstall" value="${_('Uninstall')}"
                  disabled="${plugin.readonly or None}" />
         </div> -->
-        <py:if test="plugin.info">
-          <p class="summary">${plugin.info.get('summary')}</p>
-          <dl py:if="'home_page' in plugin.info or
-                     'author' in plugin.info or
-                     'author_email' in plugin.info"
-              class="info">
-            <py:if test="'author' in plugin.info or 'author_email' in plugin.info">
-              <dt>${_("Author:")}</dt>
-              <dd>
-                <a py:strip="not plugin.info.get('author_email')"
-                   href="mailto:${plugin.info.author_email}">
-                  ${plugin.info.author or plugin.info.author_email}
-                </a>
-              </dd>
-            </py:if>
-            <py:if test="plugin.info.get('home_page')">
-              <dt>${_("Home page:")}</dt>
-              <dd>
-                <a onclick="window.open(this.href); return false"
-                   href="${plugin.info.home_page}">${plugin.info.home_page}</a>
-              </dd>
-            </py:if>
-            <py:if test="plugin.info.get('license')">
-              <dt>${_("License:")}</dt>
-              <dd>${plugin.info.license}</dd>
-            </py:if>
-          </dl>
-        </py:if>
+        # if plugin.info:
+        <p class="summary">${plugin.info.get('summary')}</p>
+        #   if 'home_page' in plugin.info or 'author' in plugin.info or 'author_email' in plugin.info:
+        <dl class="info">
+          #   if 'author' in plugin.info or 'author_email' in plugin.info:
+          <dt>${_("Author:")}</dt>
+          <dd>
+            #   if plugin.info.get('author_email'):
+            <a href="mailto:${plugin.info.author_email}">
+              ${plugin.info.author or plugin.info.author_email}
+            </a>
+            #   else:
+            ${plugin.info.author or plugin.info.author_email}
+            #   endif
+          </dd>
+          #   endif
+          #   if plugin.info.get('home_page'):
+          <dt>${_("Home page:")}</dt>
+          <dd>
+            <a onclick="window.open(this.href); return false"
+               href="${plugin.info.home_page}">${plugin.info.home_page}</a>
+          </dd>
+          #   endif
+          #   if plugin.info.get('license'):
+          <dt>${_("License:")}</dt>
+          <dd>${plugin.info.license}</dd>
+          #   endif
+        </dl>
+        #   endif
+        # endif
         <table class="listing">
           <thead>
             <tr>
@@ -160,53 +162,72 @@
               <th class="sel">${_("Enabled")}</th>
             </tr>
           </thead>
-          <tbody py:for="module_name, module in sorted(plugin.modules.iteritems())">
+          # for module_name, module in plugin.modules|dictsort:
+          <tbody>
             <tr>
-              <td py:with="show_doc = show == plugin.name or show == module_name" id="trac-mod-${module_name}"
+              # set show_doc = show == plugin.name or show == module_name
+              <td id="trac-mod-${module_name}"
                   class="trac-module${' collapsed' if not show_doc and module.description else None}">
                 <p class="trac-heading${' foldable' if module.description else None}">
-                  <py:choose>
-                    <a py:when="module.description" class="trac-name"
-                       href="${href.admin('general', 'plugin', show=module_name if not show_doc else None)
-                               + '#trac-mod-' + module_name}">${module_name}.*</a>
-                    <span py:otherwise="" class="trac-name">${module_name}.*</span>
-                  </py:choose>
-                  <span py:if="module.summary" class="trac-summary"> &mdash; ${module.summary}</span>
+                  # if module.description:
+                  <a class="trac-name"
+                     href="${href.admin('general', 'plugin', show=module_name if not show_doc else None)
+                           + '#trac-mod-' + module_name}">${module_name}.*</a>
+                  # else:
+                  <span class="trac-name">${module_name}.*</span>
+                  # endif
+                  # if module.summary:
+                  <span class="trac-summary"> &mdash; ${module.summary}</span>
+                  # endif
                 </p>
-                <div py:if="module.description" xml:space="preserve">${safe_wiki_to_html(context, module.description)}</div>
+                # if module.description:
+                <div>${safe_wiki_to_html(context, module.description)}</div>
+                # endif
               </td>
               <td class="sel trac-module"></td>
             </tr>
-            <tr py:for="component_name, component in sorted(module.components.iteritems())">
-              <td py:with="show_doc = show == plugin.name or show == component.full_name" id="trac-comp-${component.full_name}"
+            # for component_name, component in module.components|dictsort:
+            <tr>
+              # set show_doc = show == plugin.name or show == component.full_name
+              <td id="trac-comp-${component.full_name}"
                   class="trac-component${' collapsed' if not show_doc else None}">
                 <p class="trac-heading${' foldable' if component.description else None}">
-                  <py:choose>
-                    <a py:when="component.description" class="trac-name"
-                       href="${href.admin('general', 'plugin', show=component.full_name if not show_doc else None)
-                               + '#trac-comp-' + component.full_name}">${component_name}</a>
-                    <span py:otherwise="" class="trac-name">${component_name}</span>
-                  </py:choose>
-                  <span py:if="component.summary" class="trac-summary"> &mdash; ${component.summary}</span>
+                  # if component.description:
+                  <a class="trac-name"
+                     href="${href.admin('general', 'plugin', show=component.full_name if not show_doc else None)
+                           + '#trac-comp-' + component.full_name}">${component_name}</a>
+                  # else:
+                  <span class="trac-name">${component_name}</span>
+                  # endif
+                  # if component.summary:
+                  <span class="trac-summary"> &mdash; ${component.summary}</span>
+                  # endif
                 </p>
-                <div py:if="component.description" xml:space="preserve">${safe_wiki_to_html(context, component.description)}</div>
+                # if component.description:
+                <div>${safe_wiki_to_html(context, component.description)}</div>
+                # endif
               </td>
               <td class="sel trac-component">
-                <input py:if="not component.required" type="hidden" name="component"
+                # if not component.required:
+                <input type="hidden" name="component"
                        value="${module_name}.${component_name}" />
+                # endif
                 <input type="checkbox" name="enable"
                        value="${module_name}.${component_name}"
                        checked="${component.enabled or None}"
                        disabled="${component.required or None}" />
               </td>
             </tr>
+            # endfor
           </tbody>
+          # endfor
         </table>
         <div class="buttons">
-          <input type="hidden" name="plugin" value="${idx}" />
+          <input type="hidden" name="plugin" value="${loop.index0}" />
           <input type="submit" name="update" value="${_('Apply changes')}" />
         </div>
       </div>
+      # endfor
     </form>
     # endblock adminpanel
   </body>
