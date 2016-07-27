@@ -126,8 +126,10 @@
             <td><a href="${panel_href(version.name)}">${version.name}</a></td>
             <td>${version.time and format_datetime(version.time)}</td>
             <td class="default">
-              <input type="radio" name="default" value="${version.name}"
-                     checked="${version.name==default or None}" />
+              <input type="radio" name="default"${
+                   {'value': version.name,
+                    'checked': version.name == default
+                   }|htmlattr}/>
             </td>
           </tr>
           # endfor
