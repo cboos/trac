@@ -47,9 +47,12 @@
         # if multiline:
         <br />
         # endif
-        <select size="1" id="trac-type" name="type" disabled="${not editable or None}">
+        <select size="1" id="trac-type" name="type"${
+              {'disabled': not editable}|htmlattr}>
           # for type in types:
-          <option value="${type}" selected="${type == selected or None}">${type or _('(default)')}</option>
+          <option${{'value': type,
+                    'selected': type == selected
+                   }|htmlattr}>${type or _('(default)')}</option>
           # endfor
           # if selected and selected not in types:
           <option selected="selected">${selected}</option>
@@ -69,10 +72,13 @@
         # if multiline:
         <br />
         # endif
-        <select size="1" id="trac-repository" name="alias" disabled="${not editable or None}">
+        <select size="1" id="trac-repository" name="alias"${
+              {'disabled': not editable}|htmlattr}>
           # for reponame, info in sorted_repos:
           #   if 'alias' not in info:
-          <option value="${info.name}" selected="${info.name == selected or None}">${info.name or _('(default)')}</option>
+          <option${{'value': info.name,
+                    'selected': info.name == selected
+                   }|htmlattr}>${info.name or _('(default)')}</option>
           #   endif
           # endfor
           # if selected is not none and selected not in repositories:
@@ -89,7 +95,7 @@
       ${jmacros.form_token_input()}
       <fieldset>
         # with
-        #   set readonly = 'readonly' if not info.editable else None
+        #   set readonly = 'readonly' if not info.editable
         #   if info.editable:
         <legend>${_("Modify Repository:")}</legend>
         #   else:
@@ -106,23 +112,34 @@
         </p>
         # endif
         <div class="field">
-          <label>${_("Name:")}<br/><input type="text" name="name" class="trac-autofocus"
-                                          value="${info.name}" readonly="${readonly}" /></label>
+          <label>${_("Name:")}<br/><input type="text" name="name"
+                                          class="trac-autofocus"${
+                                        {'value': info.name,
+                                         'readonly': readonly
+                                        }|htmlattr}/></label>
         </div>
         # if 'alias' in info:
-        ${alias_field(info.editable, True, info.alias)}
+        ${alias_field(info.editable, true, info.alias)}
         # else:
-        ${type_field(info.editable, True, info.type)}
+        ${type_field(info.editable, true, info.type)}
         <div class="field">
-          <label>${_("Directory:")}<br/><input type="text" name="dir" size="48" value="${info.dir}" readonly="${readonly}"/></label>
+          <label>${_("Directory:")}<br/><input type="text" name="dir" size="48"${
+                                        {'value': info.dir,
+                                         'readonly': readonly
+                                        }|htmlattr}/></label>
         </div>
         <div class="field">
-          <label>${_("URL:")}<br/><input type="text" name="url" size="48" value="${info.url}" readonly="${readonly}"/></label>
+          <label>${_("URL:")}<br/><input type="text" name="url" size="48"${
+                                        {'value': info.url,
+                                         'readonly': readonly
+                                        }|htmlattr}/></label>
         </div>
         # endif
         <div class="field">
-          <label><input type="checkbox" name="sync_per_request" value="1" checked="${info.sync_per_request or None}"
-                        disabled="${not info.editable or None}" />
+          <label><input type="checkbox" name="sync_per_request" value="1"${
+                      {'checked': info.sync_per_request,
+                       'disabled': not info.editable
+                      }|htmlattr}/>
             ${_("Sync on every request")}
           </label>
           <span class="hint">
@@ -137,8 +154,10 @@
           </span>
         </div>
         <div class="field">
-          <label><input type="checkbox" name="hidden" value="1" checked="${info.hidden or None}"
-                        disabled="${not info.editable or None}"/>
+          <label><input type="checkbox" name="hidden" value="1"${
+                      {'checked': info.hidden,
+                       'disabled': not info.editable
+                      }|htmlattr}/>
             ${_("Hide from repository index")}
           </label>
         </div>
@@ -154,7 +173,9 @@
             # endtrans
           </label>
           <textarea id="description" name="description" class="wikitext trac-fullwidth trac-resizable"
-                    rows="8" cols="78" readonly="${readonly}">${info.description}</textarea>
+                    rows="8" cols="78"${
+                  {'readonly': readonly
+                  }|htmlattr}>${info.description}</textarea>
         </div>
         # endwith
       </fieldset>
@@ -174,7 +195,7 @@
         <div class="field">
           <label>${_("Name:")} <input type="text" name="name"/></label>
         </div>
-        ${type_field(True)}
+        ${type_field(true)}
         <div class="field">
           <label>${_("Directory:")} <input type="text" name="dir"/></label>
         </div>
@@ -184,7 +205,7 @@
       </fieldset>
     </form>
 
-    #     if any('alias' not in info for info in repositories.itervalues()):
+    #     if can_add_alias:
     <form class="addnew" id="trac-addalias" method="post" action="">
       ${jmacros.form_token_input()}
       <fieldset>
@@ -192,7 +213,7 @@
         <div class="field">
           <label>${_("Name:")} <input type="text" name="name"/></label>
         </div>
-        ${alias_field(True)}
+        ${alias_field(true)}
         <div class="buttons">
           <input type="submit" name="add_alias" class="trac-disable-on-submit" value="${_('Add')}"/>
         </div>
@@ -221,7 +242,7 @@
             <td class="name">
               <a href="${panel_href(info.name or '(default)')}">${info.name or _('(default)')}</a>
             </td>
-            <td>${(info.type or _('(default)')) if 'alias' not in info else None}</td>
+            <td>${(info.type or _('(default)')) if 'alias' not in info}</td>
             <td>
               # if 'alias' in info:
               <em>
@@ -241,7 +262,7 @@
             # endif
             <td>
               # if info.rev:
-              <a href="${href.changeset(info.rev, reponame) or None}">[${info.display_rev}]</a>
+              <a href="${href.changeset(info.rev, reponame)}">[${info.display_rev}]</a>
               # endif
             </td>
           </tr>
