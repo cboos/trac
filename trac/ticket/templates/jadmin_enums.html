@@ -85,13 +85,15 @@ history and logs, available at http://trac.edgewall.org/.
             </td>
             <td><a href="${panel_href(enum.name)}">${enum.name}</a></td>
             <td class="default">
-              <input type="radio" name="default" value="${enum.name}"
-                     checked="${enum.name==default or None}" />
+              <input type="radio" name="default"${
+                   {'value': enum.name,
+                    'checked': enum.name == default
+                   }|htmlattr}/>
             </td>
             <td class="default">
               <select name="value_${enum.value}">
                 # for other in enums:
-                <option selected="${other.value==enum.value or None}">${other.value}</option>
+                <option${{'selected': other.value == enum.value}|htmlattr}>${other.value}</option>
                 # endfor
               </select>
             </td>
