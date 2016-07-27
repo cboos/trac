@@ -41,7 +41,8 @@
         # if owners:
         <select size="1" id="owner" name="owner">
           # for owner in owners:
-          <option selected="${owner == default_owner or None}" value="${owner}">${owner}</option>
+          <option${{'selected': owner == default_owner, 'value': owner
+                   }|htmlattr}>${owner}</option>
           # endfor
           # if default_owner and default_owner not in owners:
           <option selected="selected" value="${default_owner}">${default_owner}</option>
@@ -85,6 +86,7 @@
     </form>
     #   else:
     <form class="addnew" id="addcomponent" method="post" action="">
+      ${jmacros.form_token_input()}
       <fieldset>
         <legend>${_("Add Component:")}</legend>
         <div class="field">
@@ -99,6 +101,7 @@
 
     #     if components:
     <form  id="component_table" method="post" action="">
+      ${jmacros.form_token_input()}
       <table class="listing" id="complist">
         <thead>
           <tr><th class="sel"></th>
@@ -117,8 +120,10 @@
             </td>
             <td class="owner">${comp.owner}</td>
             <td class="default">
-              <input type="radio" name="default" value="${comp.name}"
-                     checked="${comp.name == default or None}" />
+              <input type="radio" name="default"${
+                   {'value': comp.name,
+                    'checked': comp.name == default
+                   }|htmlattr}/>
             </td>
           </tr>
           # endfor
