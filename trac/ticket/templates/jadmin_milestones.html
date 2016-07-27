@@ -28,6 +28,10 @@
 
   <body>
     # block adminpanel
+    #  set perm = req.perm('admin', 'ticket/milestones')
+    #  set can_create = 'MILESTONE_CREATE' in perm
+    #  set can_modify = 'MILESTONE_MODIFY' in perm
+    #  set can_remove = 'MILESTONE_DELETE' in perm
     <h2>
       # set nb_milestones
       #   if view == 'list':
@@ -107,12 +111,16 @@
               # endif
             </td>
             <td class="default">
-              <input type="radio" name="ticket_default" value="${milestone.name}"
-                     checked="${milestone.name==ticket_default or None}" />
+              <input type="radio" name="ticket_default"${
+                   {'value': milestone.name,
+                    'checked': milestone.name == ticket_default
+                   }|htmlattr}/>
             </td>
             <td class="default">
-              <input type="radio" name="retarget_default" value="${milestone.name}"
-                     checked="${milestone.name==retarget_default or None}" />
+              <input type="radio" name="retarget_default"${
+                   {'value': milestone.name,
+                    'checked': milestone.name == retarget_default
+                    }|htmlattr}/>
             </td>
             # set ticket_count = milestone.get_num_tickets()
             <td class="num">
