@@ -39,6 +39,7 @@
 
     <py:choose test="view">
       <form py:when="'detail'" id="edit" class="mod" method="post" action="">
+        ${jmacros.form_token_input()}
         <fieldset>
           <legend>${_("Modify Version:")}</legend>
           <div class="field">
@@ -80,6 +81,7 @@
 
       <py:otherwise>
         <form class="addnew" id="addversion" method="post" action="">
+          ${jmacros.form_token_input()}
           <fieldset>
             <legend>${_("Add Version:")}</legend>
             <div class="field">
@@ -105,6 +107,7 @@
 
         <py:choose>
           <form py:when="versions" id="version_table" method="post" action="">
+            ${jmacros.form_token_input()}
             <table class="listing" id="verlist">
               <thead>
                 <tr><th class="sel"></th>

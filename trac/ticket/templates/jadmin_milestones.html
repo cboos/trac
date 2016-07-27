@@ -43,6 +43,7 @@
 
       <py:otherwise>
         <form class="addnew" id="addmilestone" method="post" action="" py:if="can_create">
+          ${jmacros.form_token_input()}
           <fieldset>
             <legend>${_("Add Milestone:")}</legend>
             <div class="field">
@@ -67,6 +68,7 @@
 
         <py:choose>
           <form id="milestone_table" method="post" action="" py:when="milestones">
+            ${jmacros.form_token_input()}
             <table class="listing" id="millist">
               <thead>
                 <tr><th class="sel" py:if="can_remove"></th>

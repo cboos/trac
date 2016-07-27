@@ -66,6 +66,7 @@
     <py:choose test="view">
       <form py:when="'detail'" py:with="info = repositories[reponame]"
             id="edit" class="mod" method="post" action="">
+        ${jmacros.form_token_input()}
         <fieldset py:choose="" py:with="disabled = 'disabled' if not info.editable else None;
                                         readonly = 'readonly' if not info.editable else None">
           <legend py:when="info.editable">${_("Modify Repository:")}</legend>
@@ -141,6 +142,7 @@
 
       <py:otherwise>
         <form class="addnew" id="trac-addrepos" method="post" action="">
+          ${jmacros.form_token_input()}
           <fieldset>
             <legend>${_("Add Repository:")}</legend>
             <div class="field">
@@ -158,6 +160,7 @@
 
         <form py:if="any('alias' not in info for info in repositories.itervalues())"
               class="addnew" id="trac-addalias" method="post" action="">
+          ${jmacros.form_token_input()}
           <fieldset>
             <legend>${_("Add Alias:")}</legend>
             <div class="field">
@@ -171,6 +174,7 @@
         </form>
 
         <form py:if="sorted_repos" id="trac-repository_table" method="post" action="">
+          ${jmacros.form_token_input()}
           <table class="listing" id="trac-reposlist">
             <thead>
               <tr><th class="sel"></th>
