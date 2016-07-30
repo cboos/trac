@@ -138,7 +138,7 @@
                 <input type="checkbox" name="sel"
                        class="trac-disable-determinant"
                        title="${_('You don\'t have permission to revoke this action')
-                                if not has_perm and not invalid else None}"
+                                if not has_perm and not invalid}"
                        value="${'%s:%s' % (unicode_to_base64(subject),
                                            unicode_to_base64(action))}"
                        ${{'disabled': not has_perm and not invalid}|htmlattr} />

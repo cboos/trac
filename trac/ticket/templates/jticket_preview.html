@@ -15,7 +15,7 @@
 #  set can_append = 'TICKET_APPEND' in perm(ticket.resource)
 #  set has_edit_comment = 'TICKET_EDIT_COMMENT' in perm(ticket.resource)
 #  with
-#    set chrome_info_script = None
+#    set chrome_info_script = none
 #    include "jticket_box.html"
 #  endwith
 <div id="changelog">
@@ -28,7 +28,7 @@
                   change.cnum, to_utimestamp(change.date)) if 'cnum' in change
         }|htmlattr}>
     # with
-    #   set edited_comment = None
+    #   set edited_comment = none
     #   set cnum_edit = 0
     #   include "jticket_change.html"
     # endwith
