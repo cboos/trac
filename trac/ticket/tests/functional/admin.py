@@ -36,14 +36,14 @@ class AdminEnumDefaultTestCaseSetup(FunctionalTwillTestCaseSetup):
         tc.formvalue('enumtable', 'default', name)
         tc.submit('apply')
         tc.url(url + '$')
-        tc.find('radio.*"%s"\\schecked="checked"' % name)
+        tc.find('radio.*checked="checked" value="%s"' % name)
         # Test the "Clear default" button
         tc.go(url)
         tc.submit('clear', formname='enumtable')
         tc.url(url + '$')
         tc.notfind(internal_error)
-        tc.find('<input type="radio" name="default" value="[^>]+" />')
-        tc.notfind('type="radio" name="default" value=".+" checked="checked"')
+        tc.find('<input type="radio" name="default" value="[^>]+"/>')
+        tc.notfind('type="radio" name="default" checked="checked" value=".+"')
 
 
 class TestAdminComponent(FunctionalTwillTestCaseSetup):
@@ -103,7 +103,7 @@ class TestAdminComponentDefault(FunctionalTwillTestCaseSetup):
         tc.go(component_url)
         tc.formvalue('component_table', 'default', name)
         tc.submit('apply')
-        tc.find('type="radio" name="default" value="%s" checked="checked"' % \
+        tc.find('type="radio" name="default" checked="checked" value="%s"' % \
                 name)
         tc.go(self._tester.url + '/newticket')
         tc.find('<option selected="selected" value="%s">%s</option>'
@@ -112,7 +112,7 @@ class TestAdminComponentDefault(FunctionalTwillTestCaseSetup):
         self._testenv.set_config('ticket', 'allowed_empty_fields', 'component')
         tc.go(component_url)
         tc.submit('clear', formname='component_table')
-        tc.notfind('type="radio" name="default" value=".+" checked="checked"')
+        tc.notfind('type="radio" name="default" checked="checked" value=".+"')
         self._tester.create_ticket()
         tc.find('<th class="missing" id="h_component">\s*Component:\s*</th>'
                 '\s*<td headers="h_component">\s*</td>')
@@ -429,9 +429,9 @@ class TestAdminMilestoneDefaults(FunctionalTwillTestCaseSetup):
             tc.go(milestone_url)
             tc.submit('clear', formname='milestone_table')
             tc.notfind('type="radio" name="ticket_default" '
-                       'value=".+" checked="checked"')
+                       'checked="checked" value=".+"')
             tc.notfind('type="radio" name="retarget_default" '
-                       'value=".+" checked="checked"')
+                       'checked="checked value=".+""')
             self._tester.go_to_ticket(tid)
             tc.find('<th class="missing" id="h_milestone">[ \t\n]+'
                     'Milestone:[ \t\n]+</th>[ \t\n]+'
@@ -451,10 +451,10 @@ class TestAdminMilestoneDefaults(FunctionalTwillTestCaseSetup):
         tc.go(milestone_url)
         tc.formvalue('milestone_table', 'ticket_default', mid1)
         tc.submit('apply')
-        tc.find('type="radio" name="ticket_default" value="%s" '
-                'checked="checked"' % mid1)
-        tc.notfind('type="radio" name="retarget_default" value=".+" '
-                   'checked="checked"')
+        tc.find('type="radio" name="ticket_default"'
+                ' checked="checked" value="%s"' % mid1)
+        tc.notfind('type="radio" name="retarget_default"'
+                   ' checked="checked" value=".+"')
         # verify it is the default on the newticket page.
         tc.go(self._tester.url + '/newticket')
         tc.find('<option selected="selected" value="%s">%s</option>'
@@ -465,10 +465,10 @@ class TestAdminMilestoneDefaults(FunctionalTwillTestCaseSetup):
         tc.go(milestone_url)
         tc.formvalue('milestone_table', 'retarget_default', mid1)
         tc.submit('apply')
-        tc.find('type="radio" name="retarget_default" value="%s" '
-                'checked="checked"' % mid1)
-        tc.notfind('type="radio" name="ticket_default" value=".+" '
-                   'checked="checked"')
+        tc.find('type="radio" name="retarget_default"'
+                ' checked="checked" value="%s"' % mid1)
+        tc.notfind('type="radio" name="ticket_default"'
+                   ' checked="checked" value=".+"')
         # verify it is the default on the confirm delete page.
         self._tester.go_to_milestone(mid2)
         tc.submit(formname='deletemilestone')
@@ -481,10 +481,10 @@ class TestAdminMilestoneDefaults(FunctionalTwillTestCaseSetup):
         tc.formvalue('milestone_table', 'ticket_default', mid1)
         tc.formvalue('milestone_table', 'retarget_default', mid1)
         tc.submit('apply')
-        tc.find('type="radio" name="ticket_default" value="%s" '
-                'checked="checked"' % mid1)
-        tc.find('type="radio" name="retarget_default" value="%s" '
-                'checked="checked"' % mid1)
+        tc.find('type="radio" name="ticket_default"'
+                ' checked="checked" value="%s"' % mid1)
+        tc.find('type="radio" name="retarget_default"'
+                ' checked="checked" value="%s"' % mid1)
         # verify it is the default on the newticket page.
         tc.go(self._tester.url + '/newticket')
         tc.find('<option selected="selected" value="%s">%s</option>'
@@ -499,10 +499,10 @@ class TestAdminMilestoneDefaults(FunctionalTwillTestCaseSetup):
         #Set neither
         tc.go(milestone_url)
         tc.submit('apply', formname='milestone_table')
-        tc.notfind('type="radio" name="retarget_default" value=".+" '
-                   'checked="checked"')
-        tc.notfind('type="radio" name="ticket_default" value=".+" '
-                   'checked="checked"')
+        tc.notfind('type="radio" name="retarget_default"'
+                   ' checked="checked" value=".+"')
+        tc.notfind('type="radio" name="ticket_default"'
+                   ' checked="checked" value=".+"')
         # verify no default on the newticket page.
         tc.go(self._tester.url + '/newticket')
         tc.find('<th class="missing" id="h_milestone">[ \t\n]+'
@@ -897,7 +897,7 @@ class TestAdminVersionDefault(FunctionalTwillTestCaseSetup):
         tc.go(version_url)
         tc.formvalue('version_table', 'default', name)
         tc.submit('apply')
-        tc.find('type="radio" name="default" value="%s" checked="checked"' % \
+        tc.find('type="radio" name="default" checked="checked" value="%s"' % \
                 name)
         # verify it is the default on the newticket page.
         tc.go(self._tester.url + '/newticket')
@@ -906,7 +906,7 @@ class TestAdminVersionDefault(FunctionalTwillTestCaseSetup):
         # Test the "Clear default" button
         tc.go(version_url)
         tc.submit('clear', formname='version_table')
-        tc.notfind('type="radio" name="default" value=".+" checked="checked"')
+        tc.notfind('type="radio" name="default" checked="checked" value=".+"')
         self._tester.create_ticket()
         tc.find('<th class="missing" id="h_version">[ \t\n]+'
                 'Version:[ \t\n]+</th>[ \t\n]+'

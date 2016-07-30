@@ -112,7 +112,7 @@
         </p>
         # endif
         <div class="field">
-          <label>${_("Name:")}<br/><input type="text" name="name"
+          <label>${_("Name:")}<br /><input type="text" name="name"
                                           class="trac-autofocus"${
                                         {'value': info.name,
                                          'readonly': readonly
@@ -123,13 +123,13 @@
         # else:
         ${type_field(info.editable, true, info.type)}
         <div class="field">
-          <label>${_("Directory:")}<br/><input type="text" name="dir" size="48"${
+          <label>${_("Directory:")}<br /><input type="text" name="dir" size="48"${
                                         {'value': info.dir,
                                          'readonly': readonly
                                         }|htmlattr}/></label>
         </div>
         <div class="field">
-          <label>${_("URL:")}<br/><input type="text" name="url" size="48"${
+          <label>${_("URL:")}<br /><input type="text" name="url" size="48"${
                                         {'value': info.url,
                                          'readonly': readonly
                                         }|htmlattr}/></label>
