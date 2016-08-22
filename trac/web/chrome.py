@@ -1175,7 +1175,7 @@ class Chrome(Component):
         jtemplate, jdata = self.prepare_template(filename, data, req)
 
         # Hack for supporting Genshi stream filters (remove for Trac 1.4)
-        if self._check_for_stream_filters(req, method, filename, jdata):
+        if genshi and self._check_for_stream_filters(req, method, filename, jdata):
             page = self.render_template_as_string(jtemplate, jdata, method)
             return self._filter_jinja_page(req, page, method, filename,
                                            content_type, jdata,
