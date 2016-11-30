@@ -9,6 +9,7 @@ div.code {
 div.code pre {
  margin: 0;
  overflow: auto;
+ border-radius: .3em;
 }
 
 table.code {
