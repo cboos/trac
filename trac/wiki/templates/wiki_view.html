@@ -38,15 +38,38 @@
           title="${_("Revert page to this version") if is_not_latest else
                    _("Edit this page")}"/>
     #   endif
-    <script type="text/javascript">
-      jQuery(document).ready(function($) {
-        $("#content").find("h1,h2,h3,h4,h5,h6")
-          .addAnchor(_("Link to this section"));
-        $("#content").find(".wikianchor").each(function() {
-        $(this).addAnchor(babel.format(j_("Link to #%(id)s"), {id: this.id}));
-        });
-        $(".foldable").enableFolding(true, true);
-      });
+    <script type="text/javascript">/*<![CDATA[*/
+       jQuery(document).ready(function($) {
+         $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+         $("#content").find(".wikianchor").each(function() {
+           $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+         });
+         $(".foldable").enableFolding(true, true);
+        // auto-centering of top-level elements larger than #wikipage max-width
+        var $$wikipage = $("#wikipage");
+        var window_width = $(window).width();
+        var large_elements = [];
+        var excesses = [];
+        var detectLargeElement = function() {
+            var excess = $(this).width() - $$wikipage.width();
+            if (excess > 0) {
+              large_elements.push(this);
+              excesses.push(excess);
+            }
+        };
+        $("#wikipage > table").each(detectLargeElement);
+        $("#wikipage > img").each(detectLargeElement);
+        $("#wikipage > div").each(detectLargeElement);
+        var centerLargeElements = function() {
+          var wikipage_left = $$wikipage.offset().left;
+          for (var i = 0; i < large_elements.length; i++) {
+            var negative_margin = -Math.min(excesses[i] / 2, wikipage_left);
+            $(large_elements[i]).css('margin-left', negative_margin);
+          }
+        };
+        $(window).resize(centerLargeElements);
+        centerLargeElements();
+      });/*]]>*/
     </script>
     # endblock head
   </head>

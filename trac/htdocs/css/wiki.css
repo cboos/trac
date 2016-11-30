@@ -1,27 +1,57 @@
 @import url(code.css);
 
 #info { margin: 0 0 1em 0 }
-#wikipage { clear: both }
-
-.wikipage h2 {
- border-bottom: 1px solid #ddd;
- box-shadow: .1em .4em .7em 0 #f2f2f2;
- padding: 0.2em .3em .1em;
+#wikipage {
+ clear: both;
+ max-width:  56em; /* 104ch; */ /* 56em 60em */
 }
-@media print { .wikipage h2 { box-shadow: none } }
+.wikipage h1 {
+ font-size: 20pt;
+ color: #c20000;
+}
+.wikipage > h2, .wikipage > div > h2 {
+ font-size: 15pt;
+ color: #b00;
+ margin-top: 1.4em;
+ padding: 0.2em .3em .1em 0;
+ border-bottom: 2pt solid #b00;
+ box-shadow: .2em .3em .5em 0 #f6f6f6;
+}
+@media print {
+ #wikipage { max-width: none }
+ .wikipage > h2, .wikipage > div > h2 { box-shadow: none }
+ .wikipage > h3, .wikipage > div > h3 { box-shadow: none }
+}
 
-.wikipage h3 {
- border-bottom: 1px dashed #ddd;
- padding: 0.2em .3em .1em;
+.wikipage > h3, .wikipage > div > h3 {
+ font-size: 13pt;
+ margin-top: 1.4em;
+ margin-bottom: 1em;
+ padding: .2em .3em .15em .1em;
+ border-bottom: 1px dotted #777;
+ box-shadow: .2em .3em .5em 0 #f6f6f6;
+}
+.wikipage h4 {
+ font-size: 12pt;
+ margin-top: 1.4em;
+ margin-bottom: 1em;
+}
+.wikipage h5 {
+ font-size: 11pt;
+ margin-top: 1.6em;
+ margin-bottom: 1em;
 }
 .wikipage .trac-content {
- margin-left: -18px;
- padding-left: 28px;
+ margin: .3em auto;
+ padding-left: 28px; 
+}
+table.wiki {
+ background-color: #fff; /* body_bg */
 }
 
 /* Styles for the path of hierarchical pages */
 #pagepath {
- font-size: 10px; /* same as .nav ul in trac.css */
+ font-size: 9pt; /* slightly bigger as .nav ul in trac.css */
  float: left;
  padding: .4em 0;
 }
@@ -41,7 +71,10 @@
  margin: 0 0 0 1em;
 }
 .sidebyside > h2 { margin: .4em 0 }
-.sidebyside #preview { margin: 0 }
+.sidebyside #preview {
+ margin: 0;
+ padding-left: 28px;
+}
 .sidebyside #text { overflow: hidden }
 
 #edit { margin-top: .5em }
@@ -63,7 +96,7 @@
 #edit + #attachments { margin-top: 1.5em }
 #delete, #rename, #save { margin-left: 3em }
 #preview {
- background: #f8f8f8 url(../draft.png);
+ background: #fbfbfb url(../draft.png);
  margin: 1em 0 2em;
  overflow: auto;
 }
