@@ -24,22 +24,35 @@
 }
 
 .wikipage > h3, .wikipage > div > h3 {
- font-size: 13pt;
+ font-size: 14pt;
+ font-weight: normal;
+ color: #b00;
  margin-top: 1.4em;
  margin-bottom: 1em;
  padding: .2em .3em .15em .1em;
- border-bottom: 1px dotted #777;
+ border-bottom: 1px solid #b00;
  box-shadow: .2em .3em .5em 0 #f6f6f6;
 }
 .wikipage h4 {
  font-size: 12pt;
+ color: #b00;
  margin-top: 1.4em;
  margin-bottom: 1em;
 }
 .wikipage h5 {
+ font-size: 12pt;
+ font-style: italic;
+ color: #b00;
+ margin-top: 1.4em;
+ margin-bottom: .9em;
+}
+.wikipage h6 {
  font-size: 11pt;
- margin-top: 1.6em;
- margin-bottom: 1em;
+ font-style: italic;
+ font-weight: normal;
+ color: #b00;
+ margin-top: 1.4em;
+ margin-bottom: .8em;
 }
 .wikipage .trac-content {
  margin: .3em auto;
