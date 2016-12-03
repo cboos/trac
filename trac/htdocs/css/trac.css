@@ -98,7 +98,7 @@ input[type=button], input[type=submit], input[type=reset], .trac-button {
  border: 1px solid #bbb;
  border-radius: .3em;
  box-shadow: .1em .1em .1em 0 #ccc;
- padding: .2em .5em .4em;
+ padding: .25em .5em .35em; /* Chrome (.3em .5em) vs. FF (.2em .5em .4em) */
  font-size: 10pt;
  text-shadow: .04em .04em #ddd;
  cursor: pointer;
