@@ -13,9 +13,9 @@
  font-size: 15pt;
  color: #b00;
  margin-top: 1.4em;
- padding: 0.2em .3em .1em 0;
- border-bottom: 2pt solid #b00;
- box-shadow: .2em .3em .5em 0 #f6f6f6;
+ padding: 0.2em .3em .1em 0; /* wiki_h2_padding */
+ border-bottom: 2pt solid #b00; /* wiki_h2_bottom */
+ box-shadow: .2em .3em .5em 0 #f6f6f6; /* wiki_h2_box_shadow */
 }
 @media print {
  #wikipage { max-width: none }
@@ -29,9 +29,9 @@
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: 1em;
- padding: .2em .3em .15em .1em;
- border-bottom: 1px solid #b00;
- box-shadow: .2em .3em .5em 0 #f6f6f6;
+ padding: .2em .3em .1em .1em; /* wiki_h3_padding */
+ border-bottom: 1px solid #b00;  /* wiki_h3_bottom */
+ box-shadow: .2em .3em .5em 0 #f6f6f6; /* wiki_h3_box_shadow */
 }
 .wikipage h4 {
  font-size: 12pt;
@@ -59,7 +59,7 @@
  padding-left: 28px; 
 }
 table.wiki {
- background-color: #fff; /* body_bg */
+ background-color: inherit;
 }
 
 /* Styles for the path of hierarchical pages */
@@ -128,7 +128,9 @@ table.wiki {
  margin: 0 0 2em 1em;
  float: right;
  clear: right;
- border: 1px outset #ddc;
+ border: 1px solid #ddc;
+ border-radius: .4em; /* main_border_radius */
+ box-shadow: .1em .3em .5em 0 #d4d4d4; /* aside_box_shadow */
  background: #ffd;
  font-size: 85%;
  position: relative;
