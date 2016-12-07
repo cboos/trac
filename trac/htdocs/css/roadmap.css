@@ -3,7 +3,7 @@ table.progress {
  border: 1px solid #d7d7d7;
  border-collapse: collapse;
  border-spacing: 0;
- box-shadow: .1em .3em .5em #d4d4d4; /* aside_box_shadow */
+ box-shadow: .3em .3em .4em #f2f2f2; /* main_box_shadow */
  float: left;
  margin: 0;
  padding: 0;
