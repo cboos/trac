@@ -67,6 +67,8 @@
 .diff li.entry {
  background: #f7f7f7;
  border: 1px solid #d7d7d7;
+ border-radius: .3em; /* content_border_radius */
+ box-shadow: 0 .1em .3em 0 #eee; /* content_box_shadow */
  list-style-type: none;
  margin: 0 0 2em;
  padding: 2px;

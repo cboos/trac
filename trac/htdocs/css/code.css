@@ -1,14 +1,15 @@
 div.code {
  background: #f7f7f7;
  border: 1px solid #d7d7d7;
- border-radius: .3em;
- padding: .25em;
- overflow: auto
+ overflow: auto;
+ border-radius: .3em; /* content_border_radius */
+ box-shadow: 0 .1em .3em 0 #eee; /* content_box_shadow */
 }
 
 div.code pre {
  margin: 0;
  overflow: auto;
+ padding: .25em;
  border-radius: .3em;
 }
 
