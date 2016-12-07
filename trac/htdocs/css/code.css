@@ -3,7 +3,7 @@ div.code {
  border: 1px solid #d7d7d7;
  overflow: auto;
  border-radius: .3em; /* content_border_radius */
- box-shadow: 0 .1em .3em 0 #eee; /* content_box_shadow */
+ box-shadow: .1em .1em .3em 0 #eee; /* content_box_shadow */
 }
 
 div.code pre {
@@ -11,6 +11,11 @@ div.code pre {
  overflow: auto;
  padding: .25em;
  border-radius: .3em;
+}
+
+@media print {
+ div.code { box-shadow: none }
+ div.code pre { white-space: pre-wrap }
 }
 
 table.code {

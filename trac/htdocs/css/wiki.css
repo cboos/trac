@@ -9,7 +9,7 @@
  font-size: 20pt;
  color: #c20000;
 }
-.wikipage > h2, .wikipage > div > h2 {
+.wikipage > .trac-content > h2 {
  font-size: 15pt;
  color: #b00;
  margin-top: 1.4em;
@@ -17,13 +17,7 @@
  border-bottom: 2pt solid #b00; /* wiki_h2_bottom */
  box-shadow: .2em .3em .5em 0 #f6f6f6; /* wiki_h2_box_shadow */
 }
-@media print {
- #wikipage { max-width: none }
- .wikipage > h2, .wikipage > div > h2 { box-shadow: none }
- .wikipage > h3, .wikipage > div > h3 { box-shadow: none }
-}
-
-.wikipage > h3, .wikipage > div > h3 {
+.wikipage > .trac-content > h3 {
  font-size: 14pt;
  font-weight: normal;
  color: #b00;
@@ -33,6 +27,13 @@
  border-bottom: 1px solid #b00;  /* wiki_h3_bottom */
  box-shadow: .2em .3em .5em 0 #f6f6f6; /* wiki_h3_box_shadow */
 }
+
+@media print {
+ #wikipage { max-width: none }
+ .wikipage > .trac-content > h2 { box-shadow: none }
+ .wikipage > .trac-content > h3 { box-shadow: none }
+}
+
 .wikipage h4 {
  font-size: 12pt;
  color: #b00;
@@ -141,6 +142,8 @@ table.wiki {
 .wiki-toc li { margin: 0; padding: 0 }
 .wiki-toc .active { background: #ff9; position: relative; }
 .wiki-toc-un ul, .wiki-toc-un ol { list-style: none; }
+.wiki-toc ol li { font-weight: normal }
+.wiki-toc > ol > li { font-weight: bold }
 
 div.trac-modifiedby {
  margin: .3em .5em;
