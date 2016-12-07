@@ -58,7 +58,12 @@
             }
         };
         $("#wikipage > table").each(detectLargeElement);
-        $("#wikipage > img").each(detectLargeElement);
+        $("#wikipage > p > a > img").one("load", detectLargeElement).each(
+          function() {
+            if (this.complete)
+              detectLargeElement(this);
+          }
+        );
         $("#wikipage > div").each(detectLargeElement);
         var centerLargeElements = function() {
           var wikipage_left = $$wikipage.offset().left;
