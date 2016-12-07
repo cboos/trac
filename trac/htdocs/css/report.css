@@ -1,5 +1,10 @@
 @import url(code.css);
 
+.report.edit {
+ max-width: 56em;
+ margin: 0 auto;
+}
+
 /* Report listing */
 .report #trac-sort-order {
  float: right;
@@ -27,13 +32,12 @@
 
 .report div.reports h2 {
  /* taken from .wikipage h2 */
- border-bottom: 1px solid #ddd;
- box-shadow: .1em .4em .7em 0 #f2f2f2;
- padding: 0.2em .3em .1em;
+ padding: 0.2em .3em .1em 0; /* wiki_h2_padding */
+ border-bottom: 2pt solid #b00; /* wiki_h2_bottom */
+ box-shadow: .2em .3em .5em 0 #f6f6f6; /* wiki_h2_box_shadow */
 }
 .report div.reports h3 {
  /* taken from .wikipage h3 */
- border-bottom: 1px dashed #ddd;
 }
 .report div.reports h3 :link, .report div.reports h3 :visited {
  color: #000;

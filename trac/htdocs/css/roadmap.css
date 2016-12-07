@@ -3,7 +3,7 @@ table.progress {
  border: 1px solid #d7d7d7;
  border-collapse: collapse;
  border-spacing: 0;
- box-shadow: 0 0 1em #eee; /* from pre.wiki */
+ box-shadow: .1em .3em .5em #d4d4d4; /* aside_box_shadow */
  float: left;
  margin: 0;
  padding: 0;
@@ -36,8 +36,8 @@ p.percent {
  background: #f7f7f7;
  border-bottom: 1px solid #d7d7d7;
  margin: .5em 0;
- box-shadow: 1px 1px .5em 0 #ccc;
- border-radius: .1em;
+ box-shadow: .2em .3em .5em 0 #f6f6f6; /* wiki_h2_box_shadow */
+ border-radius: .2em; /* sep_border_radius */
 }
 .milestone .info h2 :link, .milestone .info h2 :visited {
  color: #000;
