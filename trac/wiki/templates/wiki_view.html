@@ -33,13 +33,13 @@
           $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
         });
         $(".foldable").enableFolding(true, true);
-        // auto-centering of top-level elements larger than #wikipage max-width
+        // auto-centering of top-level elements larger than #wikipage's max-width
         var $$wikipage = $("#wikipage");
-        var window_width = $(window).width();
+        var wpw = $$wikipage.width() - parseInt($$wikipage.css('padding-left'));
         var large_elements = [];
         var excesses = [];
         var detectLargeElement = function() {
-            var excess = $(this).width() - $$wikipage.width();
+            var excess = $(this).width() - wpw;
             if (excess > 0) {
               large_elements.push(this);
               excesses.push(excess);
