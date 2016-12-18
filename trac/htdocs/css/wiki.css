@@ -55,7 +55,7 @@
  margin-top: 1.4em;
  margin-bottom: .8em;
 }
-.wikipage .trac-content {
+.wikipage .trac-content, .wikipage .wikipage { /* not perfect... should also work for tickets! */
  margin: .3em auto;
  padding-left: 28px; 
 }
