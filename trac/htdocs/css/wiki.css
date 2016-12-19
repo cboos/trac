@@ -35,14 +35,15 @@
 }
 
 .wikipage h4 {
- font-size: 12pt;
+ font-size: 13pt;
+ font-weight: 600;
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: 1em;
 }
 .wikipage h5 {
  font-size: 12pt;
- font-style: italic;
+ font-weight: normal;
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: .9em;
