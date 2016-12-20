@@ -79,6 +79,7 @@ table.wiki {
 .create #modifypage input { margin: 2px /* trac.css' input {} */ }
 
 /* Styles for the page editing form */
+.wikipage h2.editor { margin-left: 0 }
 .preview-right {
  float: right;
  width: 50%;
