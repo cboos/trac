@@ -26,7 +26,7 @@
   margin: 0 -3px; padding: 1px 0 1px 10px;
 }
 #tabs li li.active {
- background: linear-gradient(to bottom,#dbdbdb 0%,#eee 30%, #f6f6f6 100%); /* select_gradient_darker */
+ background: linear-gradient(to top,#dbdbdb 0%,#eee 30%, #f6f6f6 100%); /* select_gradient_darker */
  border: 1px solid #aaa;
  border-color: #d4d4d4 #bbb #bbb #d4d4d4;
  border-radius: .2em; /* content_border_radius */
