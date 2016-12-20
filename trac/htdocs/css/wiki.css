@@ -19,7 +19,7 @@
 }
 .wikipage > .trac-content > h3 {
  font-size: 14pt;
- font-weight: normal;
+ font-weight: 600;
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: 1em;
@@ -36,7 +36,7 @@
 
 .wikipage h4 {
  font-size: 13pt;
- font-weight: 600;
+ font-weight: 500;
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: 1em;
