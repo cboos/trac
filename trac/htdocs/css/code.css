@@ -33,7 +33,7 @@ table.code {
 }
 table.code th {
  border-right: 1px solid #d7d7d7;
- border-bottom: 1px solid #998;
+ border-bottom: 1px solid #d7d7d7;
  font-size: 11px;
 }
 table.code th.lineno { width: 4em }
@@ -76,7 +76,7 @@ table.code tbody tr:hover td {
  background: #eed;
 }
 table.code td {
- font: normal 11px monospace;
+ font: normal 10pt Open Sans Mono,Consolas,Lucida Console,monospace; /* code_monospace */
  overflow: hidden;
  padding: 1px 2px;
  vertical-align: top;
@@ -91,5 +91,5 @@ table.code tr.hilite td {
 .image-file { background: #eee; padding: .3em }
 .image-file img { background: url(../imggrid.png) }
 
-/* Default */
-.code-block span { font-family: monospace; }
+/* Default XXX is that used anywhere? */
+.code-block span { font-family: Open Sans Mono,Consolas,Lucida Console,monospace } /* code_monospace */
