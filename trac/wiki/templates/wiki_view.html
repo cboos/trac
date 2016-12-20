@@ -45,8 +45,28 @@
           $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
         });
         $(".foldable").enableFolding(true, true);
-        // auto-centering of top-level elements larger than #wikipage's max-width
+        // provide expand/collapse button for central wiki column
         var $$wikipage = $("#wikipage");
+        $("<span>↔</span>").on("click", function () {
+            var mw = $(this).parent().css("max-width");
+            var recenter = false;
+            if (mw == "none") {
+              mw = "53em";
+              text = "↔";
+              recenter = true;
+            } else {
+              mw = "none";
+              text = "↹";
+            }
+            $(this).text(text);
+            $(this).parent().css("max-width", mw); 
+            if (recenter)
+              centerLargeElements();
+          }
+        )
+          .css({"float": "right", "margin-top": "-8px", "margin-top": "-8px"})
+          .prependTo($$wikipage);
+        // and auto-centering of top-level elements larger than #wikipage's max-width
         var wpw = $$wikipage.width() - parseInt($$wikipage.css('padding-left'));
         var large_elements = [];
         var excesses = [];
