@@ -565,26 +565,26 @@ RECENTCHANGES_MACRO_TEST_CASES = u""""
 [[RecentChanges(Wiki,1,group=none)]]
 ------------------------------
 <p>
-</p><div><h3>%(date)s</h3><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
+</p><div class="wikipage"><h3>%(date)s</h3><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
 </li><li><a href="/wiki/WikiMid">WikiMid</a>
 </li><li><a href="/wiki/WikiStart">WikiStart</a>
 </li></ul></div><p>
-</p><div><h3>%(date)s</h3><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
+</p><div class="wikipage"><h3>%(date)s</h3><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
 </li><li><a href="/wiki/WikiMid">WikiMid</a>
 </li><li><a href="/wiki/WikiStart">WikiStart</a>
 </li></ul></div><p>
-</p><div><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
+</p><div class="wikipage"><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
 </li><li><a href="/wiki/WikiMid">WikiMid</a>
 </li><li><a href="/wiki/WikiStart">WikiStart</a>
 </li></ul></div><p>
-</p><div><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
+</p><div class="wikipage"><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
 </li><li><a href="/wiki/WikiMid">WikiMid</a>
 </li></ul></div><p>
-</p><div><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
+</p><div class="wikipage"><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
 </li><li><a href="/wiki/WikiMid">WikiMid</a>
 </li><li><a href="/wiki/WikiStart">WikiStart</a>
 </li></ul></div><p>
-</p><div><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
+</p><div class="wikipage"><ul><li><a href="/wiki/WikiEnd">WikiEnd</a>
 </li></ul></div><p>
 </p>
 ==============================
