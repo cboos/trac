@@ -591,8 +591,8 @@ def recentchanges_setup(tc):
         'WikiMid',
         'WikiEnd',
         ])
-    tc.correct = tc.correct % {'date': format_date(tzinfo=utc,
-                                                   locale=locale_en)}
+    tc.expected = tc.expected % {'date': format_date(tzinfo=utc,
+                                                     locale=locale_en)}
 
 def recentchanges_teardown(tc):
     tc.env.reset_db()
