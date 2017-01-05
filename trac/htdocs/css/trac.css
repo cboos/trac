@@ -217,8 +217,7 @@ label.disabled, .disabled span.hint, .disabled p.help, .disabled legend,
 .inlinebuttons a:hover {
  background: #f6f6f6;
  color: #333;
- text-shadow: .04em .04em #fcfcfc;
- box-shadow: .1em .1em .6em 0 #999;
+ box-shadow: .1em .1em .4em 0 #dfdfdf;
 }
 input[type=button].trac-delete,
 input[type=submit].trac-delete,
@@ -338,6 +337,7 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
  margin: 0px .3em 0 -.4em;
  padding: .4em 0; /* mainnav_v_padding = .4em */
  font-weight: 600;
+ text-transform: uppercase;
 }
 
 #mainnav .first, #mainnav .first :link {
@@ -354,7 +354,7 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
  border-bottom: none;
 /* box-shadow: 0 .1em .3em 0 #999; */
  color: #666;
- padding: .4em 20px;
+ padding: .4em 20px;  /* mainnav_v_padding */
 }
 
 #mainnav li:hover {
@@ -364,7 +364,7 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
  background: #000 url(../topbar_gradient2.png) 0 0 repeat-x; /* fallback */
  background: linear-gradient(to bottom,#888 0%,#555 25%,#333 49%,#333 51%,#444 85%,#888 100%);
  color: #eee;
- padding: .4em 20px;
+ padding: .4em 20px; /* mainnav_v_padding */
 /* box-shadow: 0 .1em .6em 0 #666; */
 }
 
@@ -504,7 +504,7 @@ div.trac-content {
 /* Section folding */
 .foldable :link, .foldable :visited {
  background: url(../expanded.png) 4px 50% no-repeat;
- border: none;
+ border: #cecece solid .1em;
  border-radius: .3em;
  box-shadow: .1em .1em .3em 0 #bbb;
  color: #222;
