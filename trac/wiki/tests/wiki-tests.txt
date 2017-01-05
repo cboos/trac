@@ -344,10 +344,10 @@ Relative links are supported:
 ------------------------------
 <p>
 Relative links are supported:
-<a class="missing wiki" href="/wiki/parent" rel="nofollow">See above?</a> Note: see wikisyntax tests for other parent tests
-<a class="missing wiki" href="/wiki/WikiStart/sibling" rel="nofollow">See next?</a>
-<a class="missing wiki" href="/wiki/WikiStart/sibling#index" rel="nofollow">See next (index)?</a>
-<a class="missing wiki" href="/wiki/WikiStart/sibling?version=1" rel="nofollow">See next (v1)?</a>
+<a class="missing wiki" href="/wiki/parent" rel="nofollow">See above</a> Note: see wikisyntax tests for other parent tests
+<a class="missing wiki" href="/wiki/WikiStart/sibling" rel="nofollow">See next</a>
+<a class="missing wiki" href="/wiki/WikiStart/sibling#index" rel="nofollow">See next (index)</a>
+<a class="missing wiki" href="/wiki/WikiStart/sibling?version=1" rel="nofollow">See next (v1)</a>
 [... nothing to see] [...]
 <a href="/docs">See documentation</a>
 <a href="/images/logo.png">Our logo</a>
@@ -374,10 +374,10 @@ Relative links are supported:
 ------------------------------
 <p>
 Relative links are supported:
-<a class="missing wiki" href="/wiki/parent" rel="nofollow">See above?</a> Note: see wikisyntax tests for other parent tests
-<a class="missing wiki" href="/wiki/WikiStart/sibling" rel="nofollow">See next?</a>
-<a class="missing wiki" href="/wiki/..." rel="nofollow">nothing to see?</a> <a class="missing wiki" href="/wiki/..." rel="nofollow">...?</a>
-<a class="missing wiki" href="/wiki/a%20%5D%20" rel="nofollow">a ] ?</a>
+<a class="missing wiki" href="/wiki/parent" rel="nofollow">See above</a> Note: see wikisyntax tests for other parent tests
+<a class="missing wiki" href="/wiki/WikiStart/sibling" rel="nofollow">See next</a>
+<a class="missing wiki" href="/wiki/..." rel="nofollow">nothing to see</a> <a class="missing wiki" href="/wiki/..." rel="nofollow">...</a>
+<a class="missing wiki" href="/wiki/a%20%5D%20" rel="nofollow">a ] </a>
 <a href="/docs">See documentation</a>
 <a href="/images/logo.png">Our logo</a>
 <a href="/">/</a>
@@ -527,7 +527,7 @@ i.e. [[mailto:cboos@edgewall.org|me]]
 <a class="text resolver" href="/stuff/Foo%20Bar">Foo Bar</a> <a class="text resolver" href="/stuff/Foo%20Bar%23baz">Foo Bar</a>
 </p>
 <p>
-<a class="missing wiki" href="/wiki/Foo%20Bar" rel="nofollow">Foo Bar?</a> <a class="missing wiki" href="/wiki/Foo%20Bar" rel="nofollow">Fu Bar?</a> <a class="missing wiki" href="/wiki/Foo%20Bar#baz" rel="nofollow">Foo Bar?</a>
+<a class="missing wiki" href="/wiki/Foo%20Bar" rel="nofollow">Foo Bar</a> <a class="missing wiki" href="/wiki/Foo%20Bar" rel="nofollow">Fu Bar</a> <a class="missing wiki" href="/wiki/Foo%20Bar#baz" rel="nofollow">Foo Bar</a>
 </p>
 <p>
 <a class="text resolver" href="/stuff/Argv">*argv[] versus **argv</a>
@@ -565,7 +565,7 @@ i.e. <a class="mail-link" href="mailto:cboos@edgewall.org"><span class="icon"></
 [[ ]] is not completely empty...
 ------------------------------
 <p>
-<a class="missing wiki" href="/wiki/coffeehouse%20setup" rel="nofollow">How to set up a coffee house?</a>
+<a class="missing wiki" href="/wiki/coffeehouse%20setup" rel="nofollow">How to set up a coffee house</a>
 </p>
 <p>
 <a class="text resolver" href="/stuff/Template">Template</a>
@@ -580,7 +580,7 @@ i.e. <a class="mail-link" href="mailto:cboos@edgewall.org"><span class="icon"></
 </p>
 <p>
 [[]] no "empty" link here
-<a class="missing wiki" href="/wiki/%20" rel="nofollow"> ?</a> is not completely empty...
+<a class="missing wiki" href="/wiki/%20" rel="nofollow"> </a> is not completely empty...
 </p>
 ------------------------------
 ============================== Link resolver counter examples
@@ -1048,10 +1048,10 @@ Hello, [[HelloWorld(...)]]
 [[HelloWorld(hej hopp) ]] # This shouldnt executed as macro since it contain whitespace between ) and ]
 ------------------------------
 <p>
-<a class="missing wiki" href="/wiki/HelloWorld(hej%20hopp)%20" rel="nofollow">HelloWorld(hej hopp) ?</a> # This shouldnt executed as macro since it contain whitespace between ) and ]
+<a class="missing wiki" href="/wiki/HelloWorld(hej%20hopp)%20" rel="nofollow">HelloWorld(hej hopp) </a> # This shouldnt executed as macro since it contain whitespace between ) and ]
 </p>
 ------------------------------
-<a class="missing wiki" href="/wiki/HelloWorld(hej%20hopp)%20" rel="nofollow">HelloWorld(hej hopp) ?</a> # This shouldnt executed as macro since it contain whitespace between ) and ]
+<a class="missing wiki" href="/wiki/HelloWorld(hej%20hopp)%20" rel="nofollow">HelloWorld(hej hopp) </a> # This shouldnt executed as macro since it contain whitespace between ) and ]
 ============================== Another bad macro call
 [[HelloWorld(hej hopp))]] # Extra right brace and still executed
 ------------------------------
@@ -1318,7 +1318,7 @@ Inline  comment
 ============================== Heading with link
 == [wiki:SandBox Linked Heading] ==
 ------------------------------
-<h2 id="LinkedHeading"><a class="missing wiki" href="/wiki/SandBox" rel="nofollow">Linked Heading?</a></h2>
+<h2 id="LinkedHeading"><a class="missing wiki" href="/wiki/SandBox" rel="nofollow">Linked Heading</a></h2>
 ------------------------------
 == [wiki:SandBox Linked Heading] ==
 ============================== Normal heading, fixed id
