@@ -35,51 +35,62 @@
         $(".foldable").enableFolding(true, true);
         // provide expand/collapse button for central wiki column
         var $$wikipage = $("#wikipage");
-        $("<span>↔</span>").on("click", function () {
-            var mw = $(this).parent().css("max-width");
-            var recenter = false;
-            if (mw == "none") {
-              mw = "53em";
-              text = "↔";
-              recenter = true;
-            } else {
-              mw = "none";
-              text = "↹";
-            }
-            $(this).text(text);
-            $(this).parent().css("max-width", mw); 
-            if (recenter)
-              centerLargeElements();
-          }
-        )
-          .css({"float": "right", "margin-top": "-8px", "margin-top": "-8px"})
-          .prependTo($$wikipage);
+        var $$content = $("#content");
+        $("<span id='trac-wiki-expander'></span>").on("click", function () {
+          $$content.toggleClass('narrow');
+          if ($$content.hasClass('narrow'))
+            centerLargeElements();
+          else
+            resetLargeElements();
+        }).prependTo($$wikipage);
         // and auto-centering of top-level elements larger than #wikipage's max-width
-        var wpw = $$wikipage.width() - parseInt($$wikipage.css('padding-left'));
+        var wppl = parseInt($$wikipage.css('padding-left'));
+        var wppr = parseInt($$wikipage.css('padding-right'));
+        var wppl_ratio = wppl / (wppl + wppr);
+        var wpw = $$wikipage.width() - wppl;
         var large_elements = [];
         var excesses = [];
         var detectLargeElement = function() {
-            var excess = $(this).width() - wpw;
-            if (excess > 0) {
-              large_elements.push(this);
-              excesses.push(excess);
-            }
-        };
-        $("#wikipage > table").each(detectLargeElement);
-        $("#wikipage > p > a > img").one("load", detectLargeElement).each(
-          function() {
-            if (this.complete)
-              detectLargeElement(this);
+          var excess = $(this).width() - wpw;
+          if (excess > 0) {
+            large_elements.push(this);
+            excesses.push(excess);
           }
-        );
-        $("#wikipage > div").each(detectLargeElement);
+          return excess;
+        };
+        var centerLargeElement = function(i, wpleft, excess) {
+            var offset_to_the_left = (excess > wppl) ? (excess - wppl) / 2 : excess * wppl_ratio;
+            if (offset_to_the_left > wpleft)
+              offset_to_the_left = wpleft;
+
+            $(i).css({'margin-left': -offset_to_the_left,
+                      'background': 'rgba(255, 255, 255, .8)'});
+            console.log("left: " + wpleft + " excess: " + excess + " offset_to_the_left: " + -offset_to_the_left);
+        };
         var centerLargeElements = function() {
           var wikipage_left = $$wikipage.offset().left;
           for (var i = 0; i < large_elements.length; i++) {
-            var negative_margin = -Math.min(excesses[i] / 2, wikipage_left);
-            $(large_elements[i]).css('margin-left', negative_margin);
+            centerLargeElement(large_elements[i], wikipage_left, excesses[i]);
           }
         };
+        var resetLargeElements = function() {
+          for (var i = 0; i < large_elements.length; i++) {
+            $(large_elements[i]).css({'margin-left': 0, 'background': 'none'});
+          }
+        };
+        var detectLargeImage = function() {
+          var excess = detectLargeElement.apply(this);
+          if (excess > 0)
+            centerLargeElement(this, $$wikipage.offset().left, excess);
+        };
+        $("#wikipage > table").each(detectLargeElement);
+        $("#wikipage > p > a > img").one("load", detectLargeImage).each(
+          function() {
+            if (this.complete)
+              var excess = detectLargeElement(this);
+          }
+        );
+        $("#wikipage > div").each(detectLargeElement);
         $(window).resize(centerLargeElements);
         centerLargeElements();
       });/*]]>*/
@@ -87,7 +98,7 @@
   </head>
 
   <body>
-    <div id="content" class="${classes('wiki', create=not page.exists)}">
+    <div id="content" class="${classes('wiki', 'narrow', create=not page.exists)}">
 
       <py:if test="version">
         <br />

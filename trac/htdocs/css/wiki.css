@@ -4,8 +4,36 @@
 
 #wikipage {
  clear: both;
- max-width:  56em; /* 104ch; */ /* 56em 60em */
 }
+
+/* Wide wiki page */
+#content #wikipage {
+ max-width: none;
+}
+#content #trac-wiki-expander {
+ cursor: pointer;
+}
+#content #trac-wiki-expander:before {
+ content: "↹";
+}
+
+/* Narrow wiki page */
+#trac-wiki-expander {
+ float: right;
+ margin-top: -.5em;
+ margin-right: -.5em;
+}
+
+#content.narrow #wikipage {
+ max-width: 56em;
+}
+#content.narrow #trac-wiki-expander:before {
+ content: "↔";
+}
+
+
+/* Wiki page headings */
+
 .wikipage h1 {
  font-size: 20pt;
  color: #c20000;
