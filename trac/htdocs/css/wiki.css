@@ -233,7 +233,11 @@ table.wiki {
  font-size: 85%;
  position: relative;
 }
-.wiki-toc h4 { font-size: 12px; margin: 0 }
+.wiki-toc h4 {
+ font-size: 1.2em;
+ margin: 0 0 .5em;
+ padding: 0;
+}
 .wiki-toc ul, .wiki-toc ol { list-style: none; padding: 0; margin: 0 }
 .wiki-toc ul ul, .wiki-toc ol ol { padding-left: 1.2em }
 .wiki-toc li { margin: 0; padding: 0 }
