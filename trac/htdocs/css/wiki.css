@@ -72,7 +72,7 @@
 }
 
 .wikipage h2 + *, .wikipage h3 + * {
- margin-top: -1em;
+ margin-top: -1em !important;
 }
 
 .wikipage h2:target {
