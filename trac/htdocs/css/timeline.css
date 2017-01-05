@@ -1,7 +1,7 @@
 /* Timeline */
 
 .timeline #prefs fieldset label { display: block }
-.timeline #prefs .buttons { margin-top: -1.6em }
+.timeline #prefs .buttons { margin: -.5em 0 0 }
 
 .timeline h2 {
  background: #f7f7f7;
