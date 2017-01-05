@@ -62,9 +62,8 @@ span:hover .anchor {
 
 h1:target, h2:target, h3:target, h4:target, h5:target, h6:target,
 span:target {
- background: #ffb;
- box-shadow: .1em .1em .4em .1em #DDA;
- border-radius: .1em;
+ box-shadow: 0 0 1em 0.1em rgba(187, 0, 0, .6);
+ border-radius: .25em;
 }
 
 /* option anchors in TracIni macro */

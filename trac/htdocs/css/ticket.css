@@ -15,6 +15,11 @@
  margin-top: 0;
 }
 
+#content.ticket h1:target, #content.ticket h2:target, #content.ticket h3:target, #content.ticket h4:target, #content.ticket h5:target, #content.ticket h6:target, #content.ticket span:target {
+ box-shadow: 0 0 .8em .1em rgba(102, 102, 102, 0.4);
+ background: none;
+}
+
 /* "Yellow Ticket Box" */
 #ticket {
  background: #ffd;
