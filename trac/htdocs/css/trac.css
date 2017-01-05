@@ -8,16 +8,18 @@ body {
  padding: 0;
 }
 body, th, tr {
- font: normal 11pt Roboto,Segoe UI,Verdana,'Bitstream Vera Sans',Helvetica,sans-serif;
+ font-style: normal;
+ font-size: 1em;
+ font-family: Roboto,Segoe UI,Verdana,'Bitstream Vera Sans',Helvetica,sans-serif; /* trac_sans_serif */
 }
 h1, h2, h3, h4 {
  font-weight: bold;
  letter-spacing: -0.018em;
  page-break-after: avoid;
 }
-h1 { font-size: 19px; margin: .15em 1em 0.5em 0 }
-h2 { font-size: 16px }
-h3 { font-size: 14px }
+h1 { font-size: 1.8em; margin: .15em 1em 0.5em 0 }
+h2 { font-size: 1.6em; }
+h3 { font-size: 1.2em; }
 
 hr { border: none;  border-top: 1px solid #ccb; margin: 2em 0 }
 address { font-style: normal }
@@ -101,10 +103,15 @@ span:target {
 input, textarea, select, .trac-button { margin: 2px }
 /* Avoid respect to system font settings for controls on Firefox, #11607 */
 input, select, button {
- font-size: 100%;
+ font-style: normal;
+ font-size: .9em;
+ font-family: Roboto,Segoe UI,Verdana,'Bitstream Vera Sans',Helvetica,sans-serif; /* trac_sans_serif */
 }
-/* Avoid to inherit white-space of its parent element for IE 11, #11376 */
-textarea { white-space: pre-wrap }
+
+textarea {
+ white-space: pre-wrap; /* Avoid to inherit white-space of its parent element for IE 11, #11376 */
+ font-size: 1em;
+}
 input, select, .trac-button { vertical-align: middle }
 select {
  background: linear-gradient(to top, #dbdbdb 0%,#eee 30%, #f6f6f6 100%);
@@ -121,7 +128,7 @@ input[type=button], input[type=submit], input[type=reset], .trac-button {
  border-radius: .3em;
  box-shadow: .1em .1em .1em 0 #ccc;
  padding: .25em .5em .35em; /* Chrome (.3em .5em) vs. FF (.2em .5em .4em) */
- font-size: 10pt;
+ font-size: .9em;
  text-shadow: .04em .04em #ddd;
  cursor: pointer;
 }
@@ -163,7 +170,7 @@ fieldset {
 }
 p.hint, span.hint, span.trac-datetimehint {
  color: #666;
- font-size: 85%;
+ font-size: .9em;
  font-style: italic;
  margin: .5em 0;
  padding-left: 1em;
@@ -259,12 +266,12 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
 /* Quick search */
 #search {
  clear: both;
- font-size: 8pt;
+ font-size: .9em;
  height: 2.2em;
  margin: 0 0 1em;
  text-align: right;
 }
-#search input { font-size: 10px }
+#search input { font-size: 1em }
 #search label { display: none }
 
 /* Navigation */
@@ -272,7 +279,7 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
 .nav ul {
  /*font-family: Verdana; 
  letter-spacing: 0.018em; */
- font-size: 8pt;
+ font-size: .9em;
  list-style: none;
  margin: 0;
  padding: 0;
@@ -316,7 +323,7 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
 
 /* Main navigation bar */
 #mainnav {
- font-size: 9pt;
+ font-size: .9em;
  font-weight: 600;
  letter-spacing: 0.03em; 
  box-shadow: 0 .3em 1em #f2f2f2;
@@ -406,12 +413,12 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
  margin-top: .4em;
  text-align: center;
 }
-#altlinks h3 { font-size: 12px; letter-spacing: normal; margin: 0 }
+#altlinks h3 { font-size: 1.1em; letter-spacing: normal; margin: 0 }
 #altlinks ul { list-style: none; margin: 0; padding: 0 }
 #altlinks li {
  border-right: 1px solid #d7d7d7;
  display: inline;
- font-size: 11px;
+ font-size: 1.1em;
  line-height: 1.5;
  padding: 0 1em;
  white-space: nowrap;
@@ -436,7 +443,7 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
 #footer {
  clear: both;
  color: #bbb;
- font-size: 9pt;
+ font-size: .9em;
  height: 31px;
  padding: .25em 0;
 }
@@ -551,12 +558,12 @@ h2 .trac-count, h3 .trac-count {
  border-radius: 11px; /* main_border_radius_px */
  box-shadow: .1em .3em .5em 0 #d4d4d4; /* aside_box_shadow */
  float: right;
- font-size: 9px;
+ font-size: .9em;
  padding: .8em;
  position: relative;
  margin: 0 1em 1em;
 }
-#prefs input, #prefs select { font-size: 9px; vertical-align: middle }
+#prefs input, #prefs select { font-size: .9em; vertical-align: middle }
 #prefs fieldset {
  background: transparent;
  border: none;
@@ -567,7 +574,7 @@ h2 .trac-count, h3 .trac-count {
 #prefs fieldset legend {
  background: transparent;
  color: #000;
- font-size: 9px;
+ font-size: .9em;
  font-weight: normal;
  margin: 0 0 0 -1.5em;
  padding: 0;
@@ -584,7 +591,7 @@ h2 .trac-count, h3 .trac-count {
  clear: both;
  width: 100%;
 }
-#info th, #info td { font-size: 85%; padding: 2px .5em; vertical-align: top }
+#info th, #info td { font-size: .9em; padding: 2px .5em; vertical-align: top }
 #info th { font-weight: bold; text-align: left }
 #info td.message { width: 100% }
 #info .message ul { padding: 0; margin: 0 2em }
@@ -656,10 +663,11 @@ code, tt {
  background: #fcfcfc;
  margin: 0 .1em
 }
+h1 code, h2 code, h3 code, h4 code, h5 code, h6 code { color: #b00 }
 
 pre {
  font-family: Open Sans Mono,Consolas,Lucida Console,monospace; /* code_monospace */
- font-size: 10pt;
+ font-size: 1em;
 }
 
 blockquote.citation {
@@ -763,13 +771,13 @@ table.listing {
  margin-top: 1em;
  width: 100%;
 }
-table.listing th { text-align: left; padding: 0 1em .1em 0; font-size: 12px }
+table.listing th { text-align: left; padding: 0 1em .1em 0; font-size: 1em }
 table.listing th.sel, table.listing td.sel { text-align: center; width: 1% }
 table.listing thead tr { background: #f7f7f0 }
 table.listing thead th {
  border: 1px solid #d7d7d7;
  border-bottom-color: #999;
- font-size: 11px;
+ font-size: 1em;
  font-weight: bold;
  padding: 2px .5em;
  vertical-align: bottom;

@@ -35,12 +35,12 @@
 /* Wiki page headings */
 
 .wikipage h1 {
- font-size: 20pt;
+ font-size: 1.8em;
  color: #c20000;
  padding-left: .5rem; /* wiki_h_left_padding */
 }
-.wikipage > .trac-content > h2 {
- font-size: 15pt;
+.wikipage h2 {
+ font-size: 1.4em;
  color: #b00;
  margin-top: 1.4em;
  padding: 0.2em .3em 1em .5rem; /* wiki_h_underline_padding wiki_h_left_padding */
@@ -54,8 +54,8 @@
  )
  /* wiki_h2_underline_background */
 }
-.wikipage > .trac-content > h3 {
- font-size: 14pt;
+.wikipage h3 {
+ font-size: 1.3em;
  font-weight: 600;
  color: #b00;
  margin-top: 1.4em;
@@ -122,15 +122,15 @@
 }
 
 .wikipage h4 {
- font-size: 13pt;
- font-weight: 500;
+ font-size: 1.15em;
+ font-weight: 600;
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: 1em;
  padding-left: .5rem; /* wiki_h_left_padding */
 }
 .wikipage h5 {
- font-size: 12pt;
+ font-size: 1.1em;
  font-weight: normal;
  color: #b00;
  margin-top: 1.4em;
@@ -138,7 +138,7 @@
  padding-left: .5rem; /* wiki_h_left_padding */
 }
 .wikipage h6 {
- font-size: 11pt;
+ font-size: 1em;
  font-style: italic;
  font-weight: normal;
  color: #b00;
