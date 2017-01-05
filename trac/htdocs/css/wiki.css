@@ -1,6 +1,7 @@
 @import url(code.css);
 
 #info { margin: 0 0 1em 0 }
+
 #wikipage {
  clear: both;
  max-width:  56em; /* 104ch; */ /* 56em 60em */
@@ -8,14 +9,22 @@
 .wikipage h1 {
  font-size: 20pt;
  color: #c20000;
+ padding-left: .5rem; /* wiki_h_left_padding */
 }
 .wikipage > .trac-content > h2 {
  font-size: 15pt;
  color: #b00;
  margin-top: 1.4em;
- padding: 0.2em .3em .1em 0; /* wiki_h2_padding */
- border-bottom: 2pt solid #b00; /* wiki_h2_bottom */
- box-shadow: .2em .3em .5em 0 #f6f6f6; /* wiki_h2_box_shadow */
+ padding: 0.2em .3em 1em .5rem; /* wiki_h_underline_padding wiki_h_left_padding */
+ background: linear-gradient(to top,
+  rgba(255, 255, 255, .4) 0,
+  rgba(215, 215, 215, .4) .79em,
+  #b00 .8em,
+  #b00 .9em,
+  rgba(255, 255, 255, 0) .9em,
+  rgba(255, 255, 255, 0) 100%
+ )
+ /* wiki_h2_underline_background */
 }
 .wikipage > .trac-content > h3 {
  font-size: 14pt;
@@ -23,15 +32,65 @@
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: 1em;
- padding: .2em .3em .1em .1em; /* wiki_h3_padding */
- border-bottom: 1px solid #b00;  /* wiki_h3_bottom */
- box-shadow: .2em .3em .5em 0 #f6f6f6; /* wiki_h3_box_shadow */
+ padding: .2em .3em 1em .5rem; /* wiki_h_underline_padding wiki_h_left_padding */
+ background: linear-gradient(to top,
+  rgba(255, 255, 255, .4) 0,
+  rgba(215, 215, 215, .4) .8em,
+  #b00 .8em,
+  #b00 .85em,
+  rgba(255, 255, 255, 0) .9em,
+  rgba(255, 255, 255, 0) 100%
+ ) /* wiki_h3_underline_background */
+}
+
+.wikipage h2 + *, .wikipage h3 + * {
+ margin-top: -1em;
+}
+
+.wikipage h2:target {
+ background: linear-gradient(to top,
+  #fff 0,
+  #fff .79em,
+  #b00 .8em,
+  #b00 .9em,
+  #fff .9em,
+  #fff 100%
+ )
+}
+.wikipage h3:target {
+ background: linear-gradient(to top,
+  #fff 0,
+  #fff .8em,
+  #b00 .8em,
+  #b00 .85em,
+  #fff .9em,
+  #fff 100%
+ )
 }
 
 @media print {
- #wikipage { max-width: none }
- .wikipage > .trac-content > h2 { box-shadow: none }
- .wikipage > .trac-content > h3 { box-shadow: none }
+ #content.narrow #wikipage { max-width: none }
+ #content.narrow #trac-wiki-expander:before, #content #trac-wiki-expander { display: none }
+ .wikipage h2:target {
+  background: linear-gradient(to top,
+   #fff 0,
+   #fff .79em,
+   #b00 .8em,
+   #b00 .9em,
+   #fff .9em,
+   #fff 100%
+  )
+ }
+ .wikipage h3:target {
+  background: linear-gradient(to top,
+   #fff 0,
+   #fff .8em,
+   #b00 .8em,
+   #b00 .85em,
+   #fff .9em,
+   #fff 100%
+  )
+ }
 }
 
 .wikipage h4 {
@@ -40,6 +99,7 @@
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: 1em;
+ padding-left: .5rem; /* wiki_h_left_padding */
 }
 .wikipage h5 {
  font-size: 12pt;
@@ -47,6 +107,7 @@
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: .9em;
+ padding-left: .5rem; /* wiki_h_left_padding */
 }
 .wikipage h6 {
  font-size: 11pt;
@@ -55,10 +116,16 @@
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: .8em;
+ padding-left: .5rem; /* wiki_h_left_padding */
 }
-.wikipage .trac-content, .wikipage .wikipage { /* not perfect... should also work for tickets! */
+
+.wikipage .trac-content {
  margin: .3em auto;
- padding-left: 28px; 
+ padding-left: 1.5rem;  /* wikipage_content_padding_left */
+}
+.wikipage .wikipage {  /* not perfect... should also work for tickets! */
+ margin-left: -1.5rem;
+ padding-left: 1.5rem;
 }
 table.wiki {
  background-color: inherit;
