@@ -111,6 +111,7 @@ class PathTestCase(unittest.TestCase):
                                             os.path.join(os.getcwd())))
 
     def test_native_path(self):
+        self.assertIsNone(util.native_path(None))
         if os.name == 'posix':
             self.assertEqual('/D/Trac/x', util.native_path('D:\\Trac\\x'))
             self.assertEqual('/D/Trac/x', util.native_path('/D/Trac/x'))
