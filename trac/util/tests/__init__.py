@@ -124,6 +124,8 @@ class PathTestCase(unittest.TestCase):
             self.assertEqual('D:\\Trac\\x', util.native_path('D:/Trac/x'))
             self.assertEqual('D:\\Trac\\x', util.native_path('D:\\Trac\\x'))
             self.assertEqual('D:\\', util.native_path('/D/'))
+            self.assertEqual('D:', util.native_path('/D'))
+            self.assertEqual('C:\\', util.native_path('/'))
             self.assertEqual('C:\\Trac\\x', util.native_path('/Trac/x'))
             self.assertEqual('Trac\\x', util.native_path('Trac/x'))
             self.assertEqual('Trac\\x', util.native_path('Trac\\x'))
