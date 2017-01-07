@@ -97,6 +97,32 @@ except NameError:
     class WindowsError(OSError):
         """Dummy exception replacing WindowsError on non-Windows platforms"""
 
+def native_path(path):
+    """Converts a Windows-style or POSIX-style path to the native style.
+
+    i.e. on Windows, convert POSIX path to Windows path, and in a
+    POSIX system, convert Windows path to POSIX path.
+
+    :param path: the input path
+    :return: the path converted to native style
+    """
+
+    if os.name == 'posix':
+       if (len(path) > 1 and path[1] == ':') or '\\' in path:
+          path = path.replace('\\', '/')
+          if path[1] == ':':
+              path = '/' + path[0] + path[2:]
+    elif os.name == 'nt':
+       if len(path) and path[0] == '/': # abs path
+           if len(path) < 3 or path[2] == '/':
+               # interpret 1-letter toplevel as volume name
+               path = path[1] + ':' + path[2:]
+           else:
+               # assume we're talking about C:
+               path = 'C:\\' + path[1:]
+       path = path.replace('/', '\\')
+    return path
+
 
 can_rename_open_file = False
 if os.name == 'nt':
