@@ -87,7 +87,7 @@ class SearchModule(Component):
 
         if req.path_info == '/search/opensearch':
             return ('opensearch.xml', {},
-                    'application/opensearchdescription+xml')
+                    {'content_type': 'application/opensearchdescription+xml'})
 
         query = req.args.get('q')
         available_filters = []
@@ -112,7 +112,7 @@ class SearchModule(Component):
                 req.session['search.filters'] = ','.join(filters)
 
         add_stylesheet(req, 'common/css/search.css')
-        return 'search.html', data, None
+        return 'search.html', data
 
     # ITemplateProvider methods
 
