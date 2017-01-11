@@ -34,11 +34,6 @@
  padding: 0 0 0 9px;
 }
 #tabs :link, #tabs :visited { border: none; display: block }
-#tabs :link:hover,
-#tabs :visited:hover {
- background: transparent;
- color: #000;
-}
 
 #tabcontent { padding: 0.4em 0 0.4em 2em; margin-left: 12em; min-height: 300px; }
 #tabcontent h2 { color: #333; }
