@@ -38,7 +38,12 @@ ol.arabic     { list-style-type: decimal }
  color: #b00;
  border-bottom: 1px dotted #bbb;
 }
-:link:hover, :visited:hover { background-color: #eee; color: #555 }
+:link:hover, :visited:hover {
+ background-color: rgba(238, 238, 238, .5);
+ color: #500;
+ border-radius: .1em;
+ box-shadow: 0 0 0 .15em rgba(238, 238, 238, .5);
+}
 h1 :link, h1 :visited ,h2 :link, h2 :visited, h3 :link, h3 :visited,
 h4 :link, h4 :visited, h5 :link, h5 :visited, h6 :link, h6 :visited {
  color: inherit;
@@ -316,7 +321,12 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
  cursor: pointer;
 }
 #metanav form.trac-logout button::-moz-focus-inner { border: 0; padding: 0 }
-#metanav form.trac-logout button:hover { background-color: #eee; color: #555 }
+#metanav form.trac-logout button:hover { /* cf. :link:hover */
+ background-color: rgba(238, 238, 238, .5);
+ color: #500;
+ border-radius: .1em;
+ box-shadow: 0 0 0 .15em rgba(238, 238, 238, .5);
+}
 #metanav form.trac-logout button:active { position: static }
 
 /* Main navigation bar */
@@ -357,13 +367,11 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
  padding: .4em 20px;  /* mainnav_v_padding */
 }
 
-#mainnav li:hover {
-/* border: 1px solid #999; */
-}
 #mainnav :link:hover, #mainnav :visited:hover {
  background: #000 url(../topbar_gradient2.png) 0 0 repeat-x; /* fallback */
  background: linear-gradient(to bottom,#888 0%,#555 25%,#333 49%,#333 51%,#444 85%,#888 100%);
  color: #eee;
+ border-radius: 0;
  padding: .4em 20px; /* mainnav_v_padding */
 /* box-shadow: 0 .1em .6em 0 #666; */
 }
