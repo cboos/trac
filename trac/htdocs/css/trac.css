@@ -642,7 +642,7 @@ dl.compact dd { margin: 0; padding: 0 }
 pre.wiki, pre.literal-block {
  background: #f7f7f7;
  border: 1px solid #d7d7d7;
- box-shadow: .1em .1em .3em 0 #eee; /* content_box_shadow */
+ box-shadow: 0.3em 0.3em 0.75em 0.1em rgba(210, 215, 220, 0.3); /* content_box_shadow */
  border-radius: .3em;  /* content_border_radius */
  margin: 1em 1.75em;
  padding: .25em;
@@ -684,7 +684,7 @@ table.wiki {
  border: 1px solid #ccc;
  border-collapse: collapse;
  border-spacing: 0;
- box-shadow: .1em .1em .3em 0 #eee; /* content_box_shadow */
+ box-shadow: 0.3em 0.3em 0.75em 0.1em rgba(210, 215, 220, 0.3); /* content_box_shadow */
 }
 table.wiki td { border: 1px solid #ccc;  padding: .1em .25em; }
 table.wiki th {
