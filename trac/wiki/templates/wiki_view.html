@@ -71,13 +71,16 @@
           return excess;
         };
         var centerLargeElement = function(i, wpleft, excess) {
-            var offset_to_the_left = (excess > wppl) ? (excess - wppl) / 2 : excess * wppl_ratio;
+            var offset_to_the_left;
+            if (excess > wppl)
+                offset_to_the_left = (excess - wppl) / 2;
+            else
+                offset_to_the_left = excess * wppl_ratio;
             if (offset_to_the_left > wpleft)
               offset_to_the_left = wpleft;
 
             $(i).css({'margin-left': -offset_to_the_left,
                       'background': 'rgba(255, 255, 255, .8)'});
-            console.log("left: " + wpleft + " excess: " + excess + " offset_to_the_left: " + -offset_to_the_left);
         };
         var centerLargeElements = function() {
           var wikipage_left = $$wikipage.offset().left;
