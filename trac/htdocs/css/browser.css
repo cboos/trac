@@ -80,6 +80,7 @@ table.dirlist td.name a.parent {
 }
 table.dirlist td.name a.dir {
   background: url(../folder.png) 0 50% no-repeat;
+  font-weight: 500;
   padding-left: 20px;
 }
 table.dirlist td.name a.file {
