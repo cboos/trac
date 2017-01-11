@@ -62,8 +62,8 @@ span:hover .anchor {
 
 h1:target, h2:target, h3:target, h4:target, h5:target, h6:target,
 span:target {
- box-shadow: 0 0 1em 0.1em rgba(187, 0, 0, .6);
- border-radius: .25em;
+ background: #fbffb6; /* trac_hl_color */
+ box-shadow: 0 0 .4em 0.1em rgba(172, 172, 172, .25);
 }
 
 @media screen {

@@ -32,7 +32,7 @@
 }
 
 
-/* Wiki page headings */
+/* Wiki page headings -- h1 to h6 (h2 and h3 have a special underline) */
 
 .wikipage h1 {
  font-size: 1.8em;
@@ -47,8 +47,8 @@
  background: linear-gradient(to top,
   rgba(255, 255, 255, .4) 0,
   rgba(215, 215, 215, .4) .79em,
-  #b00 .8em,
-  #b00 .9em,
+  #b00 .8em, /* wiki_h_underline_color wiki_h_underline_shadow */
+  #b00 .9em, /* wiki_h_underline_shadow + wiki_h3_underline_height */
   rgba(255, 255, 255, 0) .9em,
   rgba(255, 255, 255, 0) 100%
  )
@@ -60,12 +60,12 @@
  color: #b00;
  margin-top: 1.4em;
  margin-bottom: 1em;
- padding: .2em .3em 1em .5rem; /* wiki_h_underline_padding wiki_h_left_padding */
+ padding: .2em .3em 1em .5rem; /* _ _ (wiki_h_underline_padding + wiki_h_underline_shadow) wiki_h_left_padding */
  background: linear-gradient(to top,
   rgba(255, 255, 255, .4) 0,
   rgba(215, 215, 215, .4) .8em,
-  #b00 .8em,
-  #b00 .85em,
+  #b00 .8em,  /* _ wiki_h_underline_shadow */
+  #b00 .85em, /* wiki_h_underline_shadow + wiki_h3_underline_height */
   rgba(255, 255, 255, 0) .9em,
   rgba(255, 255, 255, 0) 100%
  ) /* wiki_h3_underline_background */
@@ -75,26 +75,32 @@
  margin-top: -1em !important;
 }
 
+/* h2:target and h3:target need to be refined due to the underline */
+
 .wikipage h2:target {
+ padding-bottom: .2em; /* wiki_h_underline_padding */
+ margin-bottom: .8em;  /* wiki_h_underline_shadow */
  background: linear-gradient(to top,
-  #fff 0,
-  #fff .79em,
-  #b00 .8em,
-  #b00 .9em,
-  #fff .9em,
-  #fff 100%
+  #b00 0,
+  #b00 .1em, /* wiki_h2_underline_height */
+  #fbffb6 .1em, /* trac_hl_color */
+  #fbffb6 100%	/* trac_hl_color */
  )
 }
 .wikipage h3:target {
+ padding-bottom: .2em; /* wiki_h_underline_padding */
+ margin-bottom: .8em;  /* wiki_h_underline_shadow */
  background: linear-gradient(to top,
-  #fff 0,
-  #fff .8em,
-  #b00 .8em,
-  #b00 .85em,
-  #fff .9em,
-  #fff 100%
+  #b00 0,
+  #b00 .05em, /* wiki_h3_underline_height */
+  #fbffb6 .05em, /* trac_hl_color */
+  #fbffb6 100%  /* trac_hl_color */
  )
 }
+.wikipage h2:target + *, .wikipage h3:target + * {
+    margin-top: inherit !important; /* cancels similar rule without :target */
+}
+
 
 @media print {
  #content.narrow #wikipage { max-width: none }
