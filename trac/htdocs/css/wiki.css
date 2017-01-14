@@ -168,9 +168,9 @@ table.wiki {
 
 /* Styles for the path of hierarchical pages */
 #pagepath {
- font-size: 9pt; /* slightly bigger as .nav ul in trac.css */
+ font-size: .9em; /* ctxtnav_font_size */
  float: left;
- padding: .4em 0;
+ padding: .4em 0; /* mainnav_padding */
 }
 #pagepath :link, #pagepath :visited { margin: 0 .2em }
 #pagepath .first:link, #pagepath .first:visited { color: #998 }
