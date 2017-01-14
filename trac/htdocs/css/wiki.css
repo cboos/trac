@@ -251,7 +251,7 @@ table.wiki {
 .wiki-toc .active { background: #ff9; position: relative; }
 .wiki-toc-un ul, .wiki-toc-un ol { list-style: none; }
 .wiki-toc ol li { font-weight: normal }
-.wiki-toc > ol > li { font-weight: bold }
+.wiki-toc > ol > li { font-weight: 500 }
 
 div.trac-modifiedby {
  margin: .3em .5em;

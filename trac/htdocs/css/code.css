@@ -30,6 +30,7 @@ table.code {
  margin: 0 auto;
  table-layout: fixed;
  width: 100%;
+ box-shadow: 0.3em 0.3em 0.75em 0.1em rgba(210, 215, 220, 0.3); /* content_box_shadow */
 }
 table.code th {
  border-right: 1px solid #d7d7d7;

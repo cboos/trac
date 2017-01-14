@@ -496,7 +496,7 @@ div.trac-content {
 /* Section folding */
 .foldable :link, .foldable :visited {
  background: url(../expanded.png) 4px 50% no-repeat;
- border: #cecece solid .1em;
+ border: #e4e4e4 solid .1em;
  border-radius: .3em;
  box-shadow: .1em .1em .3em 0 #bbb;
  color: #222;
