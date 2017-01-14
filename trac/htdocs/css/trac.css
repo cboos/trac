@@ -282,7 +282,7 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
 .nav ul {
  /*font-family: Verdana; 
  letter-spacing: 0.018em; */
- font-size: .9em;
+ font-size: .9em; /* ctxtnav_font_size */
  list-style: none;
  margin: 0;
  padding: 0;
@@ -345,7 +345,7 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
  background: linear-gradient(to bottom,#f2f2f2 0%,#fafafa 25%,#fefefe 49%,#fff 51%,#fafafa 85%,#f2f2f2 100%);
  border: 1px solid #e4e4e4;
  margin: 0px .3em 0 -.4em;
- padding: .4em 0; /* mainnav_v_padding = .4em */
+ padding: .4em 0; /* mainnav_padding = (mainnav_v_padding = .4em) 0  */
  font-weight: 600;
  text-transform: uppercase;
 }
@@ -389,7 +389,7 @@ form.mod #changeinfo .options { padding: 0 0 0.5em 1em }
 /* Context-dependent navigation links */
 #ctxtnav {
  min-height: 1em;
- padding: .4em 0;
+ padding: .4em 0; /* mainnav_padding */
 }
 #ctxtnav li ul {
  background: #f7f7f7;
@@ -517,7 +517,7 @@ div.trac-content {
  box-shadow: .1em .1em .3em 0 #bbb;
  color: #222;
  text-shadow: .04em .04em #fcfcfc;
- padding: .3em .5em .3em 20px;
+ padding: .2em .5em .3em 20px;
 }
 .foldable :link:hover, .foldable :visited:hover { background-color: transparent }
 .collapsed > .foldable :link, .collapsed > .foldable :visited {
@@ -946,7 +946,8 @@ div.system-message .trac-close-msg:hover {
 #content.error #traceback table.code tr.current td { background: #e6e6e6; }
 #content.error #traceback table { margin: .5em 0 1em;  }
 #content.error #traceback th, #content.error #traceback td {
-  font-size: 85%; padding: 1px;
+ font-size: 85%;
+ padding: 1px;
 }
 #content.error #traceback th var {
   font-family: Open Sans Mono,Consolas,Lucida Console,monospace; /* code_monospace */
