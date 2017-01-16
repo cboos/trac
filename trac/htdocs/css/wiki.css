@@ -37,19 +37,19 @@
 
 .wikipage h1 {
  font-size: 1.8em;
- color: #c20000;
+ color: #822;
  padding-left: .5rem; /* wiki_h_left_padding */
 }
 .wikipage h2 {
- font-size: 1.4em;
- color: #b00;
+ font-size: 1.6em;
+ color: #822;
  margin-top: 1.4em;
  padding: 0.2em .3em 1em .5rem; /* wiki_h_underline_padding wiki_h_left_padding */
  background: linear-gradient(to top,
   rgba(255, 255, 255, .4) 0,
   rgba(215, 215, 215, .4) .79em,
-  #b00 .8em, /* wiki_h_underline_color wiki_h_underline_shadow */
-  #b00 .9em, /* wiki_h_underline_shadow + wiki_h3_underline_height */
+  #822 .8em, /* wiki_h_underline_color wiki_h_underline_shadow */
+  #822 .9em, /* wiki_h_underline_shadow + wiki_h3_underline_height */
   rgba(255, 255, 255, 0) .9em,
   rgba(255, 255, 255, 0) 100%
  )
@@ -58,15 +58,15 @@
 .wikipage h3 {
  font-size: 1.3em;
  font-weight: 600;
- color: #b00;
+ color: #822;
  margin-top: 1.4em;
  margin-bottom: 1em;
  padding: .2em .3em 1em .5rem; /* _ _ (wiki_h_underline_padding + wiki_h_underline_shadow) wiki_h_left_padding */
  background: linear-gradient(to top,
   rgba(255, 255, 255, .4) 0,
   rgba(215, 215, 215, .4) .8em,
-  #b00 .8em,  /* _ wiki_h_underline_shadow */
-  #b00 .85em, /* wiki_h_underline_shadow + wiki_h3_underline_height */
+  #822 .8em,  /* _ wiki_h_underline_shadow */
+  #822 .85em, /* wiki_h_underline_shadow + wiki_h3_underline_height */
   rgba(255, 255, 255, 0) .9em,
   rgba(255, 255, 255, 0) 100%
  ) /* wiki_h3_underline_background */
@@ -82,8 +82,8 @@
  padding-bottom: .2em; /* wiki_h_underline_padding */
  margin-bottom: .8em;  /* wiki_h_underline_shadow */
  background: linear-gradient(to top,
-  #b00 0,
-  #b00 .1em, /* wiki_h2_underline_height */
+  #822 0,
+  #822 .1em, /* wiki_h2_underline_height */
   #fbffb6 .1em, /* trac_hl_color */
   #fbffb6 100%	/* trac_hl_color */
  )
@@ -92,8 +92,8 @@
  padding-bottom: .2em; /* wiki_h_underline_padding */
  margin-bottom: .8em;  /* wiki_h_underline_shadow */
  background: linear-gradient(to top,
-  #b00 0,
-  #b00 .05em, /* wiki_h3_underline_height */
+  #822 0,
+  #822 .05em, /* wiki_h3_underline_height */
   #fbffb6 .05em, /* trac_hl_color */
   #fbffb6 100%  /* trac_hl_color */
  )
@@ -110,8 +110,8 @@
   background: linear-gradient(to top,
    #fff 0,
    #fff .79em,
-   #b00 .8em,
-   #b00 .9em,
+   #822 .8em,
+   #822 .9em,
    #fff .9em,
    #fff 100%
   )
@@ -120,8 +120,8 @@
   background: linear-gradient(to top,
    #fff 0,
    #fff .8em,
-   #b00 .8em,
-   #b00 .85em,
+   #822 .8em,
+   #822 .85em,
    #fff .9em,
    #fff 100%
   )
@@ -131,7 +131,7 @@
 .wikipage h4 {
  font-size: 1.15em;
  font-weight: 600;
- color: #b00;
+ color: #822;
  margin-top: 1.4em;
  margin-bottom: 1em;
  padding-left: .5rem; /* wiki_h_left_padding */
@@ -139,7 +139,7 @@
 .wikipage h5 {
  font-size: 1.1em;
  font-weight: normal;
- color: #b00;
+ color: #822;
  margin-top: 1.4em;
  margin-bottom: .9em;
  padding-left: .5rem; /* wiki_h_left_padding */
@@ -148,7 +148,7 @@
  font-size: 1em;
  font-style: italic;
  font-weight: normal;
- color: #b00;
+ color: #822;
  margin-top: 1.4em;
  margin-bottom: .8em;
  padding-left: .5rem; /* wiki_h_left_padding */
