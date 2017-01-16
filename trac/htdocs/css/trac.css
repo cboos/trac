@@ -653,7 +653,10 @@ code, tt {
  background: #fcfcfc;
  margin: 0 .1em
 }
-h1 code, h2 code, h3 code, h4 code, h5 code, h6 code { color: #b00 }
+h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
+ color: #500;
+ font-weight: 500;
+}
 
 pre {
  font-family: Open Sans Mono,Consolas,Lucida Console,monospace; /* code_monospace */
