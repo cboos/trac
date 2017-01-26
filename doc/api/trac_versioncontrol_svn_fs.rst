@@ -16,7 +16,7 @@ classes in the `bindings`_ themselves.
 .. _examples: http://svn.apache.org/viewvc/subversion/trunk/tools/examples/
 .. _bindings: http://svn.apache.org/viewvc/subversion/trunk/subversion/bindings/swig/python/svn/
 
-.. automodule :: trac.versioncontrol.svn_fs
+.. module :: tracopt.versioncontrol.svn.svn_fs
 
 
 Components
