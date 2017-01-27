@@ -163,18 +163,18 @@ ul.children > li.child {
  background: linear-gradient(to top,
   rgba(255, 255, 255, 0),
   rgba(198, 198, 198, 0.21) .7em,
-  #888 .8em,
+  #c7c5c5 .8em,
   rgba(255, 255, 255, 0) .8em,
   rgba(255, 255, 255, 0) 100%
  );
  padding: 0 .2em 1em;
  margin-bottom: .2em;
- color: #999;
+ color: #655b5b;
  font-size: 100%;
  font-weight: normal;
 }
 @media print {
- #changelog h3, #ticketchange h3 { box-shadow: none }
+ #changelog h3, #ticketchange h3 { background: none }
 }
 
 /* Comment editor */
