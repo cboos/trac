@@ -46,7 +46,7 @@
  margin-top: 1.4em;
  padding: 0.2em .3em 1em .5rem; /* wiki_h_underline_padding wiki_h_left_padding */
  background: linear-gradient(to top,
-  rgba(255, 255, 255, .4) 0,
+  rgba(255, 255, 255, 0) 0,
   rgba(215, 215, 215, .4) .79em,
   #822 .8em, /* wiki_h_underline_color wiki_h_underline_shadow */
   #822 .9em, /* wiki_h_underline_shadow + wiki_h3_underline_height */
@@ -63,7 +63,7 @@
  margin-bottom: 1em;
  padding: .2em .3em 1em .5rem; /* _ _ (wiki_h_underline_padding + wiki_h_underline_shadow) wiki_h_left_padding */
  background: linear-gradient(to top,
-  rgba(255, 255, 255, .4) 0,
+  rgba(255, 255, 255, 0) 0,
   rgba(215, 215, 215, .4) .8em,
   #822 .8em,  /* _ wiki_h_underline_shadow */
   #822 .85em, /* wiki_h_underline_shadow + wiki_h3_underline_height */

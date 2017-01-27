@@ -660,7 +660,7 @@ h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
 
 pre {
  font-family: Open Sans Mono,Consolas,Lucida Console,monospace; /* code_monospace */
- font-size: 1em;
+ font-size: .9em;
 }
 
 blockquote.citation {
