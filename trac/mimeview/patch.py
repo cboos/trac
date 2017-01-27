@@ -22,7 +22,7 @@ import re
 from trac.core import *
 from trac.mimeview.api import content_to_unicode, IHTMLPreviewRenderer, \
                               Mimeview
-from trac.util.html import escape, Markup
+from trac.util.html import Markup, escape
 from trac.util.text import expandtabs
 from trac.util.translation import _
 from trac.web.chrome import Chrome, add_script, add_stylesheet
@@ -59,8 +59,7 @@ class PatchRenderer(Component):
 
         add_script(req, 'common/js/diff.js')
         add_stylesheet(req, 'common/css/diff.css')
-        return Chrome(self.env).render_template(req, 'diff_div.html',
-                                                data, fragment=True)
+        return Chrome(self.env).render_fragment(req, 'diff_div.html', data)
 
     # Internal methods
 
@@ -91,7 +90,7 @@ class PatchRenderer(Component):
         space_re = re.compile(' ( +)|^ ')
         def htmlify(match):
             div, mod = divmod(len(match.group(0)), 2)
-            return div * '&nbsp; ' + mod * '&nbsp;'
+            return Markup(div * '&nbsp; ' + mod * '&nbsp;')
 
         comments = []
         changes = []
@@ -103,7 +102,7 @@ class PatchRenderer(Component):
                 oldinfo = newinfo = []
                 binary = False
 
-                # consume preample, storing free lines in comments
+                # consume preamble, storing free lines in comments
                 # (also detect the special case of git binary patches)
                 if not line.startswith('--- '):
                     if not line.startswith('Index: ') and line != '=' * 67:

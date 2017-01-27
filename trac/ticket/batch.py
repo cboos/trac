@@ -15,8 +15,6 @@
 
 import re
 
-from genshi.builder import tag
-
 from trac.core import *
 from trac.notification.api import NotificationSystem
 from trac.perm import IPermissionRequestor
@@ -24,6 +22,7 @@ from trac.ticket import TicketSystem, Ticket
 from trac.ticket.default_workflow import ConfigurableTicketWorkflow
 from trac.ticket.notification import BatchTicketChangeEvent
 from trac.util.datefmt import datetime_now, parse_date, user_time, utc
+from trac.util.html import tag
 from trac.util.text import exception_to_unicode, to_unicode
 from trac.util.translation import _, tag_
 from trac.web.api import IRequestFilter, IRequestHandler, HTTPBadRequest
@@ -80,11 +79,11 @@ class BatchModifyModule(Component):
     def pre_process_request(self, req, handler):
         return handler
 
-    def post_process_request(self, req, template, data, content_type):
+    def post_process_request(self, req, template, data, metadata):
         if req.path_info == '/query' and \
                 'TICKET_BATCH_MODIFY' in req.perm('ticket'):
             self.add_template_data(req, data, data['tickets'])
-        return template, data, content_type
+        return template, data, metadata
 
     # IPermissionRequestor methods
 

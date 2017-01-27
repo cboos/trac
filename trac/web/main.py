@@ -33,9 +33,7 @@ import sys
 import traceback
 from urlparse import urlparse
 
-from genshi.builder import tag
-from genshi.output import DocType
-from genshi.template import TemplateLoader
+from jinja2 import FileSystemLoader
 
 from trac import __version__ as TRAC_VERSION
 from trac.config import BoolOption, ChoiceOption, ConfigurationError, \
@@ -50,8 +48,9 @@ from trac.util import arity, get_frame_info, get_last_traceback, hex_entropy, \
                       warn_setuptools_issue
 from trac.util.concurrency import threading
 from trac.util.datefmt import format_datetime, localtz, timezone, user_time
-from trac.util.text import exception_to_unicode, shorten_line, to_unicode, \
-                           to_utf8, unicode_quote
+from trac.util.html import genshi, tag, valid_html_bytes
+from trac.util.text import (exception_to_unicode, jinja2env, shorten_line,
+                            to_unicode, to_utf8, unicode_quote)
 from trac.util.translation import _, get_negotiated_locale, has_babel, \
                                   safefmt, tag_
 from trac.web.api import HTTPBadRequest, HTTPException, HTTPForbidden, \
@@ -252,25 +251,27 @@ class RequestDispatcher(Component):
             # Process the request and render the template
             resp = chosen_handler.process_request(req)
             if resp:
-                if len(resp) == 2: # old Clearsilver template and HDF data
-                    self.log.error("Clearsilver template are no longer "
-                                   "supported (%s)", resp[0])
-                    raise TracError(
-                        _("Clearsilver templates are no longer supported, "
-                          "please contact your Trac administrator."))
-                # Genshi
-                template, data, content_type, method = \
-                    self._post_process_request(req, *resp)
+                resp = self._post_process_request(req, *resp)
+                template, data, metadata, method = resp
                 if 'hdfdump' in req.args:
                     req.perm.require('TRAC_ADMIN')
                     # debugging helper - no need to render first
                     out = io.BytesIO()
-                    pprint(data, out)
+                    pprint({'template': template,
+                            'metadata': metadata,
+                            'data': data}, out)
                     req.send(out.getvalue(), 'text/plain')
-                self.log.debug("Rendering response from handler")
-                output = chrome.render_template(
-                        req, template, data, content_type, method=method,
-                        iterable=chrome.use_chunked_encoding)
+                self.log.debug("Rendering response with template %s", template)
+                iterable = chrome.use_chunked_encoding
+                if isinstance(metadata, dict):
+                    iterable = metadata.setdefault('iterable', iterable)
+                    content_type = metadata.get('content_type')
+                else:
+                    content_type = metadata
+                output = chrome.render_template(req, template, data, metadata,
+                                                iterable=iterable,
+                                                method=method)
+                # TODO (1.5.1) remove iterable and method parameters
                 req.send(output, content_type or 'text/html')
             else:
                 self.log.debug("Empty or no response from handler. "
@@ -396,12 +397,12 @@ class RequestDispatcher(Component):
         if 'trac_form_token' in req.incookie:
             return req.incookie['trac_form_token'].value
         else:
-            req.outcookie['trac_form_token'] = hex_entropy(24)
+            req.outcookie['trac_form_token'] = form_token = hex_entropy(24)
             req.outcookie['trac_form_token']['path'] = req.base_path or '/'
             if self.env.secure_cookies:
                 req.outcookie['trac_form_token']['secure'] = True
             req.outcookie['trac_form_token']['httponly'] = True
-            return req.outcookie['trac_form_token'].value
+            return form_token
 
     def _get_use_xsendfile(self, req):
         return self.use_xsendfile
@@ -428,10 +429,21 @@ class RequestDispatcher(Component):
 
     def _post_process_request(self, req, *args):
         resp = args
-        # `method` is optional in IRequestHandler's response. If not
-        # specified, the default value is appended to response.
-        if len(resp) == 3:
+        # `metadata` and the backward compatibility `method` are
+        # optional in IRequestHandler's response. If not specified,
+        # the default value is appended to response.
+        metadata = {}
+        method = None
+        if len(resp) == 2:
+            resp += (metadata, None)
+        elif len(resp) == 3:
+            metadata = resp[2]
             resp += (None,)
+        elif len(resp) == 4:
+            metadata = resp[2]
+            method = resp[3]
+        if method and isinstance(metadata, dict):
+            metadata['method'] = method
         nbargs = len(resp)
         for f in reversed(self.filters):
             # As the arity of `post_process_request` has changed since
@@ -448,7 +460,7 @@ class RequestDispatcher(Component):
                 resp = f.post_process_request(req, *resp[:-1])
                 resp += (method,)
             elif nbargs == 0:
-                f.post_process_request(req, *(None,)*extra_arg_count)
+                f.post_process_request(req, *(None,) * extra_arg_count)
         return resp
 
 
@@ -771,7 +783,7 @@ def send_project_index(environ, start_response, parent_dir=None,
         tmpl_path, template = os.path.split(env_index_template)
         loadpaths.insert(0, tmpl_path)
     else:
-        template = 'index.html'
+        template = 'jindex.html'
 
     data = {'trac': {'version': TRAC_VERSION,
                      'time': user_time(req, format_datetime)},
@@ -800,16 +812,13 @@ def send_project_index(environ, start_response, parent_dir=None,
 
         data['projects'] = projects
 
-        loader = TemplateLoader(loadpaths, variable_lookup='lenient',
-                                default_encoding='utf-8')
-        tmpl = loader.load(template)
-        stream = tmpl.generate(**data)
+        jenv = jinja2env(loader=FileSystemLoader(loadpaths))
+        jenv.globals.update(translation.functions)
+        tmpl = jenv.get_template(template)
+        output = valid_html_bytes(tmpl.render(**data).encode('utf-8'))
         if template.endswith('.xml'):
-            output = stream.render('xml')
             req.send(output, 'text/xml')
         else:
-            output = stream.render('xhtml', doctype=DocType.XHTML_STRICT,
-                                   encoding='utf-8')
             req.send(output, 'text/html')
 
     except RequestDone:

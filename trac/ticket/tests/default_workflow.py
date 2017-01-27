@@ -282,8 +282,8 @@ class SetOwnerAttributeTestCase(unittest.TestCase):
             self.perm_sys.grant_permission(*perm)
         self.req = MockRequest(self.env, authname='user1')
         self.expected = """\
-to <select name="action_reassign_reassign_owner" \
-id="action_reassign_reassign_owner"><option selected="True" \
+to <select id="action_reassign_reassign_owner" \
+name="action_reassign_reassign_owner"><option selected="selected" \
 value="user1">user1</option><option value="user2">user2</option>\
 <option value="user3">user3</option></select>"""
 
@@ -398,10 +398,10 @@ user4 = !TICKET_MODIFY
 
         self.assertEqual('reassign', ctrl[0])
         self.assertEqual("""\
-to <select name="action_reassign_reassign_owner" \
-id="action_reassign_reassign_owner">\
+to <select id="action_reassign_reassign_owner"\
+ name="action_reassign_reassign_owner">\
 <option value="user4">User B</option>\
-<option selected="True" value="user1">User C</option>\
+<option selected="selected" value="user1">User C</option>\
 <option value="user3">User D</option></select>\
 """, str(ctrl[1]))
 

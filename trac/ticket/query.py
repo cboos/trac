@@ -23,8 +23,6 @@ import csv
 import io
 import re
 
-from genshi.builder import tag
-
 from trac.config import Option, IntOption
 from trac.core import *
 from trac.db import get_column_names
@@ -37,6 +35,7 @@ from trac.util import Ranges, as_bool
 from trac.util.datefmt import (datetime_now, from_utimestamp,
                                format_date_or_datetime, parse_date,
                                to_timestamp, to_utimestamp, utc, user_time)
+from trac.util.html import tag
 from trac.util.presentation import Paginator
 from trac.util.text import empty, shorten_line, quote_query_string
 from trac.util.translation import _, cleandoc_, ngettext, tag_
@@ -758,6 +757,12 @@ class Query(object):
                     for (label, milestones) in groups]
             fields[name] = field
 
+        def by_label(name):
+            if 'label' in fields[name]:
+                return fields[name]['label'].lower()
+            return ''
+        field_names = sorted(fields.iterkeys(), key=by_label)
+
         groups = {}
         groupsequence = []
         for ticket in tickets:
@@ -825,6 +830,7 @@ class Query(object):
                 'clauses': clauses,
                 'headers': headers,
                 'fields': fields,
+                'field_names': field_names,
                 'modes': self.get_modes(),
                 'tickets': tickets,
                 'groups': groupsequence or [(None, tickets)],
@@ -1148,7 +1154,7 @@ class QueryModule(Component):
         Chrome(self.env).add_jquery_ui(req)
         add_script(req, 'common/js/query.js')
 
-        return 'query.html', data, None
+        return 'query.html', data
 
     def _export_csv(self, req, query, sep=',', mimetype='text/plain'):
         def iterate():
@@ -1203,8 +1209,9 @@ class QueryModule(Component):
             'query_href': query_href
         }
         output = Chrome(self.env).render_template(req, 'query.rss', data,
-                                                  'application/rss+xml',
-                                                  iterable=True)
+                                                  {'content_type':
+                                                   'application/rss+xml',
+                                                   'iterable': True})
         return output, 'application/rss+xml'
 
     # IWikiSyntaxProvider methods
@@ -1372,8 +1379,8 @@ class TicketQueryMacro(WikiMacroBase):
 
             add_stylesheet(req, 'common/css/report.css')
 
-            return Chrome(self.env).render_template(
-                req, 'query_results.html', data, None, fragment=True)
+            return Chrome(self.env).render_fragment(req, 'query_results.html',
+                                                    data)
 
         if format == 'progress':
             from trac.ticket.roadmap import (RoadmapModule,
@@ -1414,8 +1421,7 @@ class TicketQueryMacro(WikiMacroBase):
                     'legend': True,
                 }
                 return tag.div(
-                    chrome.render_template(req, 'progress_bar.html', data,
-                                           None, fragment=True),
+                    chrome.render_fragment(req, 'progress_bar.html', data),
                     class_='trac-progress')
 
             def per_group_stats_data(gstat, group_name):
@@ -1438,8 +1444,7 @@ class TicketQueryMacro(WikiMacroBase):
                              group=by),
             }
             return tag.div(
-                chrome.render_template(req, 'progress_bar_grouped.html', data,
-                                       None, fragment=True),
+                chrome.render_fragment(req, 'progress_bar_grouped.html', data),
                 class_='trac-groupprogress')
 
         # Formats above had their own permission checks, here we need to

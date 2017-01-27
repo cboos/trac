@@ -20,8 +20,6 @@ import re
 import shutil
 from functools import partial
 
-from genshi.builder import tag
-
 from trac.admin.api import IAdminPanelProvider
 from trac.core import *
 from trac.loader import get_plugin_info
@@ -29,6 +27,7 @@ from trac.log import LOG_LEVELS
 from trac.perm import IPermissionRequestor, PermissionExistsError, \
                       PermissionSystem
 from trac.util.datefmt import all_timezones, pytz
+from trac.util.html import tag
 from trac.util.text import exception_to_unicode, unicode_from_base64, \
                            unicode_to_base64
 from trac.util.translation import _, Locale, get_available_locales, ngettext
@@ -94,8 +93,8 @@ class AdminModule(Component):
         if not provider:
             raise HTTPNotFound(_("Unknown administration panel"))
 
-        template, data = \
-            provider.render_admin_panel(req, cat_id, panel_id, path_info)
+        resp = provider.render_admin_panel(req, cat_id, panel_id, path_info)
+        template, data = resp[:2]
 
         data.update({
             'active_cat': cat_id, 'active_panel': panel_id,
@@ -107,7 +106,7 @@ class AdminModule(Component):
         })
 
         add_stylesheet(req, 'common/css/admin.css')
-        return template, data, None
+        return resp
 
     # ITemplateProvider methods
 
@@ -442,6 +441,7 @@ class PermissionAdminPanel(Component):
 
         return 'admin_perms.html', {
             'actions': all_actions,
+            'allowed_actions': [a for a in all_actions if a in req.perm],
             'perms': perm.get_users_dict(),
             'groups': perm.get_groups_dict(),
             'unicode_to_base64': unicode_to_base64

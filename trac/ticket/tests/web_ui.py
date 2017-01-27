@@ -12,6 +12,7 @@
 # history and logs, available at http://trac.edgewall.org/log/.
 
 from datetime import datetime, timedelta
+import io
 import unittest
 
 from trac.core import TracError
@@ -23,6 +24,7 @@ from trac.ticket.model import Ticket
 from trac.ticket.web_ui import TicketModule
 from trac.util.datefmt import (datetime_now, format_date, format_datetime,
                                timezone, to_utimestamp, user_time, utc)
+from trac.util.html import HTMLTransform
 from trac.web.api import HTTPBadRequest, RequestDone
 from trac.web.chrome import Chrome
 
@@ -130,7 +132,7 @@ class TicketModuleTestCase(unittest.TestCase):
         field = data['changes'][0]['fields']['owner']
 
         self.assertEqual("changed from <em>owner1</em> to <em>owner2</em>",
-                         str(field['rendered']))
+                         unicode(field['rendered']))
 
     def test_ticket_property_diff_owner_add(self):
         """Property diff message when ticket owner is added."""
@@ -141,7 +143,7 @@ class TicketModuleTestCase(unittest.TestCase):
         data = self.ticket_module.process_request(req)[1]
         field = data['changes'][0]['fields']['owner']
 
-        self.assertEqual("set to <em>owner2</em>", str(field['rendered']))
+        self.assertEqual("set to <em>owner2</em>", unicode(field['rendered']))
 
     def test_ticket_property_diff_owner_remove(self):
         """Property diff message when ticket owner is removed."""
@@ -152,7 +154,7 @@ class TicketModuleTestCase(unittest.TestCase):
         data = self.ticket_module.process_request(req)[1]
         field = data['changes'][0]['fields']['owner']
 
-        self.assertEqual("<em>owner1</em> deleted", str(field['rendered']))
+        self.assertEqual("<em>owner1</em> deleted", unicode(field['rendered']))
 
     def test_ticket_property_diff_reporter_change(self):
         """Property diff message when ticket reporter is changed."""
@@ -164,7 +166,7 @@ class TicketModuleTestCase(unittest.TestCase):
         field = data['changes'][0]['fields']['reporter']
 
         self.assertEqual("changed from <em>reporter1</em> to "
-                         "<em>reporter2</em>", str(field['rendered']))
+                         "<em>reporter2</em>", unicode(field['rendered']))
 
     def test_ticket_property_diff_reporter_add(self):
         """Property diff message when ticket reporter is added."""
@@ -175,7 +177,8 @@ class TicketModuleTestCase(unittest.TestCase):
         data = self.ticket_module.process_request(req)[1]
         field = data['changes'][0]['fields']['reporter']
 
-        self.assertEqual("set to <em>reporter2</em>", str(field['rendered']))
+        self.assertEqual("set to <em>reporter2</em>",
+                         unicode(field['rendered']))
 
     def test_ticket_property_diff_reporter_remove(self):
         """Property diff message when ticket reporter is removed."""
@@ -186,7 +189,8 @@ class TicketModuleTestCase(unittest.TestCase):
         data = self.ticket_module.process_request(req)[1]
         field = data['changes'][0]['fields']['reporter']
 
-        self.assertEqual("<em>reporter1</em> deleted", str(field['rendered']))
+        self.assertEqual("<em>reporter1</em> deleted",
+                         unicode(field['rendered']))
 
     def _test_invalid_cnum_raises(self, action, cnum=None):
         self._insert_ticket()
@@ -400,11 +404,27 @@ class TicketModuleTestCase(unittest.TestCase):
 
         def timefield_text():
             self.assertTrue(self.ticket_module.match_request(req))
-            rv = self.ticket_module.process_request(req)
-            stream = Chrome(self.env).render_template(req, rv[0], rv[1], rv[2],
-                                                      fragment=True)
-            stream = stream.select('//td[@headers="h_timefield"]')
-            return stream.render('text', encoding=None).strip()
+            template, data = self.ticket_module.process_request(req)
+            content = Chrome(self.env).render_fragment(req, template, data)
+            # select('//td[@headers="h_timefield"') replacement
+            class TimefieldExtractor(HTMLTransform):
+                pick_next_text = False
+                value = ''
+                def handle_starttag(self, tag, attrs):
+                    if tag == 'td':
+                        for name, value in attrs:
+                            if name == 'headers' and value == 'h_timefield':
+                                self.pick_next_text = True
+                def handle_data(self, data):
+                    if self.pick_next_text:
+                        self.value += data
+                def handle_endtag(self, tag):
+                    if self.pick_next_text:
+                        self.pick_next_text = False
+
+            extractor = TimefieldExtractor(io.BytesIO())
+            extractor.feed(content.encode('utf-8'))
+            return extractor.value.decode('utf-8').strip()
 
         self._insert_ticket(summary='Time fields')
         self.assertEqual('', timefield_text())

@@ -18,8 +18,6 @@
 
 import re
 
-from genshi.template.text import NewTextTemplate
-
 from trac.api import IEnvironmentSetupParticipant
 from trac.attachment import IAttachmentChangeListener
 from trac.core import *
@@ -34,8 +32,8 @@ from trac.ticket.api import translation_deactivated
 from trac.ticket.model import Ticket, sort_tickets_by_priority
 from trac.util import lazy
 from trac.util.datefmt import format_date_or_datetime, get_timezone
-from trac.util.text import CRLF, exception_to_unicode, shorten_line, \
-                           text_width, wrap
+from trac.util.text import (CRLF, exception_to_unicode, jinja2template,
+                            shorten_line, text_width, wrap)
 from trac.util.translation import _
 from trac.web.chrome import Chrome
 
@@ -62,8 +60,8 @@ class TicketNotificationSystem(Component):
         pass
 
     ticket_subject_template = Option('notification', 'ticket_subject_template',
-                                     '$prefix #$ticket.id: $summary',
-        """A Genshi text template snippet used to get the notification
+                                     '${prefix} #${ticket.id}: ${summary}',
+        """A Jinja2 text template snippet used to get the notification
         subject.
 
         The template variables are documented on the
@@ -71,7 +69,7 @@ class TicketNotificationSystem(Component):
         """)
 
     batch_subject_template = Option('notification', 'batch_subject_template',
-                                    '$prefix Batch modify: $tickets_descr',
+                                    '${prefix} Batch modify: ${tickets_descr}',
         """Like `ticket_subject_template` but for batch modifications.
         (''since 1.0'')""")
 
@@ -311,11 +309,16 @@ class TicketFormatter(Component):
         return Chrome(self.env).format_author(None, author)
 
     def _format_body(self, data, template_name):
-        template = Chrome(self.env).load_template(template_name, method='text')
-        stream = template.generate(**data)
+        chrome = Chrome(self.env)
+        template = chrome.load_template(template_name, text=True)
         # don't translate the e-mail stream
         with translation_deactivated():
-            return stream.render('text', encoding='utf-8')
+            try:
+                body = chrome.render_template_string(template, data, text=True)
+                return body.encode('utf-8')
+            except Exception as e:
+                self.log.debug("Failed to format body of notification mail: %s",
+                               exception_to_unicode(e, traceback=True))
 
     def _format_subj(self, event):
         is_newticket = event.category == 'created'
@@ -339,8 +342,8 @@ class TicketFormatter(Component):
         }
 
         template = self.config.get('notification', 'ticket_subject_template')
-        template = NewTextTemplate(template.encode('utf8'))
-        subj = template.generate(**data).render('text', encoding=None).strip()
+        template = jinja2template(template, text=True)
+        subj = template.render(**data).strip()
         if not is_newticket:
             subj = "Re: " + subj
         return subj
@@ -349,7 +352,7 @@ class TicketFormatter(Component):
         tickets_descr = ', '.join('#%s' % t for t in tickets)
 
         template = self.config.get('notification', 'batch_subject_template')
-        template = NewTextTemplate(template.encode('utf8'))
+        template = jinja2template(template, text=True)
 
         prefix = self.config.get('notification', 'smtp_subject_prefix')
         if prefix == '__default__':
@@ -360,7 +363,7 @@ class TicketFormatter(Component):
             'tickets_descr': tickets_descr,
             'env': self.env,
         }
-        subj = template.generate(**data).render('text', encoding=None).strip()
+        subj = template.render(**data).strip()
         return shorten_line(subj)
 
     def _format_hdr(self, ticket):

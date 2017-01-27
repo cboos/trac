@@ -26,7 +26,15 @@ class IPreferencePanelProvider(Interface):
     def render_preference_panel(req, panel):
         """Process a request for a preference panel.
 
-        This function should return a tuple of the form `(template, data)`,
-        where `template` is the name of the template to use and `data` is the
-        data to be passed to the template.
+        This function should return a tuple of the form `(template,
+        data)`, where `template` is the name of the template to use
+        and `data` is the data used when rendering the template.
+
+        .. note::
+
+           When a plugin wants to use a legacy Genshi template instead
+           of a Jinja2 template, it needs to return instead a *triple*
+           of the form ``(template, data, None)``, similar to what
+           `.IRequestHandler.process_request` does.
+
         """

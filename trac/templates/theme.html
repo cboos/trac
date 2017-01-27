@@ -1,4 +1,4 @@
-<!--!  Copyright (C) 2006-2014 Edgewall Software
+{# Copyright (C) 2006-2016 Edgewall Software
 
   This software is licensed as described in the file COPYING, which
   you should have received as part of this distribution. The terms
@@ -7,83 +7,184 @@
   This software consists of voluntary contributions made by many
   individuals. For the exact contribution history, see the revision
   history and logs, available at http://trac.edgewall.org/.
--->
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:i18n="http://genshi.edgewall.org/i18n"
-      py:strip="">
+#}
+## This is Trac's default theme
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- # block head (placeholder in theme.html) -->
+    # block head
+    # endblock head
+    <!-- # endblock head (placeholder in theme.html) -->
+  </head> {# jinjacheck: "()" OK #}
 
-  <div py:def="navigation(category)" id="${category}" class="nav">
-    <ul py:if="chrome.nav[category]">
-      <li py:for="idx, item in  enumerate(chrome.nav[category])"
-          class="${classes(first_last(idx, chrome.nav[category]), active=item.active)}">${item.label}</li>
-    </ul>
-  </div>
+  <body>
+    # block body
+    <!-- # block body (content inherited from theme.html) -->
+    <!--   # include 'site_header.html' (theme.html) -->
+    #   include 'site_header.html' ignore missing
+    <!--   end of site_header.html -->
+    {# ------------------------------------------------------------------
 
-  <py:match path="body" once="true" buffer="false"><body>
+    Note: here we produce the main structure of the body element:
+
+      div id="banner"
+        div id="header"
+        ... logo + metanav ...
+        /div
+        ... mainnav ...
+      /div
+      div id="main"
+        ... ctxtnav [+ warnings][+ notices] ...
+
+        # block content
+
+        (here goes the content block produced by the end user page,
+        typically a "content" div, which could (should!) be followed
+        by the parent content produced by the layout.html page)
+
+        # endblock content
+      /div
+      div id="footer"
+        ...
+      /div
+
+    It's entirely possible for the end user page to prepend to, append
+    to, or replace this default structure by redefining the body
+    block, but it should be seldom needed.
+
+    ------------------------------------------------------------------ #}
+
+    #   macro navigation(category)
+    <div id="${category}" class="nav">
+      #   if chrome.nav[category]:
+      <ul>{%
+        for item in chrome.nav[category]
+        %}<li ${{'class': {
+              'first': loop.first, 'last': loop.last, 'active': item.active
+              }}|htmlattr}>${item.label}</li>{%
+        endfor
+      %}</ul>
+      #   endif
+    </div>
+    #   endmacro
+
     <div id="banner">
-      <div id="header" py:choose="">
-        <a py:when="chrome.logo.src" id="logo" href="${chrome.logo.link or href.wiki('TracIni')+'#header_logo-section'}"><img
-          src="${chrome.logo.src}" alt="${chrome.logo.alt}"
-          height="${chrome.logo.height or None}" width="${chrome.logo.width or None}" /></a>
-        <h1 py:otherwise=""><a href="${chrome.logo.link}">${project.name}</a></h1>
+      <div id="header">
+        # if chrome.logo.src:
+        <a id="logo"
+           href="${chrome.logo.link or
+                 href.wiki('TracIni') + '#header_logo-section'}">
+          <img ${{
+               'src': chrome.logo.src,
+               'alt': chrome.logo.alt,
+               'height': chrome.logo.height,
+               'width': chrome.logo.width,
+               }|htmlattr} /></a>
+        ## jinjacheck: "attribute alt" OK
+        ## jinjacheck: "attribute src" OK
+        # else:
+        <h1><a href="${chrome.logo.link}">${project.name}</a></h1>
+        # endif
       </div>
       <form id="search" action="${href.search()}" method="get">
-        <div py:if="not defined('trac_error_rendering') and 'SEARCH_VIEW' in perm">
-          <label for="proj-search">Search:</label>
-          <input type="text" id="proj-search" name="q" size="18" accesskey="f" value="" />
-          <input type="submit" value="${_('Search')}" />
+        # if trac_error_rendering is undefined and 'SEARCH_VIEW' in perm:
+        <div>
+          <label for="proj-search">${_("Search:")}</label>
+          <input type="text" id="proj-search" name="q" size="18"
+                 ${accesskey("f")} value="" />
+          <input type="submit" value="${_("Search")}" />
         </div>
+        # endif
       </form>
       ${navigation('metanav')}
     </div>
     ${navigation('mainnav')}
 
-    <div id="main" class="${classes(uisymbols=req.session.get('ui.use_symbols'),
-                                    uinohelp=req.session.get('ui.hide_help'))}">
-      <xi:include py:if="value_of('resourcepath_template')" href="${resourcepath_template}" />
-
+    <div id="main"
+         ${{'class': {
+         'uisymbols': req.session.get('ui.use_symbols'),
+         'uinohelp': req.session.get('ui.hide_help'),
+         }}|htmlattr}>
+      # include resourcepath_template if resourcepath_template ignore missing
       <div id="ctxtnav" class="nav">
-        <h2>Context Navigation</h2>
-        <ul py:if="chrome.ctxtnav">
-          <li py:for="i, elm in enumerate(chrome.ctxtnav)"
-              class="${classes(first_last(i, chrome.ctxtnav))}">$elm</li>
+        <h2>${_("Context Navigation")}</h2>
+        # if chrome.ctxtnav:
+        <ul>
+          # for elm in chrome.ctxtnav:
+          <li ${{'class': {'first': loop.first, 'last': loop.last}}|htmlattr}>${
+            elm}</li>
+          # endfor
         </ul>
+        # endif
         <hr />
       </div>
 
-      <div id="warning" py:if="chrome.warnings" class="system-message">
-        <a class="trac-close-msg" href="#" title="Hide this warning"><span>close</span></a>
-        <py:choose test="len(chrome.warnings)">
-          <strong>Warning:</strong>
-          <py:when test="1">${chrome.warnings[0]}</py:when>
-          <py:otherwise><ul><li py:for="warning in chrome.warnings">$warning</li></ul></py:otherwise>
-        </py:choose>
+      # if chrome.warnings:
+      <div id="warning" class="system-message">
+        <a class="trac-close-msg" href="#"
+           title="${_("Hide this warning")}"><span>${_("close")}</span></a>
+        <strong>${_("Warning:")}</strong>
+        # if len(chrome.warnings) == 1:
+        ${chrome.warnings[0]}
+        # else:
+        <ul>
+          # for warning in chrome.warnings:
+          <li>${warning}</li>
+          # endfor
+        </ul>
+        # endif
       </div>
-      <div id="notice" py:if="chrome.notices" class="system-message">
-        <a class="trac-close-msg" href="#" title="Hide this notice"><span>close</span></a>
-        <py:choose test="len(chrome.notices)">
-          <py:when test="1">${chrome.notices[0]}</py:when>
-          <py:otherwise><ul><li py:for="notice in chrome.notices">$notice</li></ul></py:otherwise>
-        </py:choose>
-      </div>
+      # endif
 
-      ${select('*|text()|comment()')}
+      # if chrome.notices:
+      <div id="notice" class="system-message">
+        <a class="trac-close-msg" href="#"
+           title="${_("Hide this notice")}"><span>${_("close")}</span></a>
+        # if len(chrome.notices) == 1:
+        ${chrome.notices[0]}
+        # else:
+        <ul>
+          # for notice in chrome.notices:
+          <li>${notice}</li>
+          # endfor
+        </ul>
+        # endif
+
+      </div>
+      # endif
+      <!-- # block content (placeholder in theme.html) -->
+      # block content
+
+      {# ------------------------------------------------------------------
+
+      Note: here should go the content defined by the end user page.
+
+      See layout.html which defines an useful default content for this
+      block and has more detailed usage notes.
+
+      ------------------------------------------------------------------ #}
+
+      # endblock content
+      <!-- # endblock content (placeholder in theme.html) -->
     </div>
 
-    <div id="footer" xml:lang="en"><hr/>
-      <a id="tracpowered" href="http://trac.edgewall.org/"><img
-        src="${chrome.htdocs_location}trac_logo_mini.png" height="30"
-        width="107" alt="Trac Powered"/></a>
-      <p class="left" i18n:msg="version">
-        Powered by <a href="${href.about()}"><strong>Trac ${trac.version}</strong></a><br />
+    <div id="footer"><hr/>
+      <a id="tracpowered" href="http://trac.edgewall.org/"
+         ><img src="${chrome.htdocs_location}trac_logo_mini.png" height="30"
+               width="107" alt="${_("Trac Powered")}"/></a>
+      <p class="left">
+        # trans href = href.about(), version = trac.version
+        Powered by <a href="${href}"><strong>Trac ${version}</strong></a><br />
         By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+        # endtrans
       </p>
       <p class="right">${chrome.footer}</p>
     </div>
-  </body></py:match>
+    <!--   # include 'site_footer.html' (theme.html) -->
+    # include 'site_footer.html' ignore missing
+    <!--   end of site_footer.html -->
+    <!-- # endblock body (content inherited from theme.html) -->
+    # endblock body
+  </body>
 </html>

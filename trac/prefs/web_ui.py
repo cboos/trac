@@ -17,12 +17,11 @@
 import pkg_resources
 import re
 
-from genshi.builder import tag
-
 from trac.core import *
 from trac.prefs.api import IPreferencePanelProvider
 from trac.util import lazy
 from trac.util.datefmt import all_timezones, get_timezone, localtz
+from trac.util.html import tag
 from trac.util.translation import _, Locale, deactivate,\
                                   get_available_locales, make_activable
 from trac.web.api import HTTPNotFound, IRequestHandler, \
@@ -95,14 +94,21 @@ class PreferencesModule(Component):
         children = []
         if child_panels.get(panel_id):
             for name, label in child_panels[panel_id]:
-                ctemplate, cdata = provider.render_preference_panel(req, name)
+                resp = provider.render_preference_panel(req, name)
+                ctemplate, cdata = resp[:2]
                 cdata.update(session_data)
-                rendered = chrome.render_template(req, ctemplate, cdata,
-                                                  fragment=True)
+                if len(resp) == 2:
+                    rendered = chrome.render_fragment(req, ctemplate, cdata)
+                else:
+                    # Backward compatibility with Genshi preference panels
+                    # TODO (1.5.1) remove
+                    rendered = chrome.render_template(req, ctemplate, cdata,
+                                                      None, fragment=True)
                 children.append((name, label, rendered))
 
-        template, data = \
-            chosen_provider.render_preference_panel(req, panel_id)
+        resp = chosen_provider.render_preference_panel(req, panel_id)
+        template, data = resp
+
         data.update(session_data)
         data.update({
             'active_panel': panel_id,
@@ -111,7 +117,7 @@ class PreferencesModule(Component):
         })
 
         add_stylesheet(req, 'common/css/prefs.css')
-        return template, data, None
+        return resp
 
     # ITemplateProvider methods
 
@@ -188,23 +194,6 @@ class GeneralPreferencePanel(Component):
         return 'prefs_general.html', {}
 
 
-class KeyBindingsPreferencePanel(Component):
-
-    implements(IPreferencePanelProvider)
-
-    _form_fields = ('accesskeys',)
-
-    # IPreferencePanelProvider methods
-
-    def get_preference_panels(self, req):
-        yield 'keybindings', _("Keyboard Shortcuts")
-
-    def render_preference_panel(self, req, panel):
-        if req.method == 'POST':
-            _do_save(req, panel, self._form_fields)
-        return 'prefs_keybindings.html', {}
-
-
 class LocalizationPreferencePanel(Component):
 
     implements(IPreferencePanelProvider)
@@ -253,7 +242,9 @@ class UserInterfacePreferencePanel(Component):
     implements(IPreferencePanelProvider)
 
     _request_handlers = ExtensionPoint(IRequestHandler)
-    _form_fields = ('default_handler', 'ui.hide_help', 'ui.use_symbols')
+
+    _form_fields = ('accesskeys', 'default_handler',
+                    'ui.hide_help', 'ui.use_symbols')
 
     # IPreferencePanelProvider methods
 

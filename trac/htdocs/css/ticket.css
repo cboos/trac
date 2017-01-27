@@ -15,6 +15,11 @@
  margin-top: 0;
 }
 
+#content.ticket h1:target, #content.ticket h2:target, #content.ticket h3:target, #content.ticket h4:target, #content.ticket h5:target, #content.ticket h6:target, #content.ticket span:target {
+ box-shadow: 0 0 .8em .1em rgba(102, 102, 102, 0.4);
+ background: none;
+}
+
 /* "Yellow Ticket Box" */
 #ticket {
  background: #ffd;
@@ -155,16 +160,21 @@ ul.children > li.child {
 
 /* Comment contents */
 #changelog h3, #ticketchange h3 {
- border-bottom: 1px solid #d7d7d7;
- box-shadow: .1em .2em .4em 0 #f2f2f2;
- padding: 0 .2em;
+ background: linear-gradient(to top,
+  rgba(255, 255, 255, 0),
+  rgba(198, 198, 198, 0.21) .7em,
+  #c7c5c5 .8em,
+  rgba(255, 255, 255, 0) .8em,
+  rgba(255, 255, 255, 0) 100%
+ );
+ padding: 0 .2em 1em;
  margin-bottom: .2em;
- color: #999;
+ color: #655b5b;
  font-size: 100%;
  font-weight: normal;
 }
 @media print {
- #changelog h3, #ticketchange h3 { box-shadow: none }
+ #changelog h3, #ticketchange h3 { background: none }
 }
 
 /* Comment editor */
@@ -194,6 +204,9 @@ ul.children > li.child {
 #changelog .trac-lastedit :link, #changelog .trac-lastedit :visited { color: inherit }
 
 /*  - Change controls */
+.trac-change-panel {
+ margin-top: -.5em; /* related to #changelog h3, #ticketchange h3 { padding-bottom: 1em } */
+}
 .trac-ticket-buttons {
  clear: right;
  visibility: hidden;

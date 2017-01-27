@@ -27,8 +27,6 @@ import re
 import shutil
 import unicodedata
 
-from genshi.builder import tag
-
 from trac.admin import AdminCommandError, IAdminCommandProvider, PrefixList, \
                        console_datetime_format, get_dir_list
 from trac.config import BoolOption, IntOption
@@ -41,6 +39,7 @@ from trac.util import content_disposition, create_zipinfo, file_or_std, \
                       get_reporter_id
 from trac.util.datefmt import datetime_now, format_datetime, from_utimestamp, \
                               to_datetime, to_utimestamp, utc
+from trac.util.html import tag
 from trac.util.text import exception_to_unicode, path_to_unicode, \
                            pretty_size, print_table, stripws, unicode_unquote
 from trac.util.translation import _, tag_
@@ -231,7 +230,7 @@ class AttachmentModule(Component):
             data = self._render_view(req, attachment)
 
         add_stylesheet(req, 'common/css/code.css')
-        return 'attachment.html', data, None
+        return 'attachment.html', data
 
     # IWikiSyntaxProvider methods
 
@@ -532,7 +531,7 @@ class AttachmentModule(Component):
             'attachments': self.attachment_data(web_context(req, parent))
         }
 
-        return 'attachment.html', data, None
+        return 'attachment.html', data
 
     def _render_view(self, req, attachment):
         req.perm(attachment.resource).require('ATTACHMENT_VIEW')

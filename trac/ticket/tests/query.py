@@ -1181,7 +1181,7 @@ ORDER BY COALESCE(%(version)s.value,'')='',%(version)s.value,t.id""" % quoted)
         req = MockRequest(self.env, path_info='/query')
         mod = QueryModule(self.env)
         self.assertTrue(mod.match_request(req))
-        template, data, content_type = mod.process_request(req)
+        template, data = mod.process_request(req)
         prop = req.chrome['script_data']['properties']['milestone']
         self.assertEqual('select', prop['type'])
         self.assertEqual('Milestone', prop['label'])
@@ -1199,7 +1199,7 @@ ORDER BY COALESCE(%(version)s.value,'')='',%(version)s.value,t.id""" % quoted)
         req = MockRequest(self.env, path_info='/query')
         mod = QueryModule(self.env)
         self.assertTrue(mod.match_request(req))
-        template, data, content_type = mod.process_request(req)
+        template, data = mod.process_request(req)
         prop = req.chrome['script_data']['properties']['milestone']
         self.assertEqual({'label': 'Milestone', 'type': 'text',
                           'format': 'plain'}, prop)
@@ -1228,20 +1228,19 @@ class QueryLinksTestCase(unittest.TestCase):
         return ticket
 
     def _format_link(self, query, label):
-        return str(self.query_module._format_link(self.formatter, 'query',
-                                                  query, label))
+        return unicode(self.query_module._format_link(self.formatter, 'query',
+                                                      query, label))
 
     def test_empty_query(self):
-        self.assertEqual(self._format_link('', 'label'),
-                         '<em class="error">[Error: Query filter requires '
-                         'field and constraints separated by a "="]</em>')
+        self.assertEqual(u'<em class="error">[Error: Query filter requires '
+                         'field and constraints separated by a "="]</em>',
+                         self._format_link('', 'label'))
 
     def _process_request(self, query_string):
         self.req.arg_list = parse_arg_list(query_string)
         self.req.args = arg_list_to_args(self.req.arg_list)
         self.assertEqual(True, self.query_module.match_request(self.req))
-        template, data, content_type = \
-                self.query_module.process_request(self.req)
+        template, data = self.query_module.process_request(self.req)
         return data
 
     def test_duplicated_order_arguments(self):
@@ -1351,12 +1350,12 @@ QUERY_TEST_CASES = u"""
 ------------------------------
 <p>
 </p><div class="trac-progress">
-
-  <table xmlns="http://www.w3.org/1999/xhtml" class="progress">
+  <table class="progress">
     <tr>
       <td class="closed" style="width: 33%">
         <a href="/query?status=closed&amp;group=resolution&amp;max=0&amp;order=time" title="1/3 closed"></a>
-      </td><td class="open" style="width: 67%">
+      </td>
+      <td class="open" style="width: 67%">
         <a href="/query?status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;max=0&amp;order=id" title="2/3 active"></a>
       </td>
     </tr>
@@ -1370,7 +1369,8 @@ QUERY_TEST_CASES = u"""
     </span>
     <span class="interval">
       - <a href="/query?status=closed&amp;group=resolution&amp;max=0&amp;order=time">closed: 1</a>
-    </span><span class="interval">
+    </span>
+    <span class="interval">
       - <a href="/query?status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;max=0&amp;order=id">active: 2</a>
     </span>
   </p>
@@ -1382,12 +1382,12 @@ QUERY_TEST_CASES = u"""
 ------------------------------
 <p>
 </p><div class="trac-progress">
-
-  <table xmlns="http://www.w3.org/1999/xhtml" class="progress">
+  <table class="progress">
     <tr>
       <td class="closed" style="display: none">
         <a href="/query?status=closed&amp;reporter=santa&amp;group=resolution&amp;max=0&amp;order=time" title="0/1 closed"></a>
-      </td><td class="open" style="width: 100%">
+      </td>
+      <td class="open" style="width: 100%">
         <a href="/query?status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;reporter=santa&amp;max=0&amp;order=id" title="1/1 active"></a>
       </td>
     </tr>
@@ -1401,7 +1401,8 @@ QUERY_TEST_CASES = u"""
     </span>
     <span class="interval">
       - <a href="/query?status=closed&amp;reporter=santa&amp;group=resolution&amp;max=0&amp;order=time">closed: 0</a>
-    </span><span class="interval">
+    </span>
+    <span class="interval">
       - <a href="/query?status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;reporter=santa&amp;max=0&amp;order=id">active: 1</a>
     </span>
   </p>
@@ -1413,12 +1414,12 @@ QUERY_TEST_CASES = u"""
 ------------------------------
 <p>
 </p><div class="trac-progress">
-
-  <table xmlns="http://www.w3.org/1999/xhtml" class="progress">
+  <table class="progress">
     <tr>
       <td class="closed" style="width: 50%">
         <a href="/query?status=closed&amp;reporter=santa&amp;or&amp;owner=santa&amp;status=closed&amp;group=resolution&amp;max=0&amp;order=time" title="1/2 closed"></a>
-      </td><td class="open" style="width: 50%">
+      </td>
+      <td class="open" style="width: 50%">
         <a href="/query?status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;reporter=santa&amp;or&amp;owner=santa&amp;status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;max=0&amp;order=id" title="1/2 active"></a>
       </td>
     </tr>
@@ -1432,7 +1433,8 @@ QUERY_TEST_CASES = u"""
     </span>
     <span class="interval">
       - <a href="/query?status=closed&amp;reporter=santa&amp;or&amp;owner=santa&amp;status=closed&amp;group=resolution&amp;max=0&amp;order=time">closed: 1</a>
-    </span><span class="interval">
+    </span>
+    <span class="interval">
       - <a href="/query?status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;reporter=santa&amp;or&amp;owner=santa&amp;status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;max=0&amp;order=id">active: 1</a>
     </span>
   </p>
@@ -1444,21 +1446,19 @@ QUERY_TEST_CASES = u"""
 ------------------------------
 <p>
 </p><div class="trac-groupprogress">
-  <table xmlns="http://www.w3.org/1999/xhtml" summary="Ticket completion status for each project">
+  <table summary="Ticket completion status for each project">
     <tr>
       <th scope="row">
         <i><a href="/query?project=&amp;max=0&amp;order=id">(none)</a></i>
-
-
       </th>
       <td>
-
 
   <table class="progress" style="width: 40%">
     <tr>
       <td class="closed" style="display: none">
         <a href="/query?project=&amp;status=closed&amp;group=resolution&amp;max=0&amp;order=time" title="0/1 closed"></a>
-      </td><td class="open" style="width: 100%">
+      </td>
+      <td class="open" style="width: 100%">
         <a href="/query?project=&amp;status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;max=0&amp;order=id" title="1/1 active"></a>
       </td>
     </tr>
@@ -1466,23 +1466,20 @@ QUERY_TEST_CASES = u"""
 
   <p class="percent">0 / 1</p>
 
-
-
       </td>
-    </tr><tr>
+    </tr>
+    <tr>
       <th scope="row">
-
-
         <a href="/query?project=xmas&amp;max=0&amp;order=id">xmas</a>
       </th>
       <td>
-
 
   <table class="progress" style="width: 80%">
     <tr>
       <td class="closed" style="width: 50%">
         <a href="/query?project=xmas&amp;status=closed&amp;group=resolution&amp;max=0&amp;order=time" title="1/2 closed"></a>
-      </td><td class="open" style="width: 50%">
+      </td>
+      <td class="open" style="width: 50%">
         <a href="/query?project=xmas&amp;status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;max=0&amp;order=id" title="1/2 active"></a>
       </td>
     </tr>
@@ -1490,12 +1487,9 @@ QUERY_TEST_CASES = u"""
 
   <p class="percent">1 / 2</p>
 
-
-
       </td>
     </tr>
-  </table>
-</div><p>
+  </table></div><p>
 </p>
 ------------------------------
 ============================== TicketQuery(reporter=santa, format=progress, group=project)
@@ -1503,21 +1497,19 @@ QUERY_TEST_CASES = u"""
 ------------------------------
 <p>
 </p><div class="trac-groupprogress">
-  <table xmlns="http://www.w3.org/1999/xhtml" summary="Ticket completion status for each project">
+  <table summary="Ticket completion status for each project">
     <tr>
       <th scope="row">
-
-
         <a href="/query?project=xmas&amp;reporter=santa&amp;max=0&amp;order=id">xmas</a>
       </th>
       <td>
-
 
   <table class="progress" style="width: 80%">
     <tr>
       <td class="closed" style="display: none">
         <a href="/query?project=xmas&amp;status=closed&amp;reporter=santa&amp;group=resolution&amp;max=0&amp;order=time" title="0/1 closed"></a>
-      </td><td class="open" style="width: 100%">
+      </td>
+      <td class="open" style="width: 100%">
         <a href="/query?project=xmas&amp;status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;reporter=santa&amp;max=0&amp;order=id" title="1/1 active"></a>
       </td>
     </tr>
@@ -1525,12 +1517,9 @@ QUERY_TEST_CASES = u"""
 
   <p class="percent">0 / 1</p>
 
-
-
       </td>
     </tr>
-  </table>
-</div><p>
+  </table></div><p>
 </p>
 ------------------------------
 ============================== TicketQuery(reporter=santa&or&owner=santa, format=progress, group=project)
@@ -1538,21 +1527,19 @@ QUERY_TEST_CASES = u"""
 ------------------------------
 <p>
 </p><div class="trac-groupprogress">
-  <table xmlns="http://www.w3.org/1999/xhtml" summary="Ticket completion status for each project">
+  <table summary="Ticket completion status for each project">
     <tr>
       <th scope="row">
-
-
         <a href="/query?project=xmas&amp;reporter=santa&amp;or&amp;owner=santa&amp;project=xmas&amp;max=0&amp;order=id">xmas</a>
       </th>
       <td>
-
 
   <table class="progress" style="width: 80%">
     <tr>
       <td class="closed" style="width: 50%">
         <a href="/query?project=xmas&amp;status=closed&amp;reporter=santa&amp;or&amp;owner=santa&amp;project=xmas&amp;status=closed&amp;group=resolution&amp;max=0&amp;order=time" title="1/2 closed"></a>
-      </td><td class="open" style="width: 50%">
+      </td>
+      <td class="open" style="width: 50%">
         <a href="/query?project=xmas&amp;status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;reporter=santa&amp;or&amp;owner=santa&amp;project=xmas&amp;status=assigned&amp;status=new&amp;status=accepted&amp;status=reopened&amp;max=0&amp;order=id" title="1/2 active"></a>
       </td>
     </tr>
@@ -1560,12 +1547,9 @@ QUERY_TEST_CASES = u"""
 
   <p class="percent">1 / 2</p>
 
-
-
       </td>
     </tr>
-  </table>
-</div><p>
+  </table></div><p>
 </p>
 ------------------------------
 """

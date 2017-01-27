@@ -344,10 +344,10 @@ Relative links are supported:
 ------------------------------
 <p>
 Relative links are supported:
-<a class="missing wiki" href="/wiki/parent" rel="nofollow">See above?</a> Note: see wikisyntax tests for other parent tests
-<a class="missing wiki" href="/wiki/WikiStart/sibling" rel="nofollow">See next?</a>
-<a class="missing wiki" href="/wiki/WikiStart/sibling#index" rel="nofollow">See next (index)?</a>
-<a class="missing wiki" href="/wiki/WikiStart/sibling?version=1" rel="nofollow">See next (v1)?</a>
+<a class="missing wiki" href="/wiki/parent" rel="nofollow">See above</a> Note: see wikisyntax tests for other parent tests
+<a class="missing wiki" href="/wiki/WikiStart/sibling" rel="nofollow">See next</a>
+<a class="missing wiki" href="/wiki/WikiStart/sibling#index" rel="nofollow">See next (index)</a>
+<a class="missing wiki" href="/wiki/WikiStart/sibling?version=1" rel="nofollow">See next (v1)</a>
 [... nothing to see] [...]
 <a href="/docs">See documentation</a>
 <a href="/images/logo.png">Our logo</a>
@@ -374,10 +374,10 @@ Relative links are supported:
 ------------------------------
 <p>
 Relative links are supported:
-<a class="missing wiki" href="/wiki/parent" rel="nofollow">See above?</a> Note: see wikisyntax tests for other parent tests
-<a class="missing wiki" href="/wiki/WikiStart/sibling" rel="nofollow">See next?</a>
-<a class="missing wiki" href="/wiki/..." rel="nofollow">nothing to see?</a> <a class="missing wiki" href="/wiki/..." rel="nofollow">...?</a>
-<a class="missing wiki" href="/wiki/a%20%5D%20" rel="nofollow">a ] ?</a>
+<a class="missing wiki" href="/wiki/parent" rel="nofollow">See above</a> Note: see wikisyntax tests for other parent tests
+<a class="missing wiki" href="/wiki/WikiStart/sibling" rel="nofollow">See next</a>
+<a class="missing wiki" href="/wiki/..." rel="nofollow">nothing to see</a> <a class="missing wiki" href="/wiki/..." rel="nofollow">...</a>
+<a class="missing wiki" href="/wiki/a%20%5D%20" rel="nofollow">a ] </a>
 <a href="/docs">See documentation</a>
 <a href="/images/logo.png">Our logo</a>
 <a href="/">/</a>
@@ -527,7 +527,7 @@ i.e. [[mailto:cboos@edgewall.org|me]]
 <a class="text resolver" href="/stuff/Foo%20Bar">Foo Bar</a> <a class="text resolver" href="/stuff/Foo%20Bar%23baz">Foo Bar</a>
 </p>
 <p>
-<a class="missing wiki" href="/wiki/Foo%20Bar" rel="nofollow">Foo Bar?</a> <a class="missing wiki" href="/wiki/Foo%20Bar" rel="nofollow">Fu Bar?</a> <a class="missing wiki" href="/wiki/Foo%20Bar#baz" rel="nofollow">Foo Bar?</a>
+<a class="missing wiki" href="/wiki/Foo%20Bar" rel="nofollow">Foo Bar</a> <a class="missing wiki" href="/wiki/Foo%20Bar" rel="nofollow">Fu Bar</a> <a class="missing wiki" href="/wiki/Foo%20Bar#baz" rel="nofollow">Foo Bar</a>
 </p>
 <p>
 <a class="text resolver" href="/stuff/Argv">*argv[] versus **argv</a>
@@ -565,7 +565,7 @@ i.e. <a class="mail-link" href="mailto:cboos@edgewall.org"><span class="icon"></
 [[ ]] is not completely empty...
 ------------------------------
 <p>
-<a class="missing wiki" href="/wiki/coffeehouse%20setup" rel="nofollow">How to set up a coffee house?</a>
+<a class="missing wiki" href="/wiki/coffeehouse%20setup" rel="nofollow">How to set up a coffee house</a>
 </p>
 <p>
 <a class="text resolver" href="/stuff/Template">Template</a>
@@ -580,7 +580,7 @@ i.e. <a class="mail-link" href="mailto:cboos@edgewall.org"><span class="icon"></
 </p>
 <p>
 [[]] no "empty" link here
-<a class="missing wiki" href="/wiki/%20" rel="nofollow"> ?</a> is not completely empty...
+<a class="missing wiki" href="/wiki/%20" rel="nofollow"> </a> is not completely empty...
 </p>
 ------------------------------
 ============================== Link resolver counter examples
@@ -926,7 +926,7 @@ And now it's <span class="important"><strong>TIME FOR BED!</strong></span>. Real
 <div class="important"><p>
 Go ahead, edit it freely.
 </p>
-<div style="border: 2pt solid blue; margin: 1em; padding: .5em" class="demo"><p>
+<div class="demo" style="border: 2pt solid blue; margin: 1em; padding: .5em"><p>
 And now it's <span class="important"><strong>TIME FOR BED! </strong></span>. Really.
 </p>
 </div><p>
@@ -992,7 +992,7 @@ Headings are now inside the block thanks to the default .wikipage class.
 }}}
 Done.
 ------------------------------
-<div style="background: #aeaeae" class="wikipage"><h2 id="Heading">Heading</h2>
+<div class="wikipage" style="background: #aeaeae"><h2 id="Heading">Heading</h2>
 <p>
 Headings are now inside the block thanks to the default .wikipage class.
 </p>
@@ -1048,10 +1048,10 @@ Hello, [[HelloWorld(...)]]
 [[HelloWorld(hej hopp) ]] # This shouldnt executed as macro since it contain whitespace between ) and ]
 ------------------------------
 <p>
-<a class="missing wiki" href="/wiki/HelloWorld(hej%20hopp)%20" rel="nofollow">HelloWorld(hej hopp) ?</a> # This shouldnt executed as macro since it contain whitespace between ) and ]
+<a class="missing wiki" href="/wiki/HelloWorld(hej%20hopp)%20" rel="nofollow">HelloWorld(hej hopp) </a> # This shouldnt executed as macro since it contain whitespace between ) and ]
 </p>
 ------------------------------
-<a class="missing wiki" href="/wiki/HelloWorld(hej%20hopp)%20" rel="nofollow">HelloWorld(hej hopp) ?</a> # This shouldnt executed as macro since it contain whitespace between ) and ]
+<a class="missing wiki" href="/wiki/HelloWorld(hej%20hopp)%20" rel="nofollow">HelloWorld(hej hopp) </a> # This shouldnt executed as macro since it contain whitespace between ) and ]
 ============================== Another bad macro call
 [[HelloWorld(hej hopp))]] # Extra right brace and still executed
 ------------------------------
@@ -1149,10 +1149,18 @@ print 'this is the end of the python sample'
 }}}
 Paragraph
 ------------------------------
-<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="a-L1"><a href="#a-L1">1</a></th><td>print 'this is a python sample'</td></tr><tr><th id="a-L2"><a href="#a-L2">2</a></th><td>a = b+3</td></tr><tr><th id="a-L3"><a href="#a-L3">3</a></th><td>z = "this is a string"</td></tr><tr><th id="a-L4"><a href="#a-L4">4</a></th><td>print 'this is the end of the python sample'</td></tr></tbody></table></div><p>
+<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="a-L1"><a href="#a-L1">1</a></th><td>print 'this is a python sample'
+</td></tr><tr><th id="a-L2"><a href="#a-L2">2</a></th><td>a = b+3
+</td></tr><tr><th id="a-L3"><a href="#a-L3">3</a></th><td>z = "this is a string"
+</td></tr><tr><th id="a-L4"><a href="#a-L4">4</a></th><td>print 'this is the end of the python sample'
+</td></tr></tbody></table></div><p>
 Paragraph
 </p>
-<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="a1-L3"><a href="#a1-L3">3</a></th><td>print 'this is a python sample'</td></tr><tr><th id="a1-L4"><a href="#a1-L4">4</a></th><td>a = b+3</td></tr><tr><th id="a1-L5"><a href="#a1-L5">5</a></th><td>z = "this is a string"</td></tr><tr><th id="a1-L6"><a href="#a1-L6">6</a></th><td>print 'this is the end of the python sample'</td></tr></tbody></table></div><p>
+<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="a1-L3"><a href="#a1-L3">3</a></th><td>print 'this is a python sample'
+</td></tr><tr><th id="a1-L4"><a href="#a1-L4">4</a></th><td>a = b+3
+</td></tr><tr><th id="a1-L5"><a href="#a1-L5">5</a></th><td>z = "this is a string"
+</td></tr><tr><th id="a1-L6"><a href="#a1-L6">6</a></th><td>print 'this is the end of the python sample'
+</td></tr></tbody></table></div><p>
 Paragraph
 </p>
 ------------------------------
@@ -1172,10 +1180,18 @@ print 'this is the end of the python sample'
 }}}
 Paragraph
 ------------------------------
-<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="b-L3"><a href="#b-L3">3</a></th><td>print 'this is a python sample'</td></tr><tr class="hilite"><th id="b-L4"><a href="#b-L4">4</a></th><td>a = b+3</td></tr><tr class="hilite"><th id="b-L5"><a href="#b-L5">5</a></th><td>z = "this is a string"</td></tr><tr><th id="b-L6"><a href="#b-L6">6</a></th><td>print 'this is the end of the python sample'</td></tr></tbody></table></div><p>
+<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="b-L3"><a href="#b-L3">3</a></th><td>print 'this is a python sample'
+</td></tr><tr class="hilite"><th id="b-L4"><a href="#b-L4">4</a></th><td>a = b+3
+</td></tr><tr class="hilite"><th id="b-L5"><a href="#b-L5">5</a></th><td>z = "this is a string"
+</td></tr><tr><th id="b-L6"><a href="#b-L6">6</a></th><td>print 'this is the end of the python sample'
+</td></tr></tbody></table></div><p>
 Paragraph
 </p>
-<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="c-L3"><a href="#c-L3">3</a></th><td>print 'this is a python sample'</td></tr><tr><th id="c-L4"><a href="#c-L4">4</a></th><td>a = b+3</td></tr><tr><th id="c-L5"><a href="#c-L5">5</a></th><td>z = "this is a string"</td></tr><tr><th id="c-L6"><a href="#c-L6">6</a></th><td>print 'this is the end of the python sample'</td></tr></tbody></table></div><p>
+<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="c-L3"><a href="#c-L3">3</a></th><td>print 'this is a python sample'
+</td></tr><tr><th id="c-L4"><a href="#c-L4">4</a></th><td>a = b+3
+</td></tr><tr><th id="c-L5"><a href="#c-L5">5</a></th><td>z = "this is a string"
+</td></tr><tr><th id="c-L6"><a href="#c-L6">6</a></th><td>print 'this is the end of the python sample'
+</td></tr></tbody></table></div><p>
 Paragraph
 </p>
 ============================== WikiProcessor code block with invalid arguments
@@ -1194,10 +1210,18 @@ print 'this is the end of the python sample'
 }}}
 Paragraph
 ------------------------------
-<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="a-L1"><a href="#a-L1">1</a></th><td>print 'this is a python sample'</td></tr><tr><th id="a-L2"><a href="#a-L2">2</a></th><td>a = b+3</td></tr><tr><th id="a-L3"><a href="#a-L3">3</a></th><td>z = "this is a string"</td></tr><tr><th id="a-L4"><a href="#a-L4">4</a></th><td>print 'this is the end of the python sample'</td></tr></tbody></table></div><p>
+<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="a-L1"><a href="#a-L1">1</a></th><td>print 'this is a python sample'
+</td></tr><tr><th id="a-L2"><a href="#a-L2">2</a></th><td>a = b+3
+</td></tr><tr><th id="a-L3"><a href="#a-L3">3</a></th><td>z = "this is a string"
+</td></tr><tr><th id="a-L4"><a href="#a-L4">4</a></th><td>print 'this is the end of the python sample'
+</td></tr></tbody></table></div><p>
 Paragraph
 </p>
-<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="d-L1"><a href="#d-L1">1</a></th><td>print 'this is a python sample'</td></tr><tr><th id="d-L2"><a href="#d-L2">2</a></th><td>a = b+3</td></tr><tr><th id="d-L3"><a href="#d-L3">3</a></th><td>z = "this is a string"</td></tr><tr><th id="d-L4"><a href="#d-L4">4</a></th><td>print 'this is the end of the python sample'</td></tr></tbody></table></div><p>
+<div class="wiki-code"><table class="code"><thead><tr><th class="lineno" title="Line numbers">Line</th><th class="content"> </th></tr></thead><tbody><tr><th id="d-L1"><a href="#d-L1">1</a></th><td>print 'this is a python sample'
+</td></tr><tr><th id="d-L2"><a href="#d-L2">2</a></th><td>a = b+3
+</td></tr><tr><th id="d-L3"><a href="#d-L3">3</a></th><td>z = "this is a string"
+</td></tr><tr><th id="d-L4"><a href="#d-L4">4</a></th><td>print 'this is the end of the python sample'
+</td></tr></tbody></table></div><p>
 Paragraph
 </p>
 ------------------------------
@@ -1318,7 +1342,7 @@ Inline  comment
 ============================== Heading with link
 == [wiki:SandBox Linked Heading] ==
 ------------------------------
-<h2 id="LinkedHeading"><a class="missing wiki" href="/wiki/SandBox" rel="nofollow">Linked Heading?</a></h2>
+<h2 id="LinkedHeading"><a class="missing wiki" href="/wiki/SandBox" rel="nofollow">Linked Heading</a></h2>
 ------------------------------
 == [wiki:SandBox Linked Heading] ==
 ============================== Normal heading, fixed id
@@ -2230,7 +2254,7 @@ Paragraph
 <p>
 A very nice table:
 </p>
-<table style="border: none" class="wiki"><tr style="background: #ffd"><th style="background: #dfd"><p>
+<table class="wiki" style="border: none"><tr style="background: #ffd"><th style="background: #dfd"><p>
 Header A
 </p>
 </th><th style="background: #dfd"><p>

@@ -19,8 +19,6 @@ import re
 from datetime import datetime, timedelta
 from fnmatch import fnmatchcase
 
-from genshi.builder import tag
-
 from trac.config import BoolOption, ListOption, Option
 from trac.core import *
 from trac.mimeview.api import IHTMLPreviewAnnotator, Mimeview, is_binary
@@ -28,7 +26,7 @@ from trac.perm import IPermissionRequestor, PermissionError
 from trac.resource import Resource, ResourceNotFound
 from trac.util import as_bool, embedded_numbers
 from trac.util.datefmt import datetime_now, http_date, to_datetime, utc
-from trac.util.html import Markup, escape
+from trac.util.html import Markup, escape, tag
 from trac.util.text import exception_to_unicode, shorten_line
 from trac.util.translation import _, cleandoc_
 from trac.versioncontrol.api import NoSuchChangeset, RepositoryManager
@@ -77,7 +75,7 @@ class IPropertyRenderer(Interface):
         - a `RenderedProperty` instance: the property will only be displayed
           using the instance's `content` attribute, and the other attributes
           will also be used in some display contexts (like `revprop`)
-        - `Markup` or other Genshi content: the property will be displayed
+        - `Markup` or `Fragment`: the property will be displayed
           normally, using that content as a block-level markup
         """
 
@@ -436,7 +434,7 @@ class BrowserModule(Component):
                 self.config['changeset'].getbool('wiki_format_messages'),
         }
         if req.is_xhr: # render and return the content only
-            return 'dir_entries.html', data, None
+            return 'dir_entries.html', data
 
         if dir_data or repo_data:
             add_script(req, 'common/js/expand_dir.js')
@@ -497,7 +495,7 @@ class BrowserModule(Component):
                 add_ctxtnav(req, _('Repository URL'), href=path_url)
 
         add_stylesheet(req, 'common/css/browser.css')
-        return 'browser.html', data, None
+        return 'browser.html', data
 
     # Internal methods
 
@@ -929,9 +927,9 @@ class BrowserModule(Component):
             data = {'repo': repo, 'order': order, 'desc': 1 if desc else None,
                     'reponame': None, 'path': '/', 'stickyrev': None,
                     'wiki_format_messages': wiki_format_messages}
-            return Chrome(self.env).render_template(
-                    formatter.req, 'repository_index.html', data, None,
-                    fragment=True)
+            return Chrome(self.env).render_fragment(formatter.context.req,
+                                                    'repository_index.html',
+                                                    data)
 
         def get_repository(reponame):
             try:

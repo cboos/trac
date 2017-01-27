@@ -18,12 +18,11 @@
 
 import re
 
-from genshi.builder import tag
-
 from trac.cache import cached
 from trac.config import BoolOption, ListOption
 from trac.core import *
 from trac.resource import IResourceManager
+from trac.util.html import tag
 from trac.util.text import unquote_label
 from trac.util.translation import _
 from trac.wiki.parser import WikiParser
@@ -425,10 +424,10 @@ class WikiSystem(Component):
                     return original_label or label
                 if 'WIKI_CREATE' in \
                         formatter.perm(self.realm, pagename, version):
-                    return tag.a(label + '?', class_='missing wiki',
+                    return tag.a(label, class_='missing wiki',
                                  href=href, rel='nofollow')
                 else:
-                    return tag.a(label + '?', class_='missing wiki')
+                    return tag.a(label, class_='missing wiki')
         elif ignore_missing and not self.has_page(pagename):
             return original_label or label
         else:

@@ -1,4 +1,4 @@
-<!--!  Copyright (C) 2010-2014 Edgewall Software
+{# Copyright (C) 2010-2014 Edgewall Software
 
   This software is licensed as described in the file COPYING, which
   you should have received as part of this distribution. The terms
@@ -7,22 +7,22 @@
   This software consists of voluntary contributions made by many
   individuals. For the exact contribution history, see the revision
   history and logs, available at http://trac.edgewall.org/.
+#}
 
-Conditionally render an ''Attach File'' button.
+## Renders an ''Attach File'' button conditionally.
 
-Arguments:
+{# Arguments:
  - alist: the data for the list of attachments
  - add_button_title=None: the title of the "Attach" button
--->
-<form xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:i18n="http://genshi.edgewall.org/i18n"
-      py:if="alist.can_create" method="get" action="${alist.attach_href}" id="attachfile">
+#}
+# if alist.can_create:
+<form method="get" action="${alist.attach_href}" id="attachfile">
   <div>
     <input type="hidden" name="action" value="new" />
-    <input type="submit" id="attachfilebutton"
-           value="${value_of('add_button_title') or
-                    (_('Attach another file') if alist.attachments else _('Attach file'))}"/>
+    <input type="submit" id="attachfilebutton" value="${
+                  add_button_title or
+                  (_("Attach another file") if alist.attachments else
+                   _("Attach file"))}"/>
   </div>
 </form>
+# endif

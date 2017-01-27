@@ -24,8 +24,6 @@ import os
 import posixpath
 import re
 
-from genshi.builder import tag
-
 from trac.config import BoolOption, IntOption, Option
 from trac.core import *
 from trac.mimeview.api import Mimeview
@@ -35,6 +33,7 @@ from trac.search import ISearchSource, search_to_sql, shorten_result
 from trac.timeline.api import ITimelineEventProvider
 from trac.util import as_bool, content_disposition, embedded_numbers, pathjoin
 from trac.util.datefmt import from_utimestamp, pretty_timedelta
+from trac.util.html import tag
 from trac.util.presentation import to_json
 from trac.util.text import CRLF, exception_to_unicode, shorten_line, \
                            to_unicode, unicode_urlencode
@@ -78,8 +77,8 @@ class IPropertyDiffRenderer(Interface):
         - `None`: the property change will be shown the normal way
           (''changed from `old` to `new`'')
         - an `unicode` value: the change will be shown as textual content
-        - `Markup` or other Genshi content: the change will shown as block
-          markup
+        - `Markup` or `Fragment`: the change will shown as block markup
+
         """
 
 
@@ -374,7 +373,7 @@ class ChangesetModule(Component):
                                           old=new, old_path=full_new_path)
             add_ctxtnav(req, _('Reverse Diff'), href=rev_href)
 
-        return 'changeset.html', data, None
+        return 'changeset.html', data
 
     # Internal methods
 
@@ -664,15 +663,9 @@ class ChangesetModule(Component):
                      'longcol': 'Revision', 'shortcol': 'r'})
 
         if req.is_xhr:  # render and return the content only
-            chrome = Chrome(self.env)
-            stream = chrome.render_template(req, 'changeset.html', data,
-                                            fragment=True)
-            stream = stream.select('//div[@id="content"]')
-            if chrome.use_chunked_encoding:
-                output = chrome.iterable_content(stream, 'xhtml')
-            else:
-                output = stream.render('xhtml', encoding='utf-8')
-            req.send(output)
+            stream = Chrome(self.env).generate_fragment(
+                req, 'changeset_content.html', data)
+            req.send(stream)
 
         return data
 
@@ -1225,4 +1218,4 @@ class AnyDiffModule(Component):
 
         Chrome(self.env).add_jquery_ui(req)
         add_stylesheet(req, 'common/css/diff.css')
-        return 'diff_form.html', data, None
+        return 'diff_form.html', data
