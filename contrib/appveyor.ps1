@@ -59,7 +59,8 @@ $pipCommonPackages = @(
     'configobj',
     'docutils',
     'pygments',
-    'pytz'
+    'pytz',
+    'wheel'
 )
 
 $fcrypt    = "$deps\fcrypt-1.3.1.tar.gz"
@@ -244,7 +245,7 @@ function Trac-Install {
           -Category Information
     }
 
-    & pip.exe list
+    & pip.exe list --format=columns
 
     # Prepare local Makefile.cfg
 
@@ -382,7 +383,7 @@ function Trac-Tests {
           -Duration $msecs
     }
 
-    $exit = 0
+    $exit = $fexit = 0
 
     #
     # Running unit-tests
@@ -396,7 +397,13 @@ function Trac-Tests {
     #
 
     Make-Test -Goal functional-test -Name "Functional tests for $config" `
-      -Code ([ref]$exit)
+      -Code ([ref]$fexit)
+
+    if (-not $fexit -eq 0) {
+        Write-Host "Saving functional logs in dist\testenv.zip"
+        & 7z.exe a dist\testenv.zip testenv
+        $exit = $fexit
+    }
 
     if (-not $exit -eq 0) {
         Write-Host "Exiting with code $exit"
@@ -406,4 +413,10 @@ function Trac-Tests {
     if (-not $skipTests) {
         Write-Host "All tests passed."
     }
+
+    #
+    # Prepare release artifacts
+    #
+
+    & make.exe release-src wininst
 }
