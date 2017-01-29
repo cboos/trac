@@ -35,7 +35,7 @@ class TestWikiEdit(FunctionalTwillTestCaseSetup):
         pagename = self._tester.create_wiki_page()
         self._tester.edit_wiki_page(pagename)
         tc.find("Your changes have been saved in version 2")
-        tc.find(r'\(<a href="/wiki/%s\?action=diff&amp;version=2">diff</a>\)'
+        tc.find(r'\(<a href="/wiki/%s\?action=diff&amp;version=2">xxdiff</a>\)'
                 % pagename)
 
 
