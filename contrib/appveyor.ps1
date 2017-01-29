@@ -153,6 +153,7 @@ if (-not $env:APPVEYOR) {
     function Add-AppveyorMessage() { Debug-Caller @args }
     function Add-AppveyorTest() { Debug-Caller @args }
     function Update-AppveyorTest() { Debug-Caller @args }
+    function Push-AppveyorArtifact() { Debug-Caller @args }
 }
 
 
@@ -400,8 +401,11 @@ function Trac-Tests {
       -Code ([ref]$fexit)
 
     if (-not $fexit -eq 0) {
-        Write-Host "Saving functional logs in dist\testenv.zip"
-        & 7z.exe a dist\testenv.zip testenv
+        Write-Host "Saving functional logs in testenv.zip"
+        & 7z.exe a testenv.zip testenv
+
+        Push-AppveyorArtifact testenv.zip
+
         $exit = $fexit
     }
 
