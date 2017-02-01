@@ -59,8 +59,7 @@ table.dirlist td.rev, table.dirlist td.age, table.dirlist td.author, table.dirli
 }
 table.dirlist td.rev {
  font-family: monospace;
- letter-spacing: -0.08em;
- font-size: 90%;
+ letter-spacing: -0.01em;
  text-align: right;
 }
 table.dirlist td.size {
@@ -150,8 +149,7 @@ table.chglist { margin-top: 0 }
 .chglist td.author { font-size: 85% }
 .chglist td.rev {
  font-family: monospace;
- letter-spacing: -0.08em;
- font-size: 90%;
+ letter-spacing: -0.01em;
  text-align: right;
 }
 .chglist td.rev a { border-bottom: none }
