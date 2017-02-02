@@ -35,12 +35,12 @@
 
 /* Wiki page headings -- h1 to h6 (h2 and h3 have a special underline) */
 
-.wikipage h1 {
+h1.section {
  font-size: 1.8em;
  color: #822;
  padding-left: .5rem; /* wiki_h_left_padding */
 }
-.wikipage h2 {
+h2.section {
  font-size: 1.6em;
  color: #822;
  margin-top: 1.4em;
@@ -55,7 +55,7 @@
  )
  /* wiki_h2_underline_background */
 }
-.wikipage h3 {
+h3.section {
  font-size: 1.3em;
  font-weight: 600;
  color: #822;
@@ -72,13 +72,13 @@
  ) /* wiki_h3_underline_background */
 }
 
-.wikipage h2 + *, .wikipage h3 + * {
+h2.section + *, h3.section + * {
  margin-top: -1em !important;
 }
 
 /* h2:target and h3:target need to be refined due to the underline */
 
-.wikipage h2:target {
+h2.section:target {
  padding-bottom: .2em; /* wiki_h_underline_padding */
  margin-bottom: .8em;  /* wiki_h_underline_shadow */
  background: linear-gradient(to top,
@@ -88,7 +88,7 @@
   #fbffb6 100%	/* trac_hl_color */
  )
 }
-.wikipage h3:target {
+h3.section:target {
  padding-bottom: .2em; /* wiki_h_underline_padding */
  margin-bottom: .8em;  /* wiki_h_underline_shadow */
  background: linear-gradient(to top,
@@ -98,7 +98,7 @@
   #fbffb6 100%  /* trac_hl_color */
  )
 }
-.wikipage h2:target + *, .wikipage h3:target + * {
+h2.section:target + *, h3.section:target + * {
     margin-top: inherit !important; /* cancels similar rule without :target */
 }
 
@@ -106,7 +106,7 @@
 @media print {
  #content.narrow #wikipage { max-width: none }
  #content.narrow #trac-wiki-expander:before, #content #trac-wiki-expander { display: none }
- .wikipage h2:target {
+ h2.section:target {
   background: linear-gradient(to top,
    #fff 0,
    #fff .79em,
@@ -116,7 +116,7 @@
    #fff 100%
   )
  }
- .wikipage h3:target {
+ h3.section:target {
   background: linear-gradient(to top,
    #fff 0,
    #fff .8em,
@@ -128,7 +128,7 @@
  }
 }
 
-.wikipage h4 {
+h4.section {
  font-size: 1.15em;
  font-weight: 600;
  color: #822;
@@ -136,7 +136,7 @@
  margin-bottom: 1em;
  padding-left: .5rem; /* wiki_h_left_padding */
 }
-.wikipage h5 {
+h5.section {
  font-size: 1.1em;
  font-weight: normal;
  color: #822;
@@ -144,7 +144,7 @@
  margin-bottom: .9em;
  padding-left: .5rem; /* wiki_h_left_padding */
 }
-.wikipage h6 {
+h6.section {
  font-size: 1em;
  font-style: italic;
  font-weight: normal;

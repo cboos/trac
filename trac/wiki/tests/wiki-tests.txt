@@ -992,7 +992,7 @@ Headings are now inside the block thanks to the default .wikipage class.
 }}}
 Done.
 ------------------------------
-<div class="wikipage" style="background: #aeaeae"><h2 id="Heading">Heading</h2>
+<div class="wikipage" style="background: #aeaeae"><h2 class="section" id="Heading">Heading</h2>
 <p>
 Headings are now inside the block thanks to the default .wikipage class.
 </p>
@@ -1306,56 +1306,56 @@ Inline  comment
 ============================== I18N heading
 = ça marche! =
 ------------------------------
-<h1 id="çamarche">ça marche!</h1>
+<h1 class="section" id="çamarche">ça marche!</h1>
 ------------------------------
 = ça marche! =
 ============================== Quoted heading
 = "Test" =
 ------------------------------
-<h1 id="Test">"Test"</h1>
+<h1 class="section" id="Test">"Test"</h1>
 ------------------------------
 = "Test" =
 ============================== Heading with < and >
 = Foo <Bar> Baz =
 ------------------------------
-<h1 id="FooBarBaz">Foo &lt;Bar&gt; Baz</h1>
+<h1 class="section" id="FooBarBaz">Foo &lt;Bar&gt; Baz</h1>
 ------------------------------
 = Foo &lt;Bar&gt; Baz =
 ============================== Heading with .
 = Version 0.10 =
 ------------------------------
-<h1 id="Version0.10">Version 0.10</h1>
+<h1 class="section" id="Version0.10">Version 0.10</h1>
 ------------------------------
 = Version 0.10 =
 ============================== Normal heading
 == Heading with trailing white-space ==
 ------------------------------
-<h2 id="Headingwithtrailingwhite-space">Heading with trailing white-space</h2>
+<h2 class="section" id="Headingwithtrailingwhite-space">Heading with trailing white-space</h2>
 ------------------------------
 == Heading with trailing white-space ==
 ============================== Formatted heading
 == ''Formatted'' ~~Heading~~ ==
 ------------------------------
-<h2 id="FormattedHeading"><em>Formatted</em> <del>Heading</del></h2>
+<h2 class="section" id="FormattedHeading"><em>Formatted</em> <del>Heading</del></h2>
 ------------------------------
 == ''Formatted'' ~~Heading~~ ==
 ============================== Heading with link
 == [wiki:SandBox Linked Heading] ==
 ------------------------------
-<h2 id="LinkedHeading"><a class="missing wiki" href="/wiki/SandBox" rel="nofollow">Linked Heading</a></h2>
+<h2 class="section" id="LinkedHeading"><a class="missing wiki" href="/wiki/SandBox" rel="nofollow">Linked Heading</a></h2>
 ------------------------------
 == [wiki:SandBox Linked Heading] ==
 ============================== Normal heading, fixed id
 == Heading with fixed id == #heading-fixed-id
 ------------------------------
-<h2 id="heading-fixed-id">Heading with fixed id</h2>
+<h2 class="section" id="heading-fixed-id">Heading with fixed id</h2>
 ------------------------------
 == Heading with fixed id == #heading-fixed-id
 ============================== Normal heading, auto-corrected id
 == 10 tips ==
 [[br]] oops!
 ------------------------------
-<h2 id="a10tips">10 tips</h2>
+<h2 class="section" id="a10tips">10 tips</h2>
 <p>
 <br /> oops!
 </p>
@@ -1383,12 +1383,12 @@ Inline  comment
 ====== h6
 ======== but no h7
 ------------------------------
-<h1 id="Title">Title</h1>
-<h2 id="Chapter">Chapter</h2>
-<h3 id="Section">Section</h3>
-<h4 id="Subsection">Subsection</h4>
-<h5 id="h5">Subsubsection</h5>
-<h6 id="h6">h6</h6>
+<h1 class="section" id="Title">Title</h1>
+<h2 class="section" id="Chapter">Chapter</h2>
+<h3 class="section" id="Section">Section</h3>
+<h4 class="section" id="Subsection">Subsection</h4>
+<h5 class="section" id="h5">Subsubsection</h5>
+<h6 class="section" id="h6">h6</h6>
 <p>
 ======== but no h7
 </p>
@@ -2384,7 +2384,7 @@ Paragraph
    * Item 2
 Another paragraph
 ------------------------------
-<h1 id="Heading1">Heading 1</h1>
+<h1 class="section" id="Heading1">Heading 1</h1>
 <p>
 Paragraph
 </p>
@@ -2400,7 +2400,7 @@ Paragraph
    * Item 2
 Another paragraph
 ------------------------------
-<h1 id="Heading1">Heading 1</h1>
+<h1 class="section" id="Heading1">Heading 1</h1>
 <p>
 Paragraph<br />
 </p>

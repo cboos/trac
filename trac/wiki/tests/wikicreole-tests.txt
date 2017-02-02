@@ -99,16 +99,16 @@ But, should <em>not be...
 === Also level 3 ==
 === **not** //parsed// ===
 ------------------------------
-<h1 id="Level1largest">Level 1 (largest)</h1>
-<h2 id="Level2">Level 2</h2>
-<h3 id="Level3">Level 3</h3>
-<h4 id="Level4">Level 4</h4>
-<h5 id="Level5">Level 5</h5>
-<h6 id="Level6">Level 6</h6>
-<h3 id="Alsolevel3">Also level 3</h3>
-<h3 id="Alsolevel31">Also level 3 =</h3>
-<h3 id="Alsolevel32">Also level 3 ==</h3>
-<h3 id="notparsed"><strong>not</strong> <em>parsed</em></h3>
+<h1 class="section" id="Level1largest">Level 1 (largest)</h1>
+<h2 class="section" id="Level2">Level 2</h2>
+<h3 class="section" id="Level3">Level 3</h3>
+<h4 class="section" id="Level4">Level 4</h4>
+<h5 class="section" id="Level5">Level 5</h5>
+<h6 class="section" id="Level6">Level 6</h6>
+<h3 class="section" id="Alsolevel3">Also level 3</h3>
+<h3 class="section" id="Alsolevel31">Also level 3 =</h3>
+<h3 class="section" id="Alsolevel32">Also level 3 ==</h3>
+<h3 class="section" id="notparsed"><strong>not</strong> <em>parsed</em></h3>
 ------------------------------
 ============================== Links - Internal, External and Interwiki (SKIP)
 [[link]]
