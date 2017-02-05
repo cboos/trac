@@ -84,6 +84,7 @@ table.listing .num { text-align: right; width: 1% }
 .plugin > .foldable { margin: .5em 0; color: #bb0000; }
 .plugin .foldable > :link, .plugin .foldable > :visited {
  border-radius: 0;
+ border: none;
  box-shadow: none;
  text-shadow: none;
 }
