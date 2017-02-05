@@ -44,7 +44,7 @@ h2.section {
  font-size: 1.6em;
  color: #822;
  margin-top: 1.4em;
- padding: 0.2em .3em 1em .5rem; /* wiki_h_underline_padding wiki_h_left_padding */
+ padding: .2em .3em 1em .5rem; /* wiki_h_underline_padding _ _ wiki_h_left_padding */
  background: linear-gradient(to top,
   rgba(255, 255, 255, 0) 0,
   rgba(215, 215, 215, .4) .79em,
