@@ -16,6 +16,7 @@
 
 """Trac Environment model and related APIs."""
 
+from contextlib import contextmanager
 import hashlib
 import os.path
 import setuptools
@@ -353,6 +354,18 @@ class Environment(Component, ComponentManager):
         """Enable a component or module."""
         self._component_rules[self._component_name(cls)] = True
         super(Environment, self).enable_component(cls)
+
+    @contextmanager
+    def component_guard(self, component):
+        """Swallows any runtime exception raised when working with a component
+        and logs the error.
+
+        """
+        try:
+            yield
+        except Exception as e:
+            self.log.error("component %s failed with %s", component,
+                           exception_to_unicode(e, traceback=True))
 
     def verify(self):
         """Verify that the provided path points to a valid Trac environment

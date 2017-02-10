@@ -22,6 +22,7 @@ other forms of web content are also using facilities provided here.
 
 """
 
+from contextlib import contextmanager
 import datetime
 from functools import partial
 import itertools
@@ -386,6 +387,22 @@ def _save_messages(req, url, permanent):
     for type_ in ['warnings', 'notices']:
         for (i, message) in enumerate(req.chrome[type_]):
             req.session['chrome.%s.%d' % (type_, i)] = escape(message, False)
+
+
+@contextmanager
+def component_guard(env, req, component):
+    """Swallows any runtime exception raised when working with a
+    component, logs the error and adds a warning for the user.
+
+    """
+    with env.component_guard(component):
+        try:
+            yield
+        except Exception as e:
+            add_warning(req, _("%(component)s failed with %(exc)s",
+                               component=component,
+                               exc=exception_to_unicode(e)))
+            raise
 
 
 class Chrome(Component):
