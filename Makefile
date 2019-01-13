@@ -722,7 +722,8 @@ python-home := $(python.$(or $(python),$($(db).python)))
 SEP = :
 START ?= xdg-open
 
-# On Windows, there are several possible flavors of GNU make:
+# On Windows, there are several supported flavors of GNU make
+# and development environments:
 #  1. mingw build of make.exe (WIN32=1 SEP=;)
 #  2. cygwin/msys build of make.exe (WIN32=1 SEP=:)
 #  3. Linux ELF make started from WSL (WIN32 unset, WSL=1)
