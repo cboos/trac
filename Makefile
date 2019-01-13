@@ -88,22 +88,30 @@ help-%: Makefile.cfg
 Makefile.cfg:
 	@echo "$$HELP_CFG"
 
-status:
+status_targets = status-system status-python status-variables status-deps
+.PHONY: $(status_targets)
+status: $(status_targets)
+
+status-python:
 	@echo
 	@echo "Python: $$(which $(PYTHON)) $(pythonopts)"
 	@echo
 	@$(PYTHON) contrib/make_status.py
+
+status-variables:
 	@echo
 	@echo "Variables:"
-	@echo "  PATH=$$PATH"
-	@echo "  PYTHONPATH=$$PYTHONPATH"
+	@echo "  PATH=$${PATH//:/$$'\n'      :}"
+	@echo "  PYTHONPATH=$${PYTHONPATH//$(SEP)/$$'\n'            $(SEP)}"
 	@echo "  TRAC_TEST_DB_URI=$$TRAC_TEST_DB_URI"
 	@echo "  server-options=$(server-options)"
+
+status-deps:
 	@echo
 	@echo "External dependencies:"
-	@printf "  Git version: "
+	@echo -n "  Git version: "
 	@git --version 2>/dev/null || echo "not installed"
-	@printf "  Subversion version: "
+	@echo -n "  Subversion version: "
 	@svn --version -q 2>/dev/null || echo "not installed"
 	@echo
 
@@ -406,7 +414,7 @@ clean-coverage:
 
 ifdef test
 test-coverage:
-	coverage run $(test) $(testopts)
+	coverage run $(coverageopts) $(COVERAGEOPTS) $(test) $(testopts)
 else
 test-coverage: unit-test-coverage functional-test-coverage
 endif
@@ -423,7 +431,7 @@ show-coverage: htmlcov/index.html
 	$(if $(START),$(START) $(<))
 
 htmlcov/index.html:
-	coverage html --omit=*/__init__.py
+	coverage html
 
 
 # ----------------------------------------------------------------------------
@@ -711,15 +719,44 @@ PYTHON := $(PYTHON) $(pythonopts)
 
 python-home := $(python.$(or $(python),$($(db).python)))
 
-ifeq "$(findstring ;,$(PATH))" ";"
-    SEP = ;
-    START ?= start
-else
-    SEP = :
-    START ?= xdg-open
-endif
+SEP = :
+START ?= xdg-open
+
+# On Windows, there are several supported flavors of GNU make
+# and development environments:
+#  1. mingw build of make.exe (WIN32=1 SEP=;)
+#  2. cygwin/msys build of make.exe (WIN32=1 SEP=:)
+#  3. Linux ELF make started from WSL (WIN32 unset, WSL=1)
+#
+# If neither WIN32 nor WSL is defined, we're on plain old Unix.
+# See also the system-status: target below.
 
 ifeq "$(OS)" "Windows_NT"
+    WIN32 = 1
+    ifeq "$(findstring ;,$(PATH))" ";"
+        SEP = ;
+        START = cmd.exe /c start
+    else # Msys2
+        START = start
+    endif
+else
+    ifeq "$(findstring Microsoft,$(shell uname -r))" "Microsoft"
+        WSL = 1
+        START = cmd.exe /c start
+    endif
+endif
+
+status-system:
+	@echo
+	@echo -n "System: "
+ifdef WIN32
+	@echo -n "[WIN32] "
+else ifdef WSL
+	@echo -n "[WSL] "
+endif
+	@uname -a 2> /dev/null || echo "(no uname command found)"
+
+ifdef WIN32
     ifndef python-home
         # Detect location of current python
         python-exe := $(shell python -c 'import sys; print(sys.executable)')
@@ -729,7 +766,10 @@ ifeq "$(OS)" "Windows_NT"
         endif
     endif
     python-bin = $(python-home)$(SEP)$(python-home)/Scripts
+else ifdef WSL
+    python-bin = $(HOME)/.local/bin
 endif
+
 
 define prepend-path
 $(if $2,$(if $1,$1$(SEP)$2,$2),$1)
