@@ -724,7 +724,7 @@ START ?= xdg-open
 
 # On Windows, there are several possible flavors of GNU make:
 #  1. mingw build of make.exe (WIN32=1 SEP=;)
-#  2. cygwin/msys build of make (WIN32=1 SEP=:)
+#  2. cygwin/msys build of make.exe (WIN32=1 SEP=:)
 #  3. Linux ELF make started from WSL (WIN32 unset, WSL=1)
 #
 # If neither WIN32 nor WSL is defined, we're on plain old Unix.
